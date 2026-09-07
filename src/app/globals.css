@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /*
+   * Palette copied from buildon.co.in's own theme variables:
+   *   --tm-skincolor        #4a6dad   primary / links / buttons
+   *   --tm-secondary-bg     #2b343b   dark sections and footer
+   *   --tm-greycolor-bg     #f8f9fa   grey panels
+   *   body background       #fafafa
+   *   body text             #7d7d7d   headings #000000, links #35382f
+   *   red CTA               #c1141f   ("KNOW MORE")
+   */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Brand — built around the reference's #4a6dad skin colour */
+  --color-brand-50: #eef2fa;
+  --color-brand-100: #dbe3f4;
+  --color-brand-200: #b9c7e8;
+  --color-brand-300: #8ea5d6;
+  --color-brand-400: #6885c1;
+  --color-brand-500: #4a6dad;
+  --color-brand-600: #3b578e;
+  --color-brand-700: #2f4571;
+  --color-brand-800: #24354f;
+  --color-brand-900: #182333;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Signal red from the logo mark — the reference's "KNOW MORE" button */
+  --color-signal-300: #f19aa0; /* readable error text on the dark footer */
+  --color-signal-500: #c1141f;
+  --color-signal-600: #a41019;
+
+  /* Dark sections */
+  --color-secondary: #2b343b;
+
+  /* Footer: a neutral dark grey, with the reference's #323232 bottom bar */
+  --color-footer: #2b2b2b;
+  --color-footer-bar: #323232;
+
+  --color-ink-900: #000000;
+  --color-ink-700: #35382f;
+  --color-ink-500: #7d7d7d;
+  --color-ink-400: #7d7d7d;
+  --color-line: #dddfe3;
+  --color-surface: #f8f9fa;
+  --color-page: #fafafa;
+
+  /* Extra-small phones (320-400px) still need a stacking step of their own */
+  --breakpoint-xs: 26rem;
+
+  /* Same pairing as buildon.co.in — Oswald for display, Open Sans for copy */
+  --font-display: var(--font-oswald), "Arial Narrow", Arial, Helvetica, sans-serif;
+  --font-sans: var(--font-open-sans), Tahoma, Geneva, Arial, sans-serif;
+
+  --shadow-card: 0 1px 2px rgb(22 24 29 / 0.04), 0 8px 24px -12px rgb(22 24 29 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(22 24 29 / 0.05), 0 24px 48px -20px rgb(22 24 29 / 0.28);
+
+  --animate-marquee: marquee var(--marquee-duration, 42s) linear infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* offset anchor targets so the sticky header never covers a heading */
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background: var(--color-page);
+    color: var(--color-ink-500);
+    font-family: var(--font-sans);
+    /* Reference body type: Open Sans 400, 15px / 24px */
+    font-size: 15px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    text-wrap: pretty;
+    /* Decorative, off-canvas elements must never create a sideways scrollbar */
+    overflow-x: clip;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    /* Oswald is already condensed — negative tracking would crowd it */
+    letter-spacing: 0;
+    font-weight: 600;
+    color: var(--color-ink-900);
+    text-wrap: balance;
+  }
+
+  /* Long unbroken strings (emails, phone lists) should wrap, not overflow */
+  a, p, li {
+    overflow-wrap: break-word;
+  }
+
+  /* A single, consistently visible focus ring for keyboard users */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 80rem;
+  padding-inline: 1.25rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.75rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Consistent vertical rhythm for every home-page section */
+@utility section-y {
+  padding-block: 4rem;
+  @media (width >= 40rem) {
+    padding-block: 5rem;
+  }
+  @media (width >= 64rem) {
+    padding-block: 7rem;
+  }
 }
