@@ -62,7 +62,9 @@ export default function ContactDetails() {
           </div>
         </div>
 
-        <div className="min-h-[20rem] lg:min-h-full">
+        {/* Same treatment as the enquiry photo: inset and rounded when stacked,
+            full-bleed only when it sits beside the details at lg. */}
+        <div className="mx-5 mb-16 h-[20rem] overflow-hidden rounded-2xl sm:mx-7 sm:mb-20 sm:h-[24rem] lg:mx-0 lg:mb-0 lg:h-auto lg:min-h-full lg:rounded-none">
           <iframe
             src={site.mapEmbedUrl}
             title={`${site.name} on Google Maps`}

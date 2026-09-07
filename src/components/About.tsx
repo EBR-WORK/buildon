@@ -24,15 +24,18 @@ export default function About() {
 
       <div className="container-page">
         <div className="relative z-10 -mt-[90px] bg-white p-5 shadow-lift sm:-mt-[125px] sm:p-[30px]">
-          <div className="grid items-stretch gap-8 md:grid-cols-2 md:gap-0">
-            <div className="relative min-h-[18rem] md:min-h-[24rem]">
+          <div className="grid items-center gap-8 md:grid-cols-2 md:gap-0">
+            {/* The source is 659x800. Framing it 4:5 keeps almost the whole
+                photograph in shot — a box sized to the text column's height
+                cropped it to bare wall. */}
+            <div className="relative mx-auto aspect-4/5 w-full max-w-md md:max-w-none">
               <Image
                 src={about.image}
                 alt="Interior wall finished with Buildon gypsum plaster"
                 fill
                 sizes="(min-width: 768px) 34rem, 92vw"
                 loading="lazy"
-                className="object-cover"
+                className="object-cover object-center"
               />
             </div>
 

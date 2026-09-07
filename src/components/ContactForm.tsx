@@ -91,7 +91,10 @@ export default function ContactForm() {
           </div>
         </div>
 
-        <div className="relative min-h-[18rem] lg:min-h-full">
+        {/* Stacked below lg, the photo is inset and rounded so it reads as its
+            own block instead of running into the banner that follows. Only at
+            lg, beside the form, does it bleed to the edge. */}
+        <div className="relative mx-5 mb-16 aspect-4/3 overflow-hidden rounded-2xl sm:mx-7 sm:mb-20 lg:mx-0 lg:mb-0 lg:aspect-auto lg:min-h-full lg:rounded-none">
           <Image
             src="/projects/plastering.jpg"
             alt="A plasterer smoothing a ceiling with a trowel"

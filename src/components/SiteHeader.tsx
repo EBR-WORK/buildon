@@ -68,16 +68,29 @@ export default function SiteHeader() {
 
           <nav aria-label="Primary" className="hidden lg:block">
             <ul className="flex items-center gap-0.5 xl:gap-1">
-              {nav.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="block rounded-md px-2 py-2 font-display text-[15px] font-normal whitespace-nowrap text-ink-700 transition hover:bg-brand-50 hover:text-brand-500 xl:px-3 xl:text-base"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+              {nav.map((item) => {
+                const style =
+                  "block rounded-md px-2 py-2 font-display text-[15px] font-normal whitespace-nowrap xl:px-3 xl:text-base";
+                return (
+                  <li key={item.label}>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className={`${style} text-ink-700 transition hover:bg-brand-50 hover:text-brand-500`}
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span
+                        aria-disabled
+                        className={`${style} cursor-default text-ink-500`}
+                      >
+                        {item.label}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </nav>
 
@@ -142,13 +155,22 @@ export default function SiteHeader() {
               <ul className="divide-y divide-line">
                 {nav.map((item) => (
                   <li key={item.label}>
-                    <Link
-                      href={item.href}
-                      onClick={() => setOpen(false)}
-                      className="block py-3.5 font-display text-lg font-normal text-ink-900"
-                    >
-                      {item.label}
-                    </Link>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className="block py-3.5 font-display text-lg font-normal text-ink-900"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span
+                        aria-disabled
+                        className="block py-3.5 font-display text-lg font-normal text-ink-500"
+                      >
+                        {item.label}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

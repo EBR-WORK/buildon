@@ -37,8 +37,10 @@ export const site = {
 } as const;
 
 /**
- * Labels are the reference site's. Anything this one-pager actually renders
- * points at its own section; the rest keep the reference's own destinations.
+ * Labels are the reference site's. Items point at this page's own sections;
+ * where there is no matching section yet the href is null, and the header
+ * renders the label without a link rather than sending people to the old site.
+ * Give these a real href once the pages exist.
  */
 export const nav = [
   { label: "Home", href: "/" },
@@ -46,17 +48,17 @@ export const nav = [
   { label: "Products", href: "#products" },
   { label: "Clientele", href: "#clients" },
   { label: "Projects", href: "#projects" },
-  { label: "Careers", href: "https://buildon.co.in/career/" },
-  { label: "Blog", href: "https://buildon.co.in/blog/" },
+  { label: "Careers", href: null },
+  { label: "Blog", href: null },
   { label: "Contact Us", href: "#contact" },
-  { label: "FAQs", href: "https://buildon.co.in/faq/" },
+  { label: "FAQs", href: null },
 ] as const;
 
 export const hero = {
   eyebrow: "WE GIVE YOU THE BEST!",
   titleLines: ["FINEST GYPSUM PRODUCTS.", "IT'S HERE OR NOWHERE."],
   intro: "We are India's leading importer and manufacturer of Gypsum Plaster.",
-  primaryCta: { label: "KNOW MORE", href: "https://buildon.co.in/about-us/" },
+  primaryCta: { label: "KNOW MORE", href: "" },
   videoCta: {
     label: "PLAY VIDEO",
     href: "https://youtu.be/ffdFtDPtqBs?si=6p0oz656hwd9G_hx",
@@ -174,7 +176,7 @@ export const projects = {
   title: "Projects Where Our Products Are Used",
   intro:
     "Here are the finest projects in which our gypsum products are being used to ensure the best quality in construction.",
-  cta: { label: "VIEW MORE", href: "https://buildon.co.in/projects/" },
+  cta: { label: "VIEW MORE", href: "" },
 } as const;
 
 export const testimonials = {
@@ -276,22 +278,22 @@ export const footerHeadings = {
 
 export const footerLinks = {
   about: [
-    { label: "Who We Are?", href: "https://buildon.co.in/contact-us/" },
-    { label: "Our Branches", href: "https://buildon.co.in/contact-us/" },
-    { label: "Privacy Policy", href: "https://buildon.co.in/privacy-policy/" },
-    { label: "User Agreement", href: "https://buildon.co.in/user-agreement/" },
-    { label: "Download Catalogue", href: "https://buildon.co.in/faq/" },
+    { label: "Who We Are?", href: "" },
+    { label: "Our Branches", href: "" },
+    { label: "Privacy Policy", href: "" },
+    { label: "User Agreement", href: "" },
+    { label: "Download Catalogue", href: "" },
   ],
   quick: [
     { label: "Home", href: "/" },
-    { label: "Our Projects", href: "https://buildon.co.in/projects/" },
-    { label: "Our Products", href: "https://buildon.co.in/products/" },
-    { label: "Careers", href: "https://buildon.co.in/career/" },
-    { label: "Customer Reviews", href: "https://buildon.co.in/testimonials/" },
+    { label: "Our Projects", href: "" },
+    { label: "Our Products", href: "" },
+    { label: "Careers", href: "" },
+    { label: "Customer Reviews", href: "" },
   ],
   support: [
     { label: "Contact Us", href: "#contact" },
-    { label: "FAQs", href: "https://buildon.co.in/faq/" },
-    { label: "Partner With Us", href: "https://buildon.co.in/faq/" },
+    { label: "FAQs", href: "" },
+    { label: "Partner With Us", href: "" },
   ],
 } as const;
