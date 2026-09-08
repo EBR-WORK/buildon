@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { contact, nav, site } from "@/lib/content";
-import { CloseIcon, MenuIcon, PhoneIcon } from "./icons";
+import { CloseIcon, MenuIcon } from "./icons";
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -95,14 +95,6 @@ export default function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* Until the nav appears at lg, the phone is the one-tap action */}
-            <a
-              href={site.primaryPhoneHref}
-              aria-label={`Call ${site.primaryPhone}`}
-              className="inline-flex size-11 items-center justify-center rounded-md border border-line text-brand-700 lg:hidden"
-            >
-              <PhoneIcon className="size-5" />
-            </a>
             <button
               ref={toggleRef}
               type="button"

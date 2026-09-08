@@ -44,7 +44,7 @@ export const site = {
  */
 export const nav = [
   { label: "Home", href: "/" },
-  { label: "About Us", href: "#about" },
+  { label: "About Us", href: "/about-us" },
   { label: "Products", href: "#products" },
   { label: "Clientele", href: "#clients" },
   { label: "Projects", href: "#projects" },
@@ -296,4 +296,79 @@ export const footerLinks = {
     { label: "FAQs", href: "" },
     { label: "Partner With Us", href: "" },
   ],
+} as const;
+
+/**
+ * /about-us. Copied verbatim from https://buildon.co.in/about-us/, same rule as
+ * the home-page copy above.
+ */
+export const aboutPage = {
+  /** Used for <title> and the nav label; the reference keeps it in a tm-hide block. */
+  title: "About Us",
+  banner: {
+    image: "/about/banner-handshake.jpg",
+    alt: "Buildon representatives shaking hands with a client",
+    /* The heading actually printed on the banner, over three lines. */
+    headingLines: ["Building", "Excellence.", "Building India."],
+  },
+  overview: {
+    title: "Company Overview",
+    body: "Buildon stands as a pioneering force in India, emerging as a leading manufacturer and importer of finest quality Gypsum plaster and other products. Our Mumbai-based enterprise has ventured into unexplored territories, producing the world’s finest Gypsum plaster at our state-of-the-art factory. Renowned for its pure white colour and a hardness surpassing market standards by over 40%, our Gypsum is a testament to excellence, setting the gold standard in the construction realm.",
+    image: "/about/team.png",
+    imageAlt: "The Buildon team reviewing a project together",
+  },
+  whyChoose: {
+    title: "Why choose us?",
+    items: [
+      "India’s finest quality Gypsum",
+      "Pure white colour Gypsum",
+      "Over 40% compared to market standards",
+      "International Standards Manufacturing Facility",
+      "Vast network across India",
+      "Advanced Technology & Professional Workforce",
+    ],
+  },
+  birdsEye: {
+    titleLines: ["Gypsumizing India:", "A Bird’s Eye View"],
+    body: "Buildon has transformed the landscape by introducing world-class Gypsum products across major Indian cities, bridging the gap between demand and supply for superior quality Gypsum plaster. Our commitment to excellence is evident in the manufacturing process, where advanced technology meets stringent quality control systems. We adhere to international quality management standards, ensuring that every batch meets the pinnacle of perfection.",
+    image: "/about/plastering-wall.png",
+    imageAlt: "A plasterer floating Buildon gypsum plaster onto a wall",
+  },
+  manufacturing: {
+    title: "Our Manufacturing Excellence",
+    body: "Our manufacturing facility is equipped with cutting-edge, fully automated Gypsum processing machines. Overseen by highly qualified engineers and a skilled workforce from around the world, we ensure the highest standards of production. With a vast network of marketing offices strategically positioned nationwide, and additional offices near major seaports, we guarantee swift and uninterrupted delivery of our quality Gypsum plaster. Our dynamic team of young and enthusiastic professionals provides unwavering technical support to meet the diverse needs of our customers.",
+    image: "/about/interior-plants.png",
+    imageAlt: "A finished interior wall plastered with Buildon gypsum",
+  },
+  serve: {
+    title: "Who We Serve",
+    body: "Buildon proudly supplies its superior Gypsum to esteemed builders, architects, project consultants, and contractors, enhancing the value of their prestigious projects. As industry leaders, we are committed to building a legacy of excellence, one that shapes the future of construction in India.",
+  },
+  midBanner: {
+    image: "/about/banner-about.png",
+    alt: "Buildon gypsum plaster in use on site",
+  },
+  missionVision: [
+    {
+      title: "Our Mission",
+      icon: "/about/icon-mission.png",
+      body: "We are committed to being the leading provider of finest gypsum solutions, building a legacy of trust, innovation, and sustainability. Through cutting-edge technology and a dynamic workforce, we consistently deliver the highest quality products, contributing to the success of nation-building.",
+    },
+    {
+      title: "Our Vision",
+      icon: "/about/icon-vision.png",
+      body: "Buildon envisions revolutionizing the construction industry by being India’s leader in gypsum solutions. Our goal is to shape sustainable, aesthetic, and resilient structures, setting new benchmarks for excellence and redefining possibilities.",
+    },
+  ],
+  branches: {
+    title: "Our Branches",
+    addressLabel: "Address- Head Office",
+    address:
+      "3-B, Mapkhan Compound, Mapkhan Nagar, Marol Maroshi Road, Andheri (E), Mumbai-400059,Maharashtra",
+    emailLabel: "Email",
+    phoneLabel: "Phone",
+    phone: "022 29200565 / 569",
+    branchesLabel: "Branches",
+    branches: "Nashik | Bangalore | Chennai | Hyderabad | Indore | Pune | Kolkata | Kochi | Nagpur",
+  },
 } as const;
