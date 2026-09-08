@@ -54,7 +54,7 @@ export default function SiteHeader() {
           scrolled ? "shadow-[0_1px_0_var(--color-line),0_6px_24px_-18px_rgb(22_24_29/0.5)]" : "border-b border-line"
         }`}
       >
-        <div className="container-page flex h-18 items-center justify-between gap-3 sm:h-20 sm:gap-4">
+        <div className="container-page flex h-20 items-center justify-between gap-3 sm:h-24 sm:gap-4">
           <Link href="/" className="shrink-0" aria-label={`${site.name} — home`}>
             <Image
               src="/brand/logo.png"
@@ -62,7 +62,7 @@ export default function SiteHeader() {
               width={179}
               height={87}
               priority
-              className="h-12 w-auto sm:h-14"
+              className="h-14 w-auto sm:h-16"
             />
           </Link>
 
@@ -137,7 +137,7 @@ export default function SiteHeader() {
                 alt=""
                 width={179}
                 height={87}
-                className="h-11 w-auto sm:h-12"
+                className="h-12 w-auto sm:h-14"
               />
               <button
                 type="button"

@@ -52,7 +52,7 @@ export default function ContactForm() {
   }
 
   return (
-    <section id="enquiry" className="scroll-mt-24 border-t border-line bg-surface">
+    <section id="enquiry" className="scroll-mt-28 border-t border-line bg-surface">
       <div className="grid lg:grid-cols-2">
         <div className="section-y px-5 sm:px-7 lg:pr-12 lg:pl-8">
           {/* max-w 38rem = half the 80rem container minus its 2rem gutter, so

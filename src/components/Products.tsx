@@ -12,7 +12,7 @@ export default function Products() {
   return (
     <section
       id="products"
-      className="section-y scroll-mt-24 border-t border-line"
+      className="section-y scroll-mt-28 border-t border-line"
     >
       <div className="container-page">
         <SectionHeading title={products.title} intro={products.intro} align="center" />

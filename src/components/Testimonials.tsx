@@ -16,7 +16,7 @@ export default function Testimonials() {
   const count = testimonials.items.length;
 
   return (
-    <section id="testimonials" className="section-y scroll-mt-24 bg-white">
+    <section id="testimonials" className="section-y scroll-mt-28 bg-white">
       <div className="container-page grid items-center gap-10 lg:grid-cols-3 lg:gap-12">
         <div className="min-w-0 lg:col-span-1">
           <VideoPlayer

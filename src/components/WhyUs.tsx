@@ -4,7 +4,7 @@ import SectionHeading from "./SectionHeading";
 
 export default function WhyUs() {
   return (
-    <section id="why-us" className="section-y scroll-mt-24">
+    <section id="why-us" className="section-y scroll-mt-28">
       <div className="container-page">
         <SectionHeading title={whyUs.titleLines} intro={whyUs.intro} />
 

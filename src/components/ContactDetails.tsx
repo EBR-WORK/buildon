@@ -30,7 +30,7 @@ const details = [
 
 export default function ContactDetails() {
   return (
-    <section id="contact" className="scroll-mt-24 bg-surface">
+    <section id="contact" className="scroll-mt-28 bg-surface">
       <div className="grid lg:grid-cols-2">
         <div className="section-y pr-5 pl-5 sm:pr-7 sm:pl-7 lg:pr-12 lg:pl-8">
           {/* max-w 38rem = half the 80rem container minus its 2rem gutter, so

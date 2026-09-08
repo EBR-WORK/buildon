@@ -9,7 +9,7 @@ export default function Projects() {
   return (
     <section
       id="projects"
-      className="section-y scroll-mt-24 bg-surface text-center"
+      className="section-y scroll-mt-28 bg-surface text-center"
     >
       <div className="container-page">
         <SectionHeading title={projects.title} intro={projects.intro} align="center" />

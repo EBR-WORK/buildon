@@ -65,7 +65,7 @@
   html {
     scroll-behavior: smooth;
     /* offset anchor targets so the sticky header never covers a heading */
-    scroll-padding-top: 6rem;
+    scroll-padding-top: 7rem;
   }
 
   body {

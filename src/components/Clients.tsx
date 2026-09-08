@@ -9,7 +9,7 @@ export default function Clients() {
   return (
     <section
       id="clients"
-      className="section-y scroll-mt-24 border-t border-line"
+      className="section-y scroll-mt-28 border-t border-line"
     >
       <div className="container-page">
         <SectionHeading title={clients.title} intro={clients.intro} align="center" />

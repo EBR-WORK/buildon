@@ -9,7 +9,7 @@ import SectionHeading from "./SectionHeading";
  */
 export default function About() {
   return (
-    <section id="about" className="scroll-mt-24">
+    <section id="about" className="scroll-mt-28">
       <Image
         src={banner.image}
         alt={banner.alt}

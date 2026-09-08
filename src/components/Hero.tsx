@@ -25,7 +25,7 @@ export default function Hero() {
         className="absolute inset-0 -z-10 bg-linear-to-b from-secondary/60 via-transparent to-secondary/70"
       />
 
-      <div className="container-page relative flex min-h-[32rem] flex-col items-center justify-center py-20 text-center sm:min-h-[38rem] lg:min-h-[calc(100svh-5rem)] lg:py-24">
+      <div className="container-page relative flex min-h-[32rem] flex-col items-center justify-center py-20 text-center sm:min-h-[38rem] lg:min-h-[calc(100svh-6rem)] lg:py-24">
         <p className="inline-block bg-brand-500 px-4 py-2 font-display text-sm font-medium tracking-[0.08em] text-white sm:text-[15px]">
           {hero.eyebrow}
         </p>
