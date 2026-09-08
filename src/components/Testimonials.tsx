@@ -4,6 +4,7 @@ import { testimonials } from "@/lib/content";
 import { useSnapCarousel } from "@/lib/useSnapCarousel";
 import CarouselButton from "./CarouselButton";
 import { QuoteIcon } from "./icons";
+import SectionHeading from "./SectionHeading";
 import VideoPlayer from "./VideoPlayer";
 import Reveal from "./Reveal";
 
@@ -29,9 +30,7 @@ export default function Testimonials() {
         </div>
 
         <div className="min-w-0 lg:col-span-2">
-          <h2 className="text-[clamp(1.6rem,2.2vw+0.65rem,2.2rem)] leading-[1.15] font-semibold">
-            {testimonials.title}
-          </h2>
+          <SectionHeading title={testimonials.title} />
 
           <ul
             ref={trackRef}

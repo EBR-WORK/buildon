@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, type FormEvent } from "react";
 import { contact, site } from "@/lib/content";
 import { ArrowIcon } from "./icons";
+import SectionHeading from "./SectionHeading";
 import Reveal from "./Reveal";
 
 type Errors = Partial<Record<"name" | "email" | "phone" | "message", string>>;
@@ -55,13 +56,14 @@ export default function ContactForm() {
   return (
     <section id="enquiry" className="scroll-mt-28 border-t border-line bg-surface">
       <div className="grid lg:grid-cols-2">
-        <div className="section-y px-5 sm:px-7 lg:pr-12 lg:pl-8">
-          {/* max-w 38rem = half the 80rem container minus its 2rem gutter, so
-              this lines up with every other section's left edge */}
-          <Reveal className="ml-auto w-full max-w-[38rem]">
-            <h2 className="text-[clamp(1.6rem,2.2vw+0.65rem,2.2rem)] leading-[1.15] font-semibold">
-              {contact.formTitle}
-            </h2>
+        <div className="section-y">
+          {/* The padding lives on this block, not the column, and the cap is
+              40rem — half of container-page's 80rem. That makes its content
+              edge exactly (50% - 40rem + padding), which is the same value
+              container-page resolves to, so this lines up with every other
+              section at every width. */}
+          <Reveal className="ml-auto w-full max-w-[40rem] px-5 sm:px-7 lg:pr-12 lg:pl-8">
+            <SectionHeading title={contact.formTitle} />
 
             <form onSubmit={handleSubmit} noValidate className="mt-8 sm:mt-10">
               <Field name="name" label={contact.fields.name} error={errors.name} autoComplete="name" />
@@ -94,8 +96,11 @@ export default function ContactForm() {
 
         {/* Stacked below lg, the photo is inset and rounded so it reads as its
             own block instead of running into the banner that follows. Only at
-            lg, beside the form, does it bleed to the edge. */}
-        <Reveal className="relative mx-5 mb-16 aspect-4/3 overflow-hidden rounded-2xl sm:mx-7 sm:mb-20 lg:mx-0 lg:mb-0 lg:aspect-auto lg:min-h-full lg:rounded-none">
+            lg, beside the form, does it bleed to the edge.
+            The source is a square 800x800 crop, so at lg the panel is held
+            square and centred. Stretching it to the form's full height scaled
+            the subject up and sliced the sides off. */}
+        <Reveal className="relative mx-5 mb-16 aspect-4/3 overflow-hidden rounded-2xl sm:mx-7 sm:mb-20 lg:mx-0 lg:mb-0 lg:aspect-square lg:min-h-0 lg:self-center lg:rounded-none">
           <Image
             src="/projects/plastering.jpg"
             alt="A plasterer smoothing a ceiling with a trowel"

@@ -1,6 +1,7 @@
 import { contact, site } from "@/lib/content";
 import { HeadphoneIcon, MailIcon, PinIcon } from "./icons";
 import Reveal from "./Reveal";
+import SectionHeading from "./SectionHeading";
 
 /**
  * Mirrors buildon.co.in's contact row: a one-third details column beside a
@@ -33,13 +34,14 @@ export default function ContactDetails() {
   return (
     <section id="contact" className="scroll-mt-28 bg-surface">
       <div className="grid lg:grid-cols-2">
-        <div className="section-y pr-5 pl-5 sm:pr-7 sm:pl-7 lg:pr-12 lg:pl-8">
-          {/* max-w 38rem = half the 80rem container minus its 2rem gutter, so
-              this content lines up with every other section's left edge */}
-          <Reveal className="ml-auto w-full max-w-[38rem]">
-            <h2 className="text-[clamp(1.6rem,2.2vw+0.65rem,2.2rem)] leading-[1.15] font-semibold">
-              {contact.title}
-            </h2>
+        <div className="section-y">
+          {/* The padding lives on this block, not the column, and the cap is
+              40rem — half of container-page's 80rem. That makes its content
+              edge exactly (50% - 40rem + padding), which is the same value
+              container-page resolves to, so this lines up with every other
+              section at every width. */}
+          <Reveal className="ml-auto w-full max-w-[40rem] px-5 sm:px-7 lg:pr-12 lg:pl-8">
+            <SectionHeading title={contact.title} />
 
             <ul className="mt-8 sm:mt-10">
               {details.map((detail, i) => (

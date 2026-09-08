@@ -20,7 +20,24 @@ export default function Products() {
           <SectionHeading title={products.title} intro={products.intro} align="center" />
         </Reveal>
 
-        <div className="relative mt-10 sm:mt-12 lg:mt-14">
+        <div className="mt-10 sm:mt-12 lg:mt-14">
+          <div className="mb-5 flex justify-end gap-2">
+            <CarouselButton
+              direction="prev"
+              label="Previous products"
+              onClick={() => goTo(index - 1)}
+              disabled={atStart}
+              className="border border-line bg-white text-ink-700 hover:bg-brand-500 hover:text-white hover:border-brand-500"
+            />
+            <CarouselButton
+              direction="next"
+              label="Next products"
+              onClick={() => goTo(index + 1)}
+              disabled={atEnd}
+              className="border border-line bg-white text-ink-700 hover:bg-brand-500 hover:text-white hover:border-brand-500"
+            />
+          </div>
+
           {/* The negative right margin absorbs the last card's gutter, so the
               row still ends flush with the container. */}
           <ul
@@ -68,21 +85,6 @@ export default function Products() {
               </Reveal>
             ))}
           </ul>
-
-          <CarouselButton
-            direction="prev"
-            label="Previous products"
-            onClick={() => goTo(index - 1)}
-            disabled={atStart}
-            className="absolute top-1/2 left-0 z-10 -translate-y-1/2 bg-line text-ink-700 shadow-card hover:bg-brand-500 hover:text-white lg:-left-5"
-          />
-          <CarouselButton
-            direction="next"
-            label="Next products"
-            onClick={() => goTo(index + 1)}
-            disabled={atEnd}
-            className="absolute top-1/2 right-0 z-10 -translate-y-1/2 bg-line text-ink-700 shadow-card hover:bg-brand-500 hover:text-white lg:-right-5"
-          />
         </div>
       </div>
     </section>
