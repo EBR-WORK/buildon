@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, type FormEvent } from "react";
 import { contact, site } from "@/lib/content";
 import { ArrowIcon } from "./icons";
+import Reveal from "./Reveal";
 
 type Errors = Partial<Record<"name" | "email" | "phone" | "message", string>>;
 
@@ -57,7 +58,7 @@ export default function ContactForm() {
         <div className="section-y px-5 sm:px-7 lg:pr-12 lg:pl-8">
           {/* max-w 38rem = half the 80rem container minus its 2rem gutter, so
               this lines up with every other section's left edge */}
-          <div className="ml-auto w-full max-w-[38rem]">
+          <Reveal className="ml-auto w-full max-w-[38rem]">
             <h2 className="text-[clamp(1.6rem,2.2vw+0.65rem,2.2rem)] leading-[1.15] font-semibold">
               {contact.formTitle}
             </h2>
@@ -88,13 +89,13 @@ export default function ContactForm() {
                 <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
               </button>
             </form>
-          </div>
+          </Reveal>
         </div>
 
         {/* Stacked below lg, the photo is inset and rounded so it reads as its
             own block instead of running into the banner that follows. Only at
             lg, beside the form, does it bleed to the edge. */}
-        <div className="relative mx-5 mb-16 aspect-4/3 overflow-hidden rounded-2xl sm:mx-7 sm:mb-20 lg:mx-0 lg:mb-0 lg:aspect-auto lg:min-h-full lg:rounded-none">
+        <Reveal className="relative mx-5 mb-16 aspect-4/3 overflow-hidden rounded-2xl sm:mx-7 sm:mb-20 lg:mx-0 lg:mb-0 lg:aspect-auto lg:min-h-full lg:rounded-none">
           <Image
             src="/projects/plastering.jpg"
             alt="A plasterer smoothing a ceiling with a trowel"
@@ -103,7 +104,7 @@ export default function ContactForm() {
             loading="lazy"
             className="object-cover"
           />
-        </div>
+        </Reveal>
       </div>
     </section>
   );

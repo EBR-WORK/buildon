@@ -1,19 +1,24 @@
 import { whyUs } from "@/lib/content";
 import { featureIcons } from "./icons";
 import SectionHeading from "./SectionHeading";
+import Reveal from "./Reveal";
 
 export default function WhyUs() {
   return (
     <section id="why-us" className="section-y scroll-mt-28">
       <div className="container-page">
-        <SectionHeading title={whyUs.titleLines} intro={whyUs.intro} />
+        <Reveal>
+          <SectionHeading title={whyUs.titleLines} intro={whyUs.intro} />
+        </Reveal>
 
         <ul className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-14 lg:grid-cols-4">
-          {whyUs.items.map((item) => {
+          {whyUs.items.map((item, i) => {
             const Icon = featureIcons[item.icon];
             return (
-              <li
+              <Reveal
+                as="li"
                 key={item.title}
+                delay={i * 0.08}
                 className="group relative rounded-2xl border border-line bg-white p-6 transition hover:-translate-y-1 hover:border-brand-200 hover:shadow-card sm:p-7"
               >
                 <span className="inline-flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-500 transition group-hover:bg-brand-500 group-hover:text-white sm:size-12">
@@ -25,7 +30,7 @@ export default function WhyUs() {
                 <p className="mt-2 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">
                   {item.body}
                 </p>
-              </li>
+              </Reveal>
             );
           })}
         </ul>

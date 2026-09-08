@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { about, banner } from "@/lib/content";
 import SectionHeading from "./SectionHeading";
+import Reveal from "./Reveal";
 
 /**
  * Mirrors buildon.co.in's About block: the full-width product banner, a solid
@@ -23,7 +24,7 @@ export default function About() {
       <div aria-hidden className="h-[130px] bg-brand-500 sm:h-[205px]" />
 
       <div className="container-page">
-        <div className="relative z-10 -mt-[90px] bg-white p-5 shadow-lift sm:-mt-[125px] sm:p-[30px]">
+        <Reveal className="relative z-10 -mt-[90px] bg-white p-5 shadow-lift sm:-mt-[125px] sm:p-[30px]">
           <div className="grid items-center gap-8 md:grid-cols-2 md:gap-0">
             {/* The source is 659x800. Framing it 4:5 keeps almost the whole
                 photograph in shot — a box sized to the text column's height
@@ -44,7 +45,7 @@ export default function About() {
               <p className="mt-5 text-base leading-relaxed text-ink-500">{about.body}</p>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

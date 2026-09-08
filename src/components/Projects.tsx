@@ -1,5 +1,6 @@
 import { projects } from "@/lib/content";
 import SectionHeading from "./SectionHeading";
+import Reveal from "./Reveal";
 
 /**
  * On buildon.co.in this is a plain grey band: centred heading, one line of
@@ -11,7 +12,7 @@ export default function Projects() {
       id="projects"
       className="section-y scroll-mt-28 bg-surface text-center"
     >
-      <div className="container-page">
+      <Reveal className="container-page">
         <SectionHeading title={projects.title} intro={projects.intro} align="center" />
 
         <div className="mt-8 sm:mt-10">
@@ -22,7 +23,7 @@ export default function Projects() {
             {projects.cta.label}
           </a>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

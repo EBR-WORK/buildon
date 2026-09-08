@@ -5,6 +5,7 @@ import { useSnapCarousel } from "@/lib/useSnapCarousel";
 import CarouselButton from "./CarouselButton";
 import { QuoteIcon } from "./icons";
 import VideoPlayer from "./VideoPlayer";
+import Reveal from "./Reveal";
 
 /**
  * Mirrors buildon.co.in: the clip on the left third, the heading and a
@@ -17,7 +18,7 @@ export default function Testimonials() {
 
   return (
     <section id="testimonials" className="section-y scroll-mt-28 bg-white">
-      <div className="container-page grid items-center gap-10 lg:grid-cols-3 lg:gap-12">
+      <Reveal className="container-page grid items-center gap-10 lg:grid-cols-3 lg:gap-12">
         <div className="min-w-0 lg:col-span-1">
           <VideoPlayer
             src={testimonials.video.src}
@@ -96,7 +97,7 @@ export default function Testimonials() {
             </a>
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

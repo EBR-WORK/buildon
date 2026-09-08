@@ -1,5 +1,6 @@
 import { contact, site } from "@/lib/content";
 import { HeadphoneIcon, MailIcon, PinIcon } from "./icons";
+import Reveal from "./Reveal";
 
 /**
  * Mirrors buildon.co.in's contact row: a one-third details column beside a
@@ -35,15 +36,17 @@ export default function ContactDetails() {
         <div className="section-y pr-5 pl-5 sm:pr-7 sm:pl-7 lg:pr-12 lg:pl-8">
           {/* max-w 38rem = half the 80rem container minus its 2rem gutter, so
               this content lines up with every other section's left edge */}
-          <div className="ml-auto w-full max-w-[38rem]">
+          <Reveal className="ml-auto w-full max-w-[38rem]">
             <h2 className="text-[clamp(1.6rem,2.2vw+0.65rem,2.2rem)] leading-[1.15] font-semibold">
               {contact.title}
             </h2>
 
             <ul className="mt-8 sm:mt-10">
-              {details.map((detail) => (
-                <li
+              {details.map((detail, i) => (
+                <Reveal
+                  as="li"
                   key={detail.label}
+                  delay={i * 0.08}
                   className="relative flex gap-4 border-b border-line py-6 after:absolute after:-bottom-px after:left-0 after:h-0.5 after:w-7 after:bg-brand-600 after:content-['']"
                 >
                   <detail.icon className="mt-0.5 size-6 shrink-0 text-brand-500" />
@@ -56,10 +59,10 @@ export default function ContactDetails() {
                       {detail.value}
                     </a>
                   </div>
-                </li>
+                </Reveal>
               ))}
             </ul>
-          </div>
+          </Reveal>
         </div>
 
         {/* Same treatment as the enquiry photo: inset and rounded when stacked,

@@ -5,6 +5,7 @@ import { products } from "@/lib/content";
 import { useSnapCarousel } from "@/lib/useSnapCarousel";
 import CarouselButton from "./CarouselButton";
 import SectionHeading from "./SectionHeading";
+import Reveal from "./Reveal";
 
 export default function Products() {
   const { trackRef, index, atStart, atEnd, goTo } = useSnapCarousel<HTMLUListElement>();
@@ -15,7 +16,9 @@ export default function Products() {
       className="section-y scroll-mt-28 border-t border-line"
     >
       <div className="container-page">
-        <SectionHeading title={products.title} intro={products.intro} align="center" />
+        <Reveal>
+          <SectionHeading title={products.title} intro={products.intro} align="center" />
+        </Reveal>
 
         <div className="relative mt-10 sm:mt-12 lg:mt-14">
           {/* The negative right margin absorbs the last card's gutter, so the
@@ -26,9 +29,14 @@ export default function Products() {
             aria-label="Buildon gypsum products"
             className="-mr-4 flex snap-x snap-mandatory overflow-x-auto pb-1 sm:-mr-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {products.items.map((product) => (
-              <li
+            {products.items.map((product, i) => (
+              // Cards past the third sit outside the track's clip, so they
+              // animate when the carousel brings them in rather than on load.
+              // The delay is capped so those never wait half a second.
+              <Reveal
+                as="li"
                 key={product.href}
+                delay={Math.min(i, 2) * 0.08}
                 className="flex w-full shrink-0 snap-start pr-4 sm:w-1/2 sm:pr-6 lg:w-1/3"
               >
                 <a
@@ -57,7 +65,7 @@ export default function Products() {
                     </span>
                   </div>
                 </a>
-              </li>
+              </Reveal>
             ))}
           </ul>
 

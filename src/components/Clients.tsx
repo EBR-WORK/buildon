@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { clients } from "@/lib/content";
 import SectionHeading from "./SectionHeading";
+import Reveal from "./Reveal";
 
 export default function Clients() {
   // Duplicated once so the marquee can loop seamlessly at -50%.
@@ -11,9 +12,9 @@ export default function Clients() {
       id="clients"
       className="section-y scroll-mt-28 border-t border-line"
     >
-      <div className="container-page">
+      <Reveal className="container-page">
         <SectionHeading title={clients.title} intro={clients.intro} align="center" />
-      </div>
+      </Reveal>
 
       {/* Tiles shrink on small screens, so the loop duration shortens to keep the
           logos moving at roughly the same speed across breakpoints. */}

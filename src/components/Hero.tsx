@@ -26,21 +26,21 @@ export default function Hero() {
       />
 
       <div className="container-page relative flex min-h-[32rem] flex-col items-center justify-center py-20 text-center sm:min-h-[38rem] lg:min-h-[calc(100svh-6rem)] lg:py-24">
-        <p className="inline-block bg-brand-500 px-4 py-2 font-display text-sm font-medium tracking-[0.08em] text-white sm:text-[15px]">
+        <p className="inline-block animate-rise bg-brand-500 px-4 py-2 font-display text-sm font-medium tracking-[0.08em] text-white sm:text-[15px]">
           {hero.eyebrow}
         </p>
 
-        <h1 className="mt-6 text-[clamp(2.1rem,4.8vw+0.6rem,4rem)] leading-[1.12] font-semibold text-white">
+        <h1 className="mt-6 animate-rise [animation-delay:120ms] text-[clamp(2.1rem,4.8vw+0.6rem,4rem)] leading-[1.12] font-semibold text-white">
           {hero.titleLines[0]}
           <br />
           <span className="text-brand-300">{hero.titleLines[1]}</span>
         </h1>
 
-        <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/80 sm:mt-6 sm:text-lg">
+        <p className="mt-5 max-w-2xl animate-rise text-base leading-relaxed [animation-delay:240ms] text-white/80 sm:mt-6 sm:text-lg">
           {hero.intro}
         </p>
 
-        <div className="mt-8 flex w-full flex-col items-center gap-4 sm:mt-10 sm:w-auto sm:flex-row sm:gap-6">
+        <div className="mt-8 flex w-full animate-rise flex-col items-center gap-4 [animation-delay:360ms] sm:mt-10 sm:w-auto sm:flex-row sm:gap-6">
           <a
             href={hero.primaryCta.href}
             className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 px-7 py-3.5 font-display font-medium tracking-wide text-white shadow-card transition hover:bg-brand-600 sm:w-auto"

@@ -82,6 +82,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
+        <noscript>
+          {/* Motion renders its initial (hidden) state server-side, so without
+              scripts these blocks would never be revealed. */}
+          <style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style>
+        </noscript>
         {children}
         <script
           type="application/ld+json"
