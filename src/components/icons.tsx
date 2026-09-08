@@ -136,6 +136,15 @@ export function PlayIcon(props: IconProps) {
   );
 }
 
+/** Rotates 45 degrees to become a close mark when its <details> is open. */
+export function PlusIcon(props: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.8} {...props}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
 /* Social marks are brand glyphs, so they are filled rather than stroked. */
 const solid = { viewBox: "0 0 24 24", fill: "currentColor", "aria-hidden": true } as const;
 

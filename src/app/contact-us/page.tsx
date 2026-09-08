@@ -38,12 +38,16 @@ export default function ContactUsPage() {
             priority
             className="-z-10 object-cover object-[20%_center] sm:object-center"
           />
+          {/* The artwork's own blue panel is dark enough to carry white type, so
+              no scrim is needed once it is in frame. Below sm, bg-cover crops
+              that panel away and the heading would land on the bright photo —
+              so the wash only applies there. */}
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-linear-to-r from-secondary/75 via-secondary/35 to-transparent"
+            className="absolute inset-0 -z-10 bg-linear-to-r from-secondary/75 via-secondary/35 to-transparent sm:hidden"
           />
 
-          <div className="container-page flex min-h-[14rem] flex-col justify-center py-14 sm:min-h-[18rem] lg:py-20">
+          <div className="container-page flex min-h-[14rem] flex-col justify-center py-14 sm:min-h-[18rem] lg:min-h-[22rem] lg:py-20">
             <h1 className="font-display text-[clamp(1.75rem,2vw+1rem,2.5rem)] leading-[1.25] font-medium tracking-wide text-white uppercase">
               {contactPage.banner.headingLines.map((line) => (
                 <span key={line} className="block">

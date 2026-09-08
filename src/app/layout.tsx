@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Open_Sans, Oswald } from "next/font/google";
+import ScrollToTop from "@/components/ScrollToTop";
 import { site } from "@/lib/content";
 import "./globals.css";
 
@@ -87,6 +88,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               scripts these blocks would never be revealed. */}
           <style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style>
         </noscript>
+        <ScrollToTop />
         {children}
         <script
           type="application/ld+json"

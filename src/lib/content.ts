@@ -51,7 +51,7 @@ export const nav = [
   { label: "Careers", href: null },
   { label: "Blog", href: null },
   { label: "Contact Us", href: "/contact-us" },
-  { label: "FAQs", href: null },
+  { label: "FAQs", href: "/faq" },
 ] as const;
 
 export const hero = {
@@ -456,4 +456,125 @@ export const contactPage = {
     intro:
       "Please fill out the send us message form below for your any query and our expert team will get back to you shortly.",
   },
+} as const;
+
+/**
+ * /faq. Copied verbatim from https://buildon.co.in/faq/, grouped exactly as
+ * the reference groups its accordion.
+ */
+export const faqPage = {
+  title: "FAQs",
+  banner: {
+    image: "/faq/banner.png",
+    heading: "FAQs",
+    subheadingLines: ["Have questions?", "Find your answers here."],
+  },
+  label: "FAQ",
+  groups: [
+    {
+      title: "Gypsum plaster",
+      items: [
+        {
+          question: "What is the use of gypsum Plaster on wall?",
+          answer:
+            "Gypsum plaster has good insulation properties, fire resistant and impact resistant. Also, gypsum saves a lot of time during construction and has superior finish. These properties have clearly drawn attention of real estate builders and contractors towards choosing gypsum plaster over traditional cement plaster.",
+        },
+        {
+          question: "Is gypsum plaster eco friendly?",
+          answer:
+            "Gypsum is an inherently sustainable material as it can be completely recycled an infinite number of times. Removing water from gypsum rocks through dehydration produces a plaster powder scientifically known as calcium sulphate.",
+        },
+        {
+          question: "Advantages and disadvantages of gypsum plaster?",
+          answer:
+            "It doesn’t perform well against water We cannot use gypsum plaster for outer walls. These retain dampness and are not the most suitable for areas with walls that come in regular contact with water, such as bathrooms and toilets.",
+        },
+        {
+          question: "What is the minimum thickness of gypsum plaster?",
+          answer:
+            "Gypsum Plaster is usually applied in a thickness range of (6 -20)mm. The thickness of the undercoat gypsum plaster is normally 11mm for walls, it’s 8mm for the ceiling area and for that of the finished coat.",
+        },
+        {
+          question: "What is the ratio of gypsum plaster to water?",
+          answer:
+            "Water to plaster ratio (1 part of water: 1.25 part of plaster by weight) should be maintained to have a good cohesive workable mix.",
+        },
+        {
+          question: "What is the tolerance for gypsum walls?",
+          answer:
+            "The plane and alignment of the panels depend on the plane and alignment of the framing members, backing or devices to which it is attached, and/or conceals. The tolerance of 1/8” in 10′-0” is commonly used in jobsite specifications and referred to as the “industry standard” for flatness in gypsum board finishing.",
+        },
+        {
+          question: "What is the coverage of gypsum plaster per bag?",
+          answer:
+            "20 – 25 Sq. ft. Initial Setting Time: 15 – 20 minutes. Coverage @ thickness of 10 mm. : 20 – 25 Sq. ft./Bag of 25 Kg.",
+        },
+        {
+          question: "Why is gypsum plaster used?",
+          answer:
+            "Gypsum plastering is an environmental friendly alternative to traditional sand-cement application for internal plastering surfaces. Gypsum plastering is also a faster application method for internal surfaces, since it does not require a time consuming water curing process.",
+        },
+        {
+          question: "Which Standard Compliance to refer for Gypsum?",
+          answer:
+            "Purity of gypsum – 90% an above Color of gypsum – Pure white color Availability & lead time of material – lead time within 72hours ,throughout the year Indian Green Building council bearing membership – IGBCMP131535 ISO certification – ISO 9001:2015 MHADA approval letter",
+        },
+        {
+          question: "Why should we do a false ceiling with Buildon Gypsum?",
+          answer:
+            "Buildon Gypsum is a brand trusted by millions of customers in India for the past 13 years. Our commitment to quality products and service helped us to establish ourselves as market leaders in ceiling space. All our ceiling projects are executed by a highly qualified & trained workforce",
+        },
+        {
+          question: "What are the benefits of doing a false ceiling at home?",
+          answer:
+            "What are the benefits of doing a false ceiling at home? A false ceiling is also known as a dropped ceiling, plays a very important role in Home Interiors. It is one of the easiest, cost-effective & quickest ways to transform your interior space. There is no limitation to ideas which can come alive as ceilings. many other functional benefits come along with the aesthetic value of ceilings. Uniform light distribution to the entire room through ceiling lights. Mess-free home with all wirings, pipes covered under the ceiling. Cooler homes with dropped ceilings Express your style through ceiling designs. Ceiling designs can be customized as per room size and lighting requirements.",
+        },
+        {
+          question: "How does a ceiling system reduce air conditioning needs & need of more lighting which helps lower electricity bills?",
+          answer:
+            "False ceilings provide thermal insulation by creating an air gap between the soffit and the false ceiling. They reduce the air volume of a room and, as a result, the air-conditioning load. Thus, the air-conditioning requirement is reduced, resulting in lower electricity bills. Ceilings reflect and diffuse light. A ceiling that reflects and diffuses light well reduces the need for artificial lighting. This results in improved energy efficiency and a better working environment.",
+        },
+      ],
+    },
+    {
+      title: "Bonding Agents (Bondit 151 & Plaster Bond+)",
+      items: [
+        {
+          question: "How to use Buildon Bonding agents in Gypsum wall plastering ?",
+          answer:
+            "Step 1 – Ensure all the surface are clean from any containments that may hinder adhesion, including any loose or flaking material. Step 2 – Ensure that the wall is dry Step 3 – Thoroughly stir bonding agents before use. Step 4 – Do not dilute, Simply apply a single coat using a brush roller and leave to dry (Bondit 151 for 40 mins & Plaster Bond + for 24 hrs before wall plastering)",
+        },
+        {
+          question: "Are Buildon bonding agents alternative to hacking ?",
+          answer:
+            "Bonding agents are always a better alternative over hacking. Hacking is not only very crude method of creating bond between Gypsum and Concrete surface but also, it weakens the RCC structure. Hacking is not uniformly distributed since it’s done in a random way. Depth of hacking and pitch of hacking variance over a given surface remains high due to fatigue factor.",
+        },
+        {
+          question: "How Buildon Bonding agents are different as compared to other bonding agents in the market?",
+          answer:
+            "Our bonding agents are safer and have a high coverage than other products available in the market. Also available in small quantities (along with gypsum plaster)",
+        },
+      ],
+    },
+    {
+      title: "Sand-Cement Ready Mix plaster - P20",
+      items: [
+        {
+          question: "What is the difference between traditional Sand cement mortar & Buildon Ready Mix plaster ?",
+          answer:
+            "Ready Mix plaster saves time & labour, No hassle of maintaining Mortar ratio. Factory manufactured material gives standardization in entire projects.",
+        },
+        {
+          question: "How Buildon Ready mix plaster is better than the rest of products?",
+          answer:
+            "We use Narmada river well graded sand & Ultratech cement along with Reliance PP fibers. Very less rebound loss. Numbers on the bags are easy for reconciliation.",
+        },
+        {
+          question: "How long does it take for cement sand plaster to cure?",
+          answer:
+            "Curing of cement plaster should be done 24 hours after the plastering work. The plastered surface should be kept wet for a period of 7 days.",
+        },
+      ],
+    },
+  ],
 } as const;
