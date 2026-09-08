@@ -1,5 +1,6 @@
 import { contact, site } from "@/lib/content";
 import { HeadphoneIcon, MailIcon, PinIcon } from "./icons";
+import DetailBlock from "./DetailBlock";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
@@ -43,24 +44,15 @@ export default function ContactDetails() {
           <Reveal className="ml-auto w-full max-w-[40rem] px-5 sm:px-7 lg:pr-12 lg:pl-8">
             <SectionHeading title={contact.title} />
 
-            <ul className="mt-8 sm:mt-10">
+            <ul className="mt-8 space-y-6 sm:mt-10">
               {details.map((detail, i) => (
-                <Reveal
-                  as="li"
-                  key={detail.label}
-                  delay={i * 0.08}
-                  className="relative flex gap-4 border-b border-line py-6 after:absolute after:-bottom-px after:left-0 after:h-0.5 after:w-7 after:bg-brand-600 after:content-['']"
-                >
-                  <detail.icon className="mt-0.5 size-6 shrink-0 text-brand-500" />
-                  <div className="min-w-0">
-                    <h3 className="text-lg font-semibold">{detail.label}</h3>
-                    <a
-                      href={detail.href}
-                      className="mt-1.5 block leading-[25px] text-ink-500 transition hover:text-brand-500"
-                    >
-                      {detail.value}
-                    </a>
-                  </div>
+                <Reveal as="li" key={detail.label} delay={i * 0.08}>
+                  <DetailBlock
+                    label={detail.label}
+                    value={detail.value}
+                    href={detail.href}
+                    icon={detail.icon}
+                  />
                 </Reveal>
               ))}
             </ul>
