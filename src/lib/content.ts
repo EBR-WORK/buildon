@@ -47,7 +47,7 @@ export const nav = [
   { label: "About Us", href: "/about-us" },
   { label: "Products", href: "/products" },
   { label: "Clientele", href: "/clientele" },
-  { label: "Projects", href: "#projects" },
+  { label: "Projects", href: "/projects" },
   { label: "Careers", href: null },
   { label: "Blog", href: null },
   { label: "Contact Us", href: "/contact-us" },
@@ -733,6 +733,192 @@ export const clientelePage = {
         { src: "/clientele/merlin-group-kolkata-logo.jpg", name: "Merlin Group Kolkata" },
         { src: "/clientele/purti-realty-kolkata-logo.png", name: "Purti Realty Kolkata" },
       ],
+    },
+  ],
+} as const;
+
+/**
+ * /projects. Names, links and images come from https://buildon.co.in/projects/.
+ * The listing there truncates most descriptions mid-sentence and leaves eight
+ * of them empty, so each description is the listing excerpt where that reads
+ * as a complete sentence, and the project page's own opening paragraph
+ * otherwise — trimmed to a sentence boundary so the cards stay even.
+ */
+export const projectsPage = {
+  title: "Projects",
+  banner: {
+    image: "/projects/banner.png",
+    headingLines: ["Projects:", "Built with", "buildon"],
+  },
+  readMore: "Read More >",
+  items: [
+    {
+      name: "Aparna One, Hyderabad",
+      href: "https://buildon.co.in/aparna-one-hyderabad/",
+      image: "/projects/mask-group-29.png",
+      body:
+        "Aparna One is a project of ultra luxurious residential gated community flats for sale in Shaikpet, Hyderabad. These magnificent smart apartments are the perfect combination of class",
+    },
+    {
+      name: "Aparna Zenon – Hyderabad",
+      href: "https://buildon.co.in/aparna-zenon-hyderabad/",
+      image: "/projects/mask-group-3.png",
+      body:
+        "Flats for sale in Nanakramguda, Hyderabad. The project offers luxurious 2 & 3 BHK apartments for sale in Nanakramguda, Puppalaguda. Nanakramguda Financial District is an IT",
+    },
+    {
+      name: "Brigade Meadows Plumeria – Bangalore",
+      href: "https://buildon.co.in/brigade-meadows-plumeria-bangalore/",
+      image: "/projects/mask-group-9-1.png",
+      body:
+        "Brigade Meadows Plumeria is the new project developed by Brigade Group launched in Kanakapura Road, Bangalore. The Brigade Group was founded in 1986",
+    },
+    {
+      name: "Godrej The Trees – Vikhroli East, Mumbai",
+      href: "https://buildon.co.in/godrej-the-trees-vikhroli-east-mumbai/",
+      image: "/projects/mask-group-8-1.png",
+      body:
+        "Godrej The Trees in Vikhroli East, Mumbai is a popular society in the city, it is well made and has all the amenities you need. There is ample space for parking of cars and bikes",
+    },
+    {
+      name: "Goel Ganga Dham – Pune",
+      href: "https://buildon.co.in/goel-ganga-dham-pune/",
+      image: "/projects/mask-group-1-1.png",
+      body:
+        "Goel Ganga Group is one of the known real estate brands in Pune.The builder has delivered 74 projects so far. Around 7 projects are upcoming.",
+    },
+    {
+      name: "Godrej Infinity – Pune",
+      href: "https://buildon.co.in/godrej-infinity-pune/",
+      image: "/projects/godrej-infinity-keshav-nagar-pune-1.jpg",
+      body:
+        "Godrej Infinity is a 43-acre residential development located on the banks of the Mula-Mutha River at Keshavnagar, Pune. The township will offer a holistic lifestyle",
+    },
+    {
+      name: "Kolte Patil Atria – Pune",
+      href: "https://buildon.co.in/kolte-patil-atria-pune/",
+      image: "/projects/mask-group-4.png",
+      body:
+        "Beautifully crafted to complement your chic and aristocratic personality, our exclusively designed residences at 24K Atria by Kolte-Patil Developers let you explore the true joy",
+    },
+    {
+      name: "Kalpataru Hills – Thane",
+      href: "https://buildon.co.in/kalpataru-hills-thane/",
+      image: "/projects/mask-group-7-1.png",
+      body:
+        "The architecture of Tata Serein Pokhran Road 2 is centred on the well-being of its residents. On Pokhran Rd 2 in Thane West’s most affluent area.",
+    },
+    {
+      name: "Lodha Palava",
+      href: "https://buildon.co.in/lodha-palava/",
+      image: "/projects/lodha-palava-1.jpg",
+      body:
+        "Lodha Palava city is a dream project by Lodha. The township is well equipped with all the facilities and modern amenities. It’s like a smart city experience.",
+    },
+    {
+      name: "L&T Realty presents Raintree Boulevard – Bangalore",
+      href: "https://buildon.co.in/lt-realty-presents-raintree-boulevard-bangalore/",
+      image: "/projects/l-t-raintree-boulevard-banglore.webp",
+      body:
+        "A premium lifestyle township located in the serene locales of Hebbal, Bengaluru. It is an endeavour to preserve the environment while developing a residential oasis offering its residents the luxuries of fine-living while being cradled in the pristine lap of nature.",
+    },
+    {
+      name: "Prestige City – Bangalore",
+      href: "https://buildon.co.in/prestige-city-bangalore-3/",
+      image: "/projects/prestige-city-bangalore.webp",
+      body:
+        "Prestige City – Bangalore is a new premium Township project launched right on Sarjapur Road, Bangalore. The massive residential enclave, Prestige City is a township that spans over 180-acres of prime location…",
+    },
+    {
+      name: "Mahindra Eden – Bangalore",
+      href: "https://buildon.co.in/mahindra-eden-bangalore-3/",
+      image: "/projects/mahindra-eden-bangalore.jpg",
+      body:
+        "Mahindra Eden – Bangalore is a hi-tech residential project ahead of its time grown by Mahindra Lifespaces located in a key corner of Kanakapura Road, Bengaluru. The eco-friendly homes in Mahindra Eden offer the ideal homes for your needs.",
+    },
+    {
+      name: "DLF Greenland – Indore",
+      href: "https://buildon.co.in/dlf-green-indore/",
+      image: "/projects/dlf-garden-city-indore.webp",
+      body:
+        "One of the most upcoming townships with a lot of amenities nearby such as a very good CBSE School nearby and colleges. There is Central India largest mall which is easily accessible.",
+    },
+    {
+      name: "L & T Crescent Bay – Parel, Mumbai",
+      href: "https://buildon.co.in/l-t-crescent-bay-parel-mumbai/",
+      image: "/projects/crescent-bay-parel-mumbai.webp",
+      body:
+        "Mumbai South by L & T Realty and Omkar Realtors is a residential project. The project offers Apartments with a perfect combination of contemporary architecture",
+    },
+    {
+      name: "Runwal Greens – Mulund",
+      href: "https://buildon.co.in/runwal-greens-mulund-west-mumbai/",
+      image: "/projects/runwal-greens-mulund-mumbai.webp",
+      body:
+        "Known to be one of the best residential projects in Mumbai, and voted the same, Runwal Greens stands true to its name. The project is spread across 22 acres and has ample green spaces amidst luxurious towers.",
+    },
+    {
+      name: "Prestige Bella Vista – Chennai",
+      href: "https://buildon.co.in/prestige-bella-vista-chennai-2/",
+      image: "/projects/prestige-bella-vista-chennai.jpg",
+      body:
+        "Located on Mount Poonamallee Road, Porur – Bella Vista is touted to be one of Chennai’s most lavish and serene Residential Developments.",
+    },
+    {
+      name: "Alcove New Kolkata",
+      href: "https://buildon.co.in/alcove-new-kolkata/",
+      image: "/projects/new-kolkata-sangam.jpeg",
+      body:
+        "Alcove New Kolkata is a project spread over a total area of 28.5 acres. Total of 15, 27 storied towers. Residents of the New Kolkata Riverside Project will have the luxury of waking up to a scenic riverside view from their homes.",
+    },
+    {
+      name: "Godrej Seven",
+      href: "https://buildon.co.in/godrej-seven/",
+      image: "/projects/elevate-at-godrej-seven-joka.jpeg",
+      body:
+        "The apartments are beautifully planned in the total area of 20.23 acres of land. The apartments range starts from avail of 2BHK, 2.5BHK, and 3BHK. These apartments are planned in 7 towers in grand elevation of G+12 and G+14 floors.",
+    },
+    {
+      name: "Primarc Southwinds project LLP",
+      href: "https://buildon.co.in/primarc-southwinds-project-llp/",
+      image: "/projects/primarc-kolkata.jpg",
+      body:
+        "Southwinds on Southern Bypass introduces new blocks with bigger 3BHK pond-facing apartments. Southwinds on Southern Bypass is a residential project that spans across 972 kattha of land.",
+    },
+    {
+      name: "Siddha Sky",
+      href: "https://buildon.co.in/siddha-sky/",
+      image: "/projects/siddha-sky-kolkata.jpg",
+      body:
+        "This incredible project, which is currently under construction, is being built on a total area of 8.51 acres. There are 2BHK, 3BHK, and 4BHK apartments. This mesmerizing property is also available in sizes from 4 BHK Flat (2560. 0 Sq. Ft. – 2560. 0 Sq. Ft.).",
+    },
+    {
+      name: "ACC INDIA PVT LTD – 88 East",
+      href: "https://buildon.co.in/acc-india-pvt-ltd-88-east/",
+      image: "/projects/88-east-kolkata.jpg",
+      body:
+        "The Tata Housing Development Company, Tata Housing 88 East, is a world-class, luxurious residential development planned right in the middle of one of the most prized residential locations inside the ‘City of Joy’ – namely, Alipore, Kolkata.",
+    },
+    {
+      name: "Natural City Birati",
+      href: "https://buildon.co.in/natural-city-birati-2/",
+      image: "/projects/natural-city-birati.jpg",
+      body:
+        "The magnificent Natural City Birati that is smartly located in Birati, Kolkata, is a well-planned project. This project has its expanse over an area of 124 Kottah. The project features a total of 110 units that are well-ventilated.",
+    },
+    {
+      name: "Raga Sarvalom",
+      href: "https://buildon.co.in/raga-sarvalom/",
+      image: "/projects/raga-sarvolam-kolkata.jpg",
+      body:
+        "It is a well-designed and comfortable home that offers an excellent quality of life. It is a 230-unit project spread over 2.5 acres in Howrah, Kolkata.",
+    },
+    {
+      name: "Kshetrum Aspire",
+      href: "https://buildon.co.in/kshetrum-aspire/",
+      image: "/projects/kshetrum-aspire-kolkata.jpg",
+      body:
+        "The magnificent Kshetrum Aspire that is smartly located in Behala Chowrasta, Kolkata, is a well-planned project. Spread over a vast area of 1 acre, the project is a well-established one. The entire project consists of over 100 residential units.",
     },
   ],
 } as const;
