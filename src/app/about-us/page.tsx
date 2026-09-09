@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
@@ -58,37 +59,10 @@ export default function AboutUsPage() {
 
       <main id="main">
         {/* Title bar — the reference sets this artwork on .tm-titlebar-wrapper */}
-        <section className="relative isolate overflow-hidden bg-secondary">
-          <Image
-            src={aboutPage.banner.image}
-            alt=""
-            fill
-            sizes="100vw"
-            priority
-            className="-z-10 object-cover object-[20%_center] sm:object-center"
-          />
-          {/* The artwork's left third is a solid blue panel, which is where the
-              heading sits. A left-to-right scrim keeps it legible on narrow
-              screens, where bg-cover crops that panel out of frame. */}
-          {/* The artwork's own blue panel is dark enough to carry white type, so
-              no scrim is needed once it is in frame. Below sm, bg-cover crops
-              that panel away and the heading would land on the bright photo —
-              so the wash only applies there. */}
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-linear-to-r from-secondary/75 via-secondary/35 to-transparent sm:hidden"
-          />
-
-          <div className="container-page flex min-h-[14rem] flex-col justify-center py-14 sm:min-h-[18rem] lg:min-h-[22rem] lg:py-20">
-            <h1 className="font-display text-[clamp(1.75rem,2vw+1rem,2.5rem)] leading-[1.25] font-medium tracking-wide text-white uppercase">
-              {aboutPage.banner.headingLines.map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
-            </h1>
-          </div>
-        </section>
+        <PageBanner
+          image={aboutPage.banner.image}
+          headingLines={aboutPage.banner.headingLines}
+        />
 
         {/* Company Overview | team photograph */}
         <section className="section-y">

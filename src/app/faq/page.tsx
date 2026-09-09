@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
@@ -43,35 +43,11 @@ export default function FaqPage() {
 
       <main id="main">
         {/* Title bar */}
-        <section className="relative isolate overflow-hidden bg-secondary">
-          <Image
-            src={faqPage.banner.image}
-            alt=""
-            fill
-            sizes="100vw"
-            priority
-            className="-z-10 object-cover object-[20%_center] sm:object-center"
-          />
-          {/* The artwork carries the heading on its own dark panel; the wash is
-              only needed below sm, where bg-cover crops that panel away. */}
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-linear-to-r from-secondary/75 via-secondary/35 to-transparent sm:hidden"
-          />
-
-          <div className="container-page flex min-h-[14rem] flex-col justify-center py-14 sm:min-h-[18rem] lg:min-h-[22rem] lg:py-20">
-            <h1 className="font-display text-[clamp(1.75rem,2vw+1rem,2.5rem)] leading-[1.25] font-medium tracking-wide text-white uppercase">
-              {faqPage.banner.heading}
-            </h1>
-            <p className="mt-3 max-w-md font-display text-lg leading-snug font-medium text-white/85 sm:text-xl">
-              {faqPage.banner.subheadingLines.map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
-            </p>
-          </div>
-        </section>
+        <PageBanner
+          image={faqPage.banner.image}
+          headingLines={[faqPage.banner.heading]}
+          subheadingLines={faqPage.banner.subheadingLines}
+        />
 
         {faqPage.groups.map((group, groupIndex) => (
           <section
