@@ -52,14 +52,11 @@ export default function Products() {
               // The delay is capped so those never wait half a second.
               <Reveal
                 as="li"
-                key={product.href}
+                key={product.name}
                 delay={Math.min(i, 2) * 0.08}
                 className="flex w-full shrink-0 snap-start pr-4 sm:w-1/2 sm:pr-6 lg:w-1/3"
               >
-                <a
-                  href={product.href}
-                  className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-1 hover:shadow-lift"
-                >
+                <article className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-1 hover:shadow-lift">
                   <div className="relative aspect-4/3 overflow-hidden bg-white">
                     <Image
                       src={product.image}
@@ -71,17 +68,20 @@ export default function Products() {
                   </div>
 
                   <div className="flex flex-1 flex-col p-5 sm:p-6">
-                    <h3 className="text-xl leading-snug font-semibold group-hover:text-brand-500 sm:text-2xl">
+                    <h3 className="text-xl leading-snug font-semibold sm:text-2xl">
                       {product.name}
                     </h3>
                     <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">
                       {product.body}
                     </p>
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-500 sm:mt-5">
+                    <button
+                      type="button"
+                      className="mt-4 inline-flex cursor-pointer items-center gap-1.5 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
+                    >
                       {products.readMore}
-                    </span>
+                    </button>
                   </div>
-                </a>
+                </article>
               </Reveal>
             ))}
           </ul>

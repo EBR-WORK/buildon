@@ -88,12 +88,12 @@ export default function Testimonials() {
               ))}
             </div>
 
-            <a
-              href={testimonials.cta.href}
-              className="text-sm font-semibold text-brand-500 hover:text-brand-600 sm:ml-auto"
+            <button
+              type="button"
+              className="cursor-pointer text-sm font-semibold text-brand-500 hover:text-brand-600 sm:ml-auto"
             >
               {testimonials.cta.label}
-            </a>
+            </button>
           </div>
         </div>
       </Reveal>

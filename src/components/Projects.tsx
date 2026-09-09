@@ -16,12 +16,12 @@ export default function Projects() {
         <SectionHeading title={projects.title} intro={projects.intro} align="center" />
 
         <div className="mt-8 sm:mt-10">
-          <a
-            href={projects.cta.href}
-            className="inline-flex items-center justify-center rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600"
+          <button
+            type="button"
+            className="inline-flex cursor-pointer items-center justify-center rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600"
           >
             {projects.cta.label}
-          </a>
+          </button>
         </div>
       </Reveal>
     </section>

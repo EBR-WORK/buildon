@@ -44,10 +44,7 @@ export default function ProjectsPage() {
             <ul className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-14 lg:grid-cols-3">
               {projectsPage.items.map((project, i) => (
                 <Reveal as="li" key={project.name} delay={(i % 3) * 0.06} className="flex">
-                  <a
-                    href={project.href}
-                    className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-1 hover:shadow-lift"
-                  >
+                  <article className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-1 hover:shadow-lift">
                     <div className="relative aspect-4/3 overflow-hidden bg-surface">
                       <Image
                         src={project.image}
@@ -60,7 +57,7 @@ export default function ProjectsPage() {
                     </div>
 
                     <div className="flex flex-1 flex-col p-5 sm:p-6">
-                      <h2 className="font-display text-lg leading-snug font-semibold transition-colors group-hover:text-brand-500 sm:text-xl">
+                      <h2 className="font-display text-lg leading-snug font-semibold sm:text-xl">
                         {project.name}
                       </h2>
                       {/* Clamped to five lines so every card is the same height
@@ -70,11 +67,14 @@ export default function ProjectsPage() {
                       <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500 line-clamp-5">
                         {project.body}
                       </p>
-                      <span className="mt-4 inline-flex items-center text-sm font-semibold text-brand-500 sm:mt-5">
+                      <button
+                        type="button"
+                        className="mt-4 inline-flex cursor-pointer items-center self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
+                      >
                         {projectsPage.readMore}
-                      </span>
+                      </button>
                     </div>
-                  </a>
+                  </article>
                 </Reveal>
               ))}
             </ul>

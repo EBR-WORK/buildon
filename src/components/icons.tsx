@@ -145,6 +145,24 @@ export function PlusIcon(props: IconProps) {
   );
 }
 
+/** Four corner arrows pointing out — enters fullscreen. */
+export function ExpandIcon(props: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.8} {...props}>
+      <path d="M9 4H4v5M15 4h5v5M15 20h5v-5M9 20H4v-5" />
+    </svg>
+  );
+}
+
+/** The same arrows pointing in — leaves fullscreen. */
+export function CollapseIcon(props: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.8} {...props}>
+      <path d="M4 9h5V4M20 9h-5V4M20 15h-5v5M4 15h5v5" />
+    </svg>
+  );
+}
+
 /* Social marks are brand glyphs, so they are filled rather than stroked. */
 const solid = { viewBox: "0 0 24 24", fill: "currentColor", "aria-hidden": true } as const;
 

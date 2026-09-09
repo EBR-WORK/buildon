@@ -64,9 +64,13 @@ export default function SiteFooter() {
             <ul className="mt-5 space-y-3 text-[15px]">
               {column.links.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="transition hover:text-white">
-                    {link.label}
-                  </Link>
+                  {link.href ? (
+                    <Link href={link.href} className="transition hover:text-white">
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <span className="text-white/50">{link.label}</span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -106,9 +110,7 @@ export default function SiteFooter() {
         <div className="container-page py-6 text-center text-sm">
           <p>
             {site.copyright.lead}
-            <a href={site.url} className="font-semibold text-brand-400 hover:text-brand-300">
-              {site.copyright.brand}
-            </a>
+            <span className="font-semibold text-brand-400">{site.copyright.brand}</span>
             {site.copyright.tail}
           </p>
         </div>

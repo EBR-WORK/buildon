@@ -41,24 +41,36 @@ export default function Hero() {
         </p>
 
         <div className="mt-8 flex w-full animate-rise flex-col items-center gap-4 [animation-delay:360ms] sm:mt-10 sm:w-auto sm:flex-row sm:gap-6">
-          <a
-            href={hero.primaryCta.href}
-            className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 px-7 py-3.5 font-display font-medium tracking-wide text-white shadow-card transition hover:bg-brand-600 sm:w-auto"
+          {/* Both destinations are still to be wired up, so these are buttons
+              rather than anchors — an <a href=""> would reload the page. */}
+          <button
+            type="button"
+            className="group inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-7 py-3.5 font-display font-medium tracking-wide text-white shadow-card transition hover:bg-brand-600 sm:w-auto"
           >
             {hero.primaryCta.label}
             <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
-          </a>
-          <a
-            href={hero.videoCta.href}
-            target="_blank"
-            rel="noreferrer"
-            className="group inline-flex items-center justify-center gap-3 font-display font-medium tracking-wide text-white"
+          </button>
+
+          {/*
+            The reference's play control is a 48px disc set inside a hairline
+            ring, with the label in Oswald at 15px beside it. The ring and the
+            disc are separate layers so the gap between them stays even, and
+            the glyph is nudged a hair right of true centre: a triangle's mass
+            sits left of its bounding box, so dead-centre reads as off-centre.
+          */}
+          <button
+            type="button"
+            className="group inline-flex cursor-pointer items-center justify-center gap-3.5 font-display text-[15px] font-medium tracking-[0.06em] text-white"
           >
-            <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/40 backdrop-blur transition group-hover:bg-brand-500 group-hover:ring-brand-500">
-              <PlayIcon className="size-5 translate-x-px" />
+            <span className="relative inline-flex size-12 shrink-0 items-center justify-center rounded-full ring-1 ring-white/40 transition group-hover:ring-white/80">
+              <span
+                aria-hidden
+                className="absolute inset-1 rounded-full bg-white/15 backdrop-blur transition group-hover:bg-brand-500"
+              />
+              <PlayIcon className="relative size-[1.15rem] translate-x-[1.5px]" />
             </span>
             {hero.videoCta.label}
-          </a>
+          </button>
         </div>
       </div>
     </section>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Open_Sans, Oswald } from "next/font/google";
+import BackToTop from "@/components/BackToTop";
 import ScrollToTop from "@/components/ScrollToTop";
 import { site } from "@/lib/content";
 import "./globals.css";
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </noscript>
         <ScrollToTop />
         {children}
+        <BackToTop />
         <script
           type="application/ld+json"
           // Static, locally-authored object — no user input reaches this string.

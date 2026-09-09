@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { contact, nav, site } from "@/lib/content";
 import { CloseIcon, MenuIcon } from "./icons";
@@ -11,6 +12,14 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+
+  /**
+   * Home only matches exactly; every other entry also owns its sub-paths, so a
+   * future /blog/<slug> still lights up "Blog".
+   */
+  const isCurrent = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -76,7 +85,12 @@ export default function SiteHeader() {
                     {item.href ? (
                       <Link
                         href={item.href}
-                        className={`${style} text-ink-700 transition hover:bg-brand-50 hover:text-brand-500`}
+                        aria-current={isCurrent(item.href) ? "page" : undefined}
+                        className={`${style} transition hover:bg-brand-50 hover:text-brand-500 ${
+                          isCurrent(item.href)
+                            ? "font-medium text-brand-500"
+                            : "text-ink-700"
+                        }`}
                       >
                         {item.label}
                       </Link>
@@ -151,7 +165,12 @@ export default function SiteHeader() {
                       <Link
                         href={item.href}
                         onClick={() => setOpen(false)}
-                        className="block py-3.5 font-display text-lg font-normal text-ink-900"
+                        aria-current={isCurrent(item.href) ? "page" : undefined}
+                        className={`block py-3.5 font-display text-lg ${
+                          isCurrent(item.href)
+                            ? "font-medium text-brand-500"
+                            : "font-normal text-ink-900"
+                        }`}
                       >
                         {item.label}
                       </Link>
