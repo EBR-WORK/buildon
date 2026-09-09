@@ -46,7 +46,7 @@ export const nav = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about-us" },
   { label: "Products", href: "/products" },
-  { label: "Clientele", href: "#clients" },
+  { label: "Clientele", href: "/clientele" },
   { label: "Projects", href: "#projects" },
   { label: "Careers", href: null },
   { label: "Blog", href: null },
@@ -574,6 +574,164 @@ export const faqPage = {
           answer:
             "Curing of cement plaster should be done 24 hours after the plastering work. The plastered surface should be kept wet for a period of 7 days.",
         },
+      ],
+    },
+  ],
+} as const;
+
+/**
+ * /clientele. The reference outputs each city twice — a desktop block and a
+ * near-identical responsive one that re-uploads the same brands under other
+ * filenames (Godrej.png for Godrej-properties.jpg, Brigade-banglore-1-1.png
+ * for Brigade-banglore-1.png). Only the first block is kept here, otherwise
+ * those brands appear twice in the grid.
+ *
+ * Each block is stored column-first, so it is transposed into the order the
+ * logos are actually read: left to right, row by row.
+ */
+export const clientelePage = {
+  title: "Clientele",
+  banner: {
+    image: "/clientele/banner.png",
+    headingLines: ["The testimony of", "our excellence.", "OUr Clients."],
+  },
+  cities: [
+    {
+      name: "MUMBAI",
+      logos: [
+        { src: "/clientele/adani.png", name: "Adani" },
+        { src: "/clientele/godrej-properties.jpg", name: "Godrej Properties" },
+        { src: "/clientele/l-t-realty-jpg.webp", name: "L T Realty" },
+        { src: "/clientele/lodha.png", name: "Lodha" },
+        { src: "/clientele/lokanandwala.png", name: "Lokanandwala" },
+        { src: "/clientele/mahindra.png", name: "Mahindra" },
+        { src: "/clientele/marathon.png", name: "Marathon" },
+        { src: "/clientele/penninsula.png", name: "Penninsula" },
+        { src: "/clientele/runwal.png", name: "Runwal" },
+        { src: "/clientele/shapoorji.png", name: "Shapoorji" },
+        { src: "/clientele/sheth.png", name: "Sheth" },
+        { src: "/clientele/tata-housing.png", name: "Tata Housing" },
+      ],
+    },
+    {
+      name: "PUNE",
+      logos: [
+        { src: "/clientele/kolte-pati.png", name: "Kolte Pati" },
+        { src: "/clientele/mahindra.png", name: "Mahindra" },
+        { src: "/clientele/clover-builders-pune-1-3.png", name: "Clover Builders Pune 1" },
+        { src: "/clientele/geol-ganga-group.png", name: "Geol Ganga Group" },
+        { src: "/clientele/godrej-properties.jpg", name: "Godrej Properties" },
+        { src: "/clientele/dnv.png", name: "" },
+        { src: "/clientele/dreams.png", name: "Dreams" },
+        { src: "/clientele/legacy-1.png", name: "Legacy" },
+        { src: "/clientele/anshul.png", name: "Anshul" },
+        { src: "/clientele/paranjape.png", name: "Paranjape" },
+        { src: "/clientele/gd-sqaure.jpg", name: "GD Sqaure" },
+        { src: "/clientele/silver-group-pune-1.jpg", name: "Silver Group Pune" },
+        { src: "/clientele/gera.png", name: "Gera" },
+        { src: "/clientele/madhuban.png", name: "Madhuban" },
+        { src: "/clientele/shapoorji.png", name: "Shapoorji" },
+        { src: "/clientele/kalpataru.png", name: "Kalpataru" },
+      ],
+    },
+    {
+      name: "NASIK",
+      logos: [
+        { src: "/clientele/ashokha.png", name: "Ashokha" },
+        { src: "/clientele/bhagad.png", name: "Bhagad" },
+        { src: "/clientele/dhatrak.png", name: "Dhatrak" },
+        { src: "/clientele/garja.png", name: "Garja" },
+        { src: "/clientele/ml-developers.png", name: "ML Developers" },
+        { src: "/clientele/nirmal-group.png", name: "Nirmal Group" },
+        { src: "/clientele/patil-group.jpg", name: "Patil Group" },
+        { src: "/clientele/rachit-builders.png", name: "Rachit Builders" },
+      ],
+    },
+    {
+      name: "GOA",
+      logos: [
+        { src: "/clientele/clara-mount.png", name: "Clara Mount" },
+        { src: "/clientele/oiuine.png", name: "" },
+        { src: "/clientele/em-ghee.png", name: "EM Ghee" },
+        { src: "/clientele/naifer.png", name: "Naifer" },
+      ],
+    },
+    {
+      name: "BANGALORE",
+      logos: [
+        { src: "/clientele/alpine.png", name: "Alpine" },
+        { src: "/clientele/brigade-banglore-1.png", name: "Brigade Banglore" },
+        { src: "/clientele/embassy.png", name: "Embassy" },
+        { src: "/clientele/gannon.png", name: "Gannon" },
+        { src: "/clientele/g-corp.png", name: "G Corp" },
+        { src: "/clientele/habitat.png", name: "Habitat" },
+        { src: "/clientele/pashmina.png", name: "Pashmina" },
+        { src: "/clientele/prestige-group.png", name: "Prestige Group" },
+        { src: "/clientele/tgr.png", name: "" },
+        { src: "/clientele/zonasha.png", name: "Zonasha" },
+        { src: "/clientele/l-t-realty-jpg.webp", name: "L T Realty" },
+        { src: "/clientele/tvs-emerald-banglore-chennai-1-1.png", name: "TVS Emerald Banglore Chennai 1" },
+      ],
+    },
+    {
+      name: "CHENNAI",
+      logos: [
+        { src: "/clientele/appaswamy.png", name: "Appaswamy" },
+        { src: "/clientele/tvs-emerald-banglore-chennai-1-1-1.png", name: "TVS Emerald Banglore Chennai 1 1" },
+        { src: "/clientele/snp-foundation-chennai.png", name: "SNP Foundation Chennai" },
+        { src: "/clientele/download-10-2.png", name: "" },
+        { src: "/clientele/images-1.png", name: "" },
+        { src: "/clientele/casa.png", name: "Casa" },
+        { src: "/clientele/downl.png", name: "" },
+        { src: "/clientele/dacnew.png", name: "" },
+      ],
+    },
+    {
+      name: "HYDERABAD",
+      logos: [
+        { src: "/clientele/sri-srinivasa.png", name: "Sri Srinivasa" },
+        { src: "/clientele/kalpataru.png", name: "Kalpataru" },
+        { src: "/clientele/vasavi-builders-logo-png-hyderabadnew-rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g.png", name: "Vasavi Builders Logo Png Hyderabadnew Rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g" },
+        { src: "/clientele/alekya-png-logo-hyderabad-rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco.png", name: "Alekya Png Logo Hyderabad Rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco" },
+        { src: "/clientele/aparna-logo.png", name: "Aparna" },
+        { src: "/clientele/myhome-logo.png", name: "Myhome" },
+        { src: "/clientele/sumadhura-infracon-3.jpg", name: "Sumadhura Infracon" },
+        { src: "/clientele/dsr-hyderabad-1.png", name: "Dsr Hyderabad" },
+      ],
+    },
+    {
+      name: "DELHI",
+      logos: [
+        { src: "/clientele/dlf-capital-green.png", name: "DLF Capital Green" },
+        { src: "/clientele/lemon-tree-hotels.png", name: "Lemon Tree Hotels" },
+        { src: "/clientele/m3m.png", name: "" },
+        { src: "/clientele/tata-housing-1.png", name: "Tata Housing" },
+      ],
+    },
+    {
+      name: "NAGPUR",
+      logos: [
+        { src: "/clientele/images-2-1.png", name: "" },
+        { src: "/clientele/download-5-1.png", name: "" },
+        { src: "/clientele/image-119.png", name: "" },
+        { src: "/clientele/image-117.png", name: "" },
+        { src: "/clientele/1654503679145-rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0.jpeg", name: "1654503679145 Rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0" },
+        { src: "/clientele/sachidanand-realties-nagpur-png-logo-1.png", name: "Sachidanand Realties Nagpur Png Logo" },
+        { src: "/clientele/sdpl-nagpur-logo-1.png", name: "Sdpl Nagpur Logo" },
+        { src: "/clientele/pyramid-group-nagpur-logo.jpg", name: "Pyramid Group Nagpur" },
+      ],
+    },
+    {
+      name: "KOLKATA",
+      logos: [
+        { src: "/clientele/sugam-kolkata-logo-1.png", name: "Sugam Kolkata Logo" },
+        { src: "/clientele/godrej-properties.jpg", name: "Godrej Properties" },
+        { src: "/clientele/alcove-realty-kolkata.png", name: "Alcove Realty Kolkata" },
+        { src: "/clientele/siddha-group-kolkata.png", name: "Siddha Group Kolkata" },
+        { src: "/clientele/primarc-kolkata.png", name: "Primarc Kolkata" },
+        { src: "/clientele/rajat-group-kolkata-logo.jpeg", name: "Rajat Group Kolkata" },
+        { src: "/clientele/merlin-group-kolkata-logo.jpg", name: "Merlin Group Kolkata" },
+        { src: "/clientele/purti-realty-kolkata-logo.png", name: "Purti Realty Kolkata" },
       ],
     },
   ],
