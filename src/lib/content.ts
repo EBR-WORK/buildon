@@ -69,7 +69,7 @@ export const hero = {
 } as const;
 
 export const banner = {
-  image: "/brand/hero-banner.png",
+  image: "/brand/hero-banner.webp",
   /** The message set into the artwork, carried over as the alternative text. */
   alt: "The perfect plaster for the dream you are building.",
 } as const;
@@ -112,55 +112,55 @@ export const productCatalogue = [
     name: "Gypsum Plaster One Coat",
     href: "",
     body: "The distinguished advantage of the Buildon Gypsum Plaster-one coat is that it is made out of the highest grade of……",
-    image: "/products/one-coat.png",
+    image: "/products/one-coat.webp",
   },
   {
     name: "Imported Gypsum Plaster",
     href: "",
     body: "Our BUILDON Gypsum Plaster is produced from the light powder-density rock sourced from the purest mines.",
-    image: "/products/imported.png",
+    image: "/products/imported.webp",
   },
   {
     name: "Gypsum Master Plaster",
     href: "",
     body: "BUILDON Gypsum Master Plaster is produced from the light powder-density rock sourced from the purest mines.",
-    image: "/products/master.png",
+    image: "/products/master.webp",
   },
   {
     name: "Gypsum Plaster Perlite One coat super 200",
     href: "",
     body: "Buildon perlite plaster a gypsum plaster with special additives and light weight aggregates. The aggregates contein …",
-    image: "/products/perlite.png",
+    image: "/products/perlite.webp",
   },
   {
     name: "Gypsum Plaster Vermiculite",
     href: "",
     body: "Buildon Vermiculite Plaster a gypsum hemihydrates plaster with special additives and light weight aggregates.",
-    image: "/products/vermiculite.png",
+    image: "/products/vermiculite.webp",
   },
   {
     name: "Classic Gypsum Plaster",
     href: "",
     body: "Buildon Classic Gypsum Plaster is produced from the light powder-density rock sourced from the purest mines…",
-    image: "/products/classic.jpg",
+    image: "/products/classic.webp",
   },
   {
     name: "Buildon P-20 Ready Mix Plaster",
     href: "",
     body: "Buildon P-20 is a Premixed sand cement plaster. It is specially formulated for exterior and interior plastering work to …",
-    image: "/products/p-20-ready-mix.jpg",
+    image: "/products/p-20-ready-mix.webp",
   },
   {
     name: "Bondit-151",
     href: "",
     body: "BONDIT-151 is high performance bonding agent for Gypsum on concrete blocks/RCC surfaces.",
-    image: "/products/bondit-151.png",
+    image: "/products/bondit-151.webp",
   },
   {
     name: "Bondit Plaster Bond+",
     href: "",
     body: "Buildon Bondit Plaster BOND+ is high-performance bonding agent for gypsum and sand cement….",
-    image: "/products/bondit-plaster-bond-plus.png",
+    image: "/products/bondit-plaster-bond-plus.webp",
   },
 ] as const;
 
@@ -182,23 +182,23 @@ export const productsPage = {
 export const about = {
   titleLines: ["Here’s Who We Are:", "About Us"],
   body: "Buildon stands as a prominent manufacturer and importer of pioneering this endeavour in India. Our factory produces the world’s finest Gypsum plaster, renowned for its pristine white colour and hardness surpassing other Indian market options by over 40%. This positions it as a global standard and the premier choice for construction-grade Gypsum.",
-  image: "/projects/project-2.png",
+  image: "/projects/project-2.webp",
 } as const;
 
 /** Just the marquee's logo track — the home page runs it without a heading. */
 export const clients = {
   logos: [
-    "/clients/mahindra.jpg",
-    "/clients/client-1.png",
-    "/clients/client-2.png",
-    "/clients/client-3.png",
-    "/clients/client-4.png",
-    "/clients/client-5.png",
-    "/clients/client-6.png",
-    "/clients/client-7.png",
-    "/clients/client-8.png",
-    "/clients/client-9.png",
-    "/clients/client-10.png",
+    "/clients/mahindra.webp",
+    "/clients/client-1.webp",
+    "/clients/client-2.webp",
+    "/clients/client-3.webp",
+    "/clients/client-4.webp",
+    "/clients/client-5.webp",
+    "/clients/client-6.webp",
+    "/clients/client-7.webp",
+    "/clients/client-8.webp",
+    "/clients/client-9.webp",
+    "/clients/client-10.webp",
   ],
 } as const;
 
@@ -334,7 +334,7 @@ export const aboutPage = {
   /** Used for <title> and the nav label; the reference keeps it in a tm-hide block. */
   title: "About Us",
   banner: {
-    image: "/about/banner-handshake.jpg",
+    image: "/about/banner-handshake.webp",
     alt: "Buildon representatives shaking hands with a client",
     /* The heading actually printed on the banner, over three lines. */
     headingLines: ["Building", "Excellence.", "Building India."],
@@ -342,7 +342,7 @@ export const aboutPage = {
   overview: {
     title: "Company Overview",
     body: "Buildon stands as a pioneering force in India, emerging as a leading manufacturer and importer of finest quality Gypsum plaster and other products. Our Mumbai-based enterprise has ventured into unexplored territories, producing the world’s finest Gypsum plaster at our state-of-the-art factory. Renowned for its pure white colour and a hardness surpassing market standards by over 40%, our Gypsum is a testament to excellence, setting the gold standard in the construction realm.",
-    image: "/about/team.png",
+    image: "/about/team.webp",
     imageAlt: "The Buildon team reviewing a project together",
   },
   whyChoose: {
@@ -359,13 +359,13 @@ export const aboutPage = {
   birdsEye: {
     titleLines: ["Gypsumizing India:", "A Bird’s Eye View"],
     body: "Buildon has transformed the landscape by introducing world-class Gypsum products across major Indian cities, bridging the gap between demand and supply for superior quality Gypsum plaster. Our commitment to excellence is evident in the manufacturing process, where advanced technology meets stringent quality control systems. We adhere to international quality management standards, ensuring that every batch meets the pinnacle of perfection.",
-    image: "/about/plastering-wall.png",
+    image: "/about/plastering-wall.webp",
     imageAlt: "A plasterer floating Buildon gypsum plaster onto a wall",
   },
   manufacturing: {
     title: "Our Manufacturing Excellence",
     body: "Our manufacturing facility is equipped with cutting-edge, fully automated Gypsum processing machines. Overseen by highly qualified engineers and a skilled workforce from around the world, we ensure the highest standards of production. With a vast network of marketing offices strategically positioned nationwide, and additional offices near major seaports, we guarantee swift and uninterrupted delivery of our quality Gypsum plaster. Our dynamic team of young and enthusiastic professionals provides unwavering technical support to meet the diverse needs of our customers.",
-    image: "/about/interior-plants.png",
+    image: "/about/interior-plants.webp",
     imageAlt: "A finished interior wall plastered with Buildon gypsum",
   },
   serve: {
@@ -373,18 +373,18 @@ export const aboutPage = {
     body: "Buildon proudly supplies its superior Gypsum to esteemed builders, architects, project consultants, and contractors, enhancing the value of their prestigious projects. As industry leaders, we are committed to building a legacy of excellence, one that shapes the future of construction in India.",
   },
   midBanner: {
-    image: "/about/banner-about.png",
+    image: "/about/banner-about.webp",
     alt: "Buildon gypsum plaster in use on site",
   },
   missionVision: [
     {
       title: "Our Mission",
-      icon: "/about/icon-mission.png",
+      icon: "/about/icon-mission.webp",
       body: "We are committed to being the leading provider of finest gypsum solutions, building a legacy of trust, innovation, and sustainability. Through cutting-edge technology and a dynamic workforce, we consistently deliver the highest quality products, contributing to the success of nation-building.",
     },
     {
       title: "Our Vision",
-      icon: "/about/icon-vision.png",
+      icon: "/about/icon-vision.webp",
       body: "Buildon envisions revolutionizing the construction industry by being India’s leader in gypsum solutions. Our goal is to shape sustainable, aesthetic, and resilient structures, setting new benchmarks for excellence and redefining possibilities.",
     },
   ],
@@ -409,7 +409,7 @@ export const aboutPage = {
 export const contactPage = {
   title: "Contact Us",
   banner: {
-    image: "/contact/banner.jpg",
+    image: "/contact/banner.webp",
     headingLines: ["Have questions?", "Contact us"],
   },
   branchDetails: {
@@ -462,7 +462,7 @@ export const contactPage = {
 export const faqPage = {
   title: "FAQs",
   banner: {
-    image: "/faq/banner.png",
+    image: "/faq/banner.webp",
     heading: "FAQs",
     subheadingLines: ["Have questions?", "Find your answers here."],
   },
@@ -589,146 +589,146 @@ export const faqPage = {
 export const clientelePage = {
   title: "Clientele",
   banner: {
-    image: "/clientele/banner.png",
+    image: "/clientele/banner.webp",
     headingLines: ["The testimony of", "our excellence.", "OUr Clients."],
   },
   cities: [
     {
       name: "MUMBAI",
       logos: [
-        { src: "/clientele/adani.png", name: "Adani" },
-        { src: "/clientele/godrej-properties.jpg", name: "Godrej Properties" },
+        { src: "/clientele/adani.webp", name: "Adani" },
+        { src: "/clientele/godrej-properties.webp", name: "Godrej Properties" },
         { src: "/clientele/l-t-realty-jpg.webp", name: "L T Realty" },
-        { src: "/clientele/lodha.png", name: "Lodha" },
-        { src: "/clientele/lokanandwala.png", name: "Lokanandwala" },
-        { src: "/clientele/mahindra.png", name: "Mahindra" },
-        { src: "/clientele/marathon.png", name: "Marathon" },
-        { src: "/clientele/penninsula.png", name: "Penninsula" },
-        { src: "/clientele/runwal.png", name: "Runwal" },
-        { src: "/clientele/shapoorji.png", name: "Shapoorji" },
-        { src: "/clientele/sheth.png", name: "Sheth" },
-        { src: "/clientele/tata-housing.png", name: "Tata Housing" },
+        { src: "/clientele/lodha.webp", name: "Lodha" },
+        { src: "/clientele/lokanandwala.webp", name: "Lokanandwala" },
+        { src: "/clientele/mahindra.webp", name: "Mahindra" },
+        { src: "/clientele/marathon.webp", name: "Marathon" },
+        { src: "/clientele/penninsula.webp", name: "Penninsula" },
+        { src: "/clientele/runwal.webp", name: "Runwal" },
+        { src: "/clientele/shapoorji.webp", name: "Shapoorji" },
+        { src: "/clientele/sheth.webp", name: "Sheth" },
+        { src: "/clientele/tata-housing.webp", name: "Tata Housing" },
       ],
     },
     {
       name: "PUNE",
       logos: [
-        { src: "/clientele/kolte-pati.png", name: "Kolte Pati" },
-        { src: "/clientele/mahindra.png", name: "Mahindra" },
-        { src: "/clientele/clover-builders-pune-1-3.png", name: "Clover Builders Pune 1" },
-        { src: "/clientele/geol-ganga-group.png", name: "Geol Ganga Group" },
-        { src: "/clientele/godrej-properties.jpg", name: "Godrej Properties" },
-        { src: "/clientele/dnv.png", name: "" },
-        { src: "/clientele/dreams.png", name: "Dreams" },
-        { src: "/clientele/legacy-1.png", name: "Legacy" },
-        { src: "/clientele/anshul.png", name: "Anshul" },
-        { src: "/clientele/paranjape.png", name: "Paranjape" },
-        { src: "/clientele/gd-sqaure.jpg", name: "GD Sqaure" },
-        { src: "/clientele/silver-group-pune-1.jpg", name: "Silver Group Pune" },
-        { src: "/clientele/gera.png", name: "Gera" },
-        { src: "/clientele/madhuban.png", name: "Madhuban" },
-        { src: "/clientele/shapoorji.png", name: "Shapoorji" },
-        { src: "/clientele/kalpataru.png", name: "Kalpataru" },
+        { src: "/clientele/kolte-pati.webp", name: "Kolte Pati" },
+        { src: "/clientele/mahindra.webp", name: "Mahindra" },
+        { src: "/clientele/clover-builders-pune-1-3.webp", name: "Clover Builders Pune 1" },
+        { src: "/clientele/geol-ganga-group.webp", name: "Geol Ganga Group" },
+        { src: "/clientele/godrej-properties.webp", name: "Godrej Properties" },
+        { src: "/clientele/dnv.webp", name: "" },
+        { src: "/clientele/dreams.webp", name: "Dreams" },
+        { src: "/clientele/legacy-1.webp", name: "Legacy" },
+        { src: "/clientele/anshul.webp", name: "Anshul" },
+        { src: "/clientele/paranjape.webp", name: "Paranjape" },
+        { src: "/clientele/gd-sqaure.webp", name: "GD Sqaure" },
+        { src: "/clientele/silver-group-pune-1.webp", name: "Silver Group Pune" },
+        { src: "/clientele/gera.webp", name: "Gera" },
+        { src: "/clientele/madhuban.webp", name: "Madhuban" },
+        { src: "/clientele/shapoorji.webp", name: "Shapoorji" },
+        { src: "/clientele/kalpataru.webp", name: "Kalpataru" },
       ],
     },
     {
       name: "NASIK",
       logos: [
-        { src: "/clientele/ashokha.png", name: "Ashokha" },
-        { src: "/clientele/bhagad.png", name: "Bhagad" },
-        { src: "/clientele/dhatrak.png", name: "Dhatrak" },
-        { src: "/clientele/garja.png", name: "Garja" },
-        { src: "/clientele/ml-developers.png", name: "ML Developers" },
-        { src: "/clientele/nirmal-group.png", name: "Nirmal Group" },
-        { src: "/clientele/patil-group.jpg", name: "Patil Group" },
-        { src: "/clientele/rachit-builders.png", name: "Rachit Builders" },
+        { src: "/clientele/ashokha.webp", name: "Ashokha" },
+        { src: "/clientele/bhagad.webp", name: "Bhagad" },
+        { src: "/clientele/dhatrak.webp", name: "Dhatrak" },
+        { src: "/clientele/garja.webp", name: "Garja" },
+        { src: "/clientele/ml-developers.webp", name: "ML Developers" },
+        { src: "/clientele/nirmal-group.webp", name: "Nirmal Group" },
+        { src: "/clientele/patil-group.webp", name: "Patil Group" },
+        { src: "/clientele/rachit-builders.webp", name: "Rachit Builders" },
       ],
     },
     {
       name: "GOA",
       logos: [
-        { src: "/clientele/clara-mount.png", name: "Clara Mount" },
-        { src: "/clientele/oiuine.png", name: "" },
-        { src: "/clientele/em-ghee.png", name: "EM Ghee" },
-        { src: "/clientele/naifer.png", name: "Naifer" },
+        { src: "/clientele/clara-mount.webp", name: "Clara Mount" },
+        { src: "/clientele/oiuine.webp", name: "" },
+        { src: "/clientele/em-ghee.webp", name: "EM Ghee" },
+        { src: "/clientele/naifer.webp", name: "Naifer" },
       ],
     },
     {
       name: "BANGALORE",
       logos: [
-        { src: "/clientele/alpine.png", name: "Alpine" },
-        { src: "/clientele/brigade-banglore-1.png", name: "Brigade Banglore" },
-        { src: "/clientele/embassy.png", name: "Embassy" },
-        { src: "/clientele/gannon.png", name: "Gannon" },
-        { src: "/clientele/g-corp.png", name: "G Corp" },
-        { src: "/clientele/habitat.png", name: "Habitat" },
-        { src: "/clientele/pashmina.png", name: "Pashmina" },
-        { src: "/clientele/prestige-group.png", name: "Prestige Group" },
-        { src: "/clientele/tgr.png", name: "" },
-        { src: "/clientele/zonasha.png", name: "Zonasha" },
+        { src: "/clientele/alpine.webp", name: "Alpine" },
+        { src: "/clientele/brigade-banglore-1.webp", name: "Brigade Banglore" },
+        { src: "/clientele/embassy.webp", name: "Embassy" },
+        { src: "/clientele/gannon.webp", name: "Gannon" },
+        { src: "/clientele/g-corp.webp", name: "G Corp" },
+        { src: "/clientele/habitat.webp", name: "Habitat" },
+        { src: "/clientele/pashmina.webp", name: "Pashmina" },
+        { src: "/clientele/prestige-group.webp", name: "Prestige Group" },
+        { src: "/clientele/tgr.webp", name: "" },
+        { src: "/clientele/zonasha.webp", name: "Zonasha" },
         { src: "/clientele/l-t-realty-jpg.webp", name: "L T Realty" },
-        { src: "/clientele/tvs-emerald-banglore-chennai-1-1.png", name: "TVS Emerald Banglore Chennai 1" },
+        { src: "/clientele/tvs-emerald-banglore-chennai-1-1.webp", name: "TVS Emerald Banglore Chennai 1" },
       ],
     },
     {
       name: "CHENNAI",
       logos: [
-        { src: "/clientele/appaswamy.png", name: "Appaswamy" },
-        { src: "/clientele/tvs-emerald-banglore-chennai-1-1-1.png", name: "TVS Emerald Banglore Chennai 1 1" },
-        { src: "/clientele/snp-foundation-chennai.png", name: "SNP Foundation Chennai" },
-        { src: "/clientele/download-10-2.png", name: "" },
-        { src: "/clientele/images-1.png", name: "" },
-        { src: "/clientele/casa.png", name: "Casa" },
-        { src: "/clientele/downl.png", name: "" },
-        { src: "/clientele/dacnew.png", name: "" },
+        { src: "/clientele/appaswamy.webp", name: "Appaswamy" },
+        { src: "/clientele/tvs-emerald-banglore-chennai-1-1-1.webp", name: "TVS Emerald Banglore Chennai 1 1" },
+        { src: "/clientele/snp-foundation-chennai.webp", name: "SNP Foundation Chennai" },
+        { src: "/clientele/download-10-2.webp", name: "" },
+        { src: "/clientele/images-1.webp", name: "" },
+        { src: "/clientele/casa.webp", name: "Casa" },
+        { src: "/clientele/downl.webp", name: "" },
+        { src: "/clientele/dacnew.webp", name: "" },
       ],
     },
     {
       name: "HYDERABAD",
       logos: [
-        { src: "/clientele/sri-srinivasa.png", name: "Sri Srinivasa" },
-        { src: "/clientele/kalpataru.png", name: "Kalpataru" },
-        { src: "/clientele/vasavi-builders-logo-png-hyderabadnew-rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g.png", name: "Vasavi Builders Logo Png Hyderabadnew Rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g" },
-        { src: "/clientele/alekya-png-logo-hyderabad-rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco.png", name: "Alekya Png Logo Hyderabad Rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco" },
-        { src: "/clientele/aparna-logo.png", name: "Aparna" },
-        { src: "/clientele/myhome-logo.png", name: "Myhome" },
-        { src: "/clientele/sumadhura-infracon-3.jpg", name: "Sumadhura Infracon" },
-        { src: "/clientele/dsr-hyderabad-1.png", name: "Dsr Hyderabad" },
+        { src: "/clientele/sri-srinivasa.webp", name: "Sri Srinivasa" },
+        { src: "/clientele/kalpataru.webp", name: "Kalpataru" },
+        { src: "/clientele/vasavi-builders-logo-png-hyderabadnew-rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g.webp", name: "Vasavi Builders Logo Png Hyderabadnew Rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g" },
+        { src: "/clientele/alekya-png-logo-hyderabad-rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco.webp", name: "Alekya Png Logo Hyderabad Rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco" },
+        { src: "/clientele/aparna-logo.webp", name: "Aparna" },
+        { src: "/clientele/myhome-logo.webp", name: "Myhome" },
+        { src: "/clientele/sumadhura-infracon-3.webp", name: "Sumadhura Infracon" },
+        { src: "/clientele/dsr-hyderabad-1.webp", name: "Dsr Hyderabad" },
       ],
     },
     {
       name: "DELHI",
       logos: [
-        { src: "/clientele/dlf-capital-green.png", name: "DLF Capital Green" },
-        { src: "/clientele/lemon-tree-hotels.png", name: "Lemon Tree Hotels" },
-        { src: "/clientele/m3m.png", name: "" },
-        { src: "/clientele/tata-housing-1.png", name: "Tata Housing" },
+        { src: "/clientele/dlf-capital-green.webp", name: "DLF Capital Green" },
+        { src: "/clientele/lemon-tree-hotels.webp", name: "Lemon Tree Hotels" },
+        { src: "/clientele/m3m.webp", name: "" },
+        { src: "/clientele/tata-housing-1.webp", name: "Tata Housing" },
       ],
     },
     {
       name: "NAGPUR",
       logos: [
-        { src: "/clientele/images-2-1.png", name: "" },
-        { src: "/clientele/download-5-1.png", name: "" },
-        { src: "/clientele/image-119.png", name: "" },
-        { src: "/clientele/image-117.png", name: "" },
-        { src: "/clientele/1654503679145-rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0.jpeg", name: "1654503679145 Rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0" },
-        { src: "/clientele/sachidanand-realties-nagpur-png-logo-1.png", name: "Sachidanand Realties Nagpur Png Logo" },
-        { src: "/clientele/sdpl-nagpur-logo-1.png", name: "Sdpl Nagpur Logo" },
-        { src: "/clientele/pyramid-group-nagpur-logo.jpg", name: "Pyramid Group Nagpur" },
+        { src: "/clientele/images-2-1.webp", name: "" },
+        { src: "/clientele/download-5-1.webp", name: "" },
+        { src: "/clientele/image-119.webp", name: "" },
+        { src: "/clientele/image-117.webp", name: "" },
+        { src: "/clientele/1654503679145-rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0.webp", name: "1654503679145 Rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0" },
+        { src: "/clientele/sachidanand-realties-nagpur-png-logo-1.webp", name: "Sachidanand Realties Nagpur Png Logo" },
+        { src: "/clientele/sdpl-nagpur-logo-1.webp", name: "Sdpl Nagpur Logo" },
+        { src: "/clientele/pyramid-group-nagpur-logo.webp", name: "Pyramid Group Nagpur" },
       ],
     },
     {
       name: "KOLKATA",
       logos: [
-        { src: "/clientele/sugam-kolkata-logo-1.png", name: "Sugam Kolkata Logo" },
-        { src: "/clientele/godrej-properties.jpg", name: "Godrej Properties" },
-        { src: "/clientele/alcove-realty-kolkata.png", name: "Alcove Realty Kolkata" },
-        { src: "/clientele/siddha-group-kolkata.png", name: "Siddha Group Kolkata" },
-        { src: "/clientele/primarc-kolkata.png", name: "Primarc Kolkata" },
-        { src: "/clientele/rajat-group-kolkata-logo.jpeg", name: "Rajat Group Kolkata" },
-        { src: "/clientele/merlin-group-kolkata-logo.jpg", name: "Merlin Group Kolkata" },
-        { src: "/clientele/purti-realty-kolkata-logo.png", name: "Purti Realty Kolkata" },
+        { src: "/clientele/sugam-kolkata-logo-1.webp", name: "Sugam Kolkata Logo" },
+        { src: "/clientele/godrej-properties.webp", name: "Godrej Properties" },
+        { src: "/clientele/alcove-realty-kolkata.webp", name: "Alcove Realty Kolkata" },
+        { src: "/clientele/siddha-group-kolkata.webp", name: "Siddha Group Kolkata" },
+        { src: "/clientele/primarc-kolkata.webp", name: "Primarc Kolkata" },
+        { src: "/clientele/rajat-group-kolkata-logo.webp", name: "Rajat Group Kolkata" },
+        { src: "/clientele/merlin-group-kolkata-logo.webp", name: "Merlin Group Kolkata" },
+        { src: "/clientele/purti-realty-kolkata-logo.webp", name: "Purti Realty Kolkata" },
       ],
     },
   ],
@@ -744,7 +744,7 @@ export const clientelePage = {
 export const projectsPage = {
   title: "Projects",
   banner: {
-    image: "/projects/banner.png",
+    image: "/projects/banner.webp",
     headingLines: ["Projects:", "Built with", "buildon"],
   },
   readMore: "Read More >",
@@ -752,63 +752,63 @@ export const projectsPage = {
     {
       name: "Aparna One, Hyderabad",
       href: "",
-      image: "/projects/mask-group-29.png",
+      image: "/projects/mask-group-29.webp",
       body:
         "Aparna One is a project of ultra luxurious residential gated community flats for sale in Shaikpet, Hyderabad. These magnificent smart apartments are the perfect combination of class",
     },
     {
       name: "Aparna Zenon – Hyderabad",
       href: "",
-      image: "/projects/mask-group-3.png",
+      image: "/projects/mask-group-3.webp",
       body:
         "Flats for sale in Nanakramguda, Hyderabad. The project offers luxurious 2 & 3 BHK apartments for sale in Nanakramguda, Puppalaguda. Nanakramguda Financial District is an IT",
     },
     {
       name: "Brigade Meadows Plumeria – Bangalore",
       href: "",
-      image: "/projects/mask-group-9-1.png",
+      image: "/projects/mask-group-9-1.webp",
       body:
         "Brigade Meadows Plumeria is the new project developed by Brigade Group launched in Kanakapura Road, Bangalore. The Brigade Group was founded in 1986",
     },
     {
       name: "Godrej The Trees – Vikhroli East, Mumbai",
       href: "",
-      image: "/projects/mask-group-8-1.png",
+      image: "/projects/mask-group-8-1.webp",
       body:
         "Godrej The Trees in Vikhroli East, Mumbai is a popular society in the city, it is well made and has all the amenities you need. There is ample space for parking of cars and bikes",
     },
     {
       name: "Goel Ganga Dham – Pune",
       href: "",
-      image: "/projects/mask-group-1-1.png",
+      image: "/projects/mask-group-1-1.webp",
       body:
         "Goel Ganga Group is one of the known real estate brands in Pune.The builder has delivered 74 projects so far. Around 7 projects are upcoming.",
     },
     {
       name: "Godrej Infinity – Pune",
       href: "",
-      image: "/projects/godrej-infinity-keshav-nagar-pune-1.jpg",
+      image: "/projects/godrej-infinity-keshav-nagar-pune-1.webp",
       body:
         "Godrej Infinity is a 43-acre residential development located on the banks of the Mula-Mutha River at Keshavnagar, Pune. The township will offer a holistic lifestyle",
     },
     {
       name: "Kolte Patil Atria – Pune",
       href: "",
-      image: "/projects/mask-group-4.png",
+      image: "/projects/mask-group-4.webp",
       body:
         "Beautifully crafted to complement your chic and aristocratic personality, our exclusively designed residences at 24K Atria by Kolte-Patil Developers let you explore the true joy",
     },
     {
       name: "Kalpataru Hills – Thane",
       href: "",
-      image: "/projects/mask-group-7-1.png",
+      image: "/projects/mask-group-7-1.webp",
       body:
         "The architecture of Tata Serein Pokhran Road 2 is centred on the well-being of its residents. On Pokhran Rd 2 in Thane West’s most affluent area.",
     },
     {
       name: "Lodha Palava",
       href: "",
-      image: "/projects/lodha-palava-1.jpg",
+      image: "/projects/lodha-palava-1.webp",
       body:
         "Lodha Palava city is a dream project by Lodha. The township is well equipped with all the facilities and modern amenities. It’s like a smart city experience.",
     },
@@ -829,7 +829,7 @@ export const projectsPage = {
     {
       name: "Mahindra Eden – Bangalore",
       href: "",
-      image: "/projects/mahindra-eden-bangalore.jpg",
+      image: "/projects/mahindra-eden-bangalore.webp",
       body:
         "Mahindra Eden – Bangalore is a hi-tech residential project ahead of its time grown by Mahindra Lifespaces located in a key corner of Kanakapura Road, Bengaluru. The eco-friendly homes in Mahindra Eden offer the ideal homes for your needs.",
     },
@@ -857,63 +857,63 @@ export const projectsPage = {
     {
       name: "Prestige Bella Vista – Chennai",
       href: "",
-      image: "/projects/prestige-bella-vista-chennai.jpg",
+      image: "/projects/prestige-bella-vista-chennai.webp",
       body:
         "Located on Mount Poonamallee Road, Porur – Bella Vista is touted to be one of Chennai’s most lavish and serene Residential Developments.",
     },
     {
       name: "Alcove New Kolkata",
       href: "",
-      image: "/projects/new-kolkata-sangam.jpeg",
+      image: "/projects/new-kolkata-sangam.webp",
       body:
         "Alcove New Kolkata is a project spread over a total area of 28.5 acres. Total of 15, 27 storied towers. Residents of the New Kolkata Riverside Project will have the luxury of waking up to a scenic riverside view from their homes.",
     },
     {
       name: "Godrej Seven",
       href: "",
-      image: "/projects/elevate-at-godrej-seven-joka.jpeg",
+      image: "/projects/elevate-at-godrej-seven-joka.webp",
       body:
         "The apartments are beautifully planned in the total area of 20.23 acres of land. The apartments range starts from avail of 2BHK, 2.5BHK, and 3BHK. These apartments are planned in 7 towers in grand elevation of G+12 and G+14 floors.",
     },
     {
       name: "Primarc Southwinds project LLP",
       href: "",
-      image: "/projects/primarc-kolkata.jpg",
+      image: "/projects/primarc-kolkata.webp",
       body:
         "Southwinds on Southern Bypass introduces new blocks with bigger 3BHK pond-facing apartments. Southwinds on Southern Bypass is a residential project that spans across 972 kattha of land.",
     },
     {
       name: "Siddha Sky",
       href: "",
-      image: "/projects/siddha-sky-kolkata.jpg",
+      image: "/projects/siddha-sky-kolkata.webp",
       body:
         "This incredible project, which is currently under construction, is being built on a total area of 8.51 acres. There are 2BHK, 3BHK, and 4BHK apartments. This mesmerizing property is also available in sizes from 4 BHK Flat (2560. 0 Sq. Ft. – 2560. 0 Sq. Ft.).",
     },
     {
       name: "ACC INDIA PVT LTD – 88 East",
       href: "",
-      image: "/projects/88-east-kolkata.jpg",
+      image: "/projects/88-east-kolkata.webp",
       body:
         "The Tata Housing Development Company, Tata Housing 88 East, is a world-class, luxurious residential development planned right in the middle of one of the most prized residential locations inside the ‘City of Joy’ – namely, Alipore, Kolkata.",
     },
     {
       name: "Natural City Birati",
       href: "",
-      image: "/projects/natural-city-birati.jpg",
+      image: "/projects/natural-city-birati.webp",
       body:
         "The magnificent Natural City Birati that is smartly located in Birati, Kolkata, is a well-planned project. This project has its expanse over an area of 124 Kottah. The project features a total of 110 units that are well-ventilated.",
     },
     {
       name: "Raga Sarvalom",
       href: "",
-      image: "/projects/raga-sarvolam-kolkata.jpg",
+      image: "/projects/raga-sarvolam-kolkata.webp",
       body:
         "It is a well-designed and comfortable home that offers an excellent quality of life. It is a 230-unit project spread over 2.5 acres in Howrah, Kolkata.",
     },
     {
       name: "Kshetrum Aspire",
       href: "",
-      image: "/projects/kshetrum-aspire-kolkata.jpg",
+      image: "/projects/kshetrum-aspire-kolkata.webp",
       body:
         "The magnificent Kshetrum Aspire that is smartly located in Behala Chowrasta, Kolkata, is a well-planned project. Spread over a vast area of 1 acre, the project is a well-established one. The entire project consists of over 100 residential units.",
     },
@@ -927,7 +927,7 @@ export const projectsPage = {
 export const careerPage = {
   title: "Career",
   banner: {
-    image: "/career/banner.png",
+    image: "/career/banner.webp",
     headingLines: ["Find a job that", "will help build", "a better nation."],
   },
   openings: {
@@ -960,45 +960,45 @@ export const careerPage = {
       {
         title: "Annual conference 2024",
         images: [
-          "/career/rectangle-5576.png",
-          "/career/rectangle-5577.png",
-          "/career/rectangle-5578.png",
-          "/career/rectangle-5580.png",
-          "/career/rectangle-5582.png",
-          "/career/rectangle-5579.png",
+          "/career/rectangle-5576.webp",
+          "/career/rectangle-5577.webp",
+          "/career/rectangle-5578.webp",
+          "/career/rectangle-5580.webp",
+          "/career/rectangle-5582.webp",
+          "/career/rectangle-5579.webp",
         ],
       },
       {
         title: "Diwali Celebrations in Head Office",
         images: [
-          "/career/life-2-1.jpg",
-          "/career/life-2-2.jpg",
-          "/career/life-2-3.jpg",
-          "/career/life-2-4.jpg",
-          "/career/life-2-5.jpg",
-          "/career/life-2-6.png",
+          "/career/life-2-1.webp",
+          "/career/life-2-2.webp",
+          "/career/life-2-3.webp",
+          "/career/life-2-4.webp",
+          "/career/life-2-5.webp",
+          "/career/life-2-6.webp",
         ],
       },
       {
         title: "Christmas Celebration in Head Office",
         images: [
-          "/career/life-3-1.jpg",
-          "/career/life-3-2.jpg",
-          "/career/life-3-3.jpg",
-          "/career/life-3-4.jpg",
-          "/career/life-3-5.jpg",
-          "/career/life-3-6.jpg",
+          "/career/life-3-1.webp",
+          "/career/life-3-2.webp",
+          "/career/life-3-3.webp",
+          "/career/life-3-4.webp",
+          "/career/life-3-5.webp",
+          "/career/life-3-6.webp",
         ],
       },
       {
         title: "Buildon Picnic 2025",
         images: [
-          "/career/life-4-1.jpg",
-          "/career/life-4-2.jpg",
-          "/career/img-20250301-wa0031.jpg",
-          "/career/img-20250301-wa0032.jpg",
-          "/career/img-20250301-wa0033.jpg",
-          "/career/img-20250301-wa0034.jpg",
+          "/career/life-4-1.webp",
+          "/career/life-4-2.webp",
+          "/career/img-20250301-wa0031.webp",
+          "/career/img-20250301-wa0032.webp",
+          "/career/img-20250301-wa0033.webp",
+          "/career/img-20250301-wa0034.webp",
         ],
       },
     ],
@@ -1016,7 +1016,7 @@ export const careerPage = {
 export const blogPage = {
   title: "Blog",
   banner: {
-    image: "/blog/banner.png",
+    image: "/blog/banner.webp",
     headingLines: ["Blogs"],
   },
   /** The reference's own button reads "Read more"; matched to the product and

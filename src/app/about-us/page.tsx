@@ -191,7 +191,7 @@ export default function AboutUsPage() {
         <section className="relative isolate overflow-hidden bg-surface">
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-[url('/about/banner-about.png')] bg-cover bg-center"
+            className="absolute inset-0 -z-10 bg-[url('/about/banner-about.webp')] bg-cover bg-center"
           />
           <div className="container-page section-y">
             <Reveal className="bg-line/60 p-4 shadow-lift sm:p-5">

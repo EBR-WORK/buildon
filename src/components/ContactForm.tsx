@@ -40,7 +40,7 @@ export default function ContactForm() {
             the subject up and sliced the sides off. */}
         <Reveal className="relative mx-5 mb-16 aspect-4/3 overflow-hidden rounded-2xl sm:mx-7 sm:mb-20 lg:mx-0 lg:mb-0 lg:aspect-square lg:min-h-0 lg:self-center lg:rounded-none">
           <Image
-            src="/projects/plastering.jpg"
+            src="/projects/plastering.webp"
             alt="A plasterer smoothing a ceiling with a trowel"
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
