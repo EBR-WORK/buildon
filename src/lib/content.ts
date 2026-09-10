@@ -202,10 +202,8 @@ export const clients = {
   ],
 } as const;
 
+/** Just the band's call to action — it runs without a heading. */
 export const projects = {
-  title: "Projects Where Our Products Are Used",
-  intro:
-    "Here are the finest projects in which our gypsum products are being used to ensure the best quality in construction.",
   cta: { label: "VIEW MORE", href: "" },
 } as const;
 
@@ -1021,7 +1019,9 @@ export const blogPage = {
     image: "/blog/banner.png",
     headingLines: ["Blogs"],
   },
-  heading: "Blogs",
+  /** The reference's own button reads "Read more"; matched to the product and
+      project cards here so every card in the site carries the same label. */
+  readMore: "Read More >",
   items: [
     {
       title: "Why Use Gypsum for Repairing Interior Plaster Walls",

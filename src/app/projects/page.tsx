@@ -2,20 +2,26 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
-import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { projects, projectsPage, site } from "@/lib/content";
+import { projectsPage, site } from "@/lib/content";
+
+// Built from the page's own banner copy plus the development names, now that
+// there is no standing intro paragraph to lift.
+const description = `${projectsPage.banner.headingLines.join(" ")} ${projectsPage.items.length} developments including ${projectsPage.items
+  .slice(0, 4)
+  .map((project) => project.name)
+  .join(", ")}.`;
 
 export const metadata: Metadata = {
   title: projectsPage.title,
-  description: projects.intro,
+  description,
   alternates: { canonical: "/projects" },
   openGraph: {
     type: "website",
     url: `${site.url}/projects/`,
     title: `${projectsPage.title} | ${site.name}`,
-    description: projects.intro,
+    description,
   },
 };
 
@@ -37,11 +43,7 @@ export default function ProjectsPage() {
 
         <section className="section-y">
           <div className="container-page">
-            <Reveal>
-              <SectionHeading title={projects.title} intro={projects.intro} align="center" />
-            </Reveal>
-
-            <ul className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-14 lg:grid-cols-3">
+            <ul className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {projectsPage.items.map((project, i) => (
                 <Reveal as="li" key={project.name} delay={(i % 3) * 0.06} className="flex">
                   <article className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-1 hover:shadow-lift">
@@ -57,7 +59,7 @@ export default function ProjectsPage() {
                     </div>
 
                     <div className="flex flex-1 flex-col p-5 sm:p-6">
-                      <h2 className="font-display text-lg leading-snug font-semibold sm:text-xl">
+                      <h2 className="font-display text-lg leading-snug font-semibold transition-colors group-hover:text-brand-500 sm:text-xl">
                         {project.name}
                       </h2>
                       {/* Clamped to five lines so every card is the same height

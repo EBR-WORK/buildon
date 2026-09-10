@@ -68,7 +68,7 @@ export default function Products() {
                   </div>
 
                   <div className="flex flex-1 flex-col p-5 sm:p-6">
-                    <h3 className="text-xl leading-snug font-semibold sm:text-2xl">
+                    <h3 className="text-xl leading-snug font-semibold transition-colors group-hover:text-brand-500 sm:text-2xl">
                       {product.name}
                     </h3>
                     <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">

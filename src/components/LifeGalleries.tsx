@@ -89,7 +89,11 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
 
   return (
     <>
-      <div className="mt-10 space-y-12 sm:mt-12 sm:space-y-14">
+      {/* The reference keeps "Life at Buildon" and the first gallery's title in
+          one block, so they read as a heading and its subtitle: a tight gap
+          between them, a wider one before the photographs. Galleries after the
+          first take their separation from space-y instead. */}
+      <div className="mt-4 space-y-12 sm:mt-5 sm:space-y-14">
         {galleries.map((gallery, galleryIndex) => (
           <div key={gallery.title}>
             <Reveal>
@@ -98,7 +102,7 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
               </h3>
             </Reveal>
 
-            <ul className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-3 sm:gap-4">
+            <ul className="mt-6 grid grid-cols-2 gap-3 sm:mt-7 sm:grid-cols-3 sm:gap-4">
               {gallery.images.map((src, i) => {
                 const index = offsets[galleryIndex] + i;
                 return (

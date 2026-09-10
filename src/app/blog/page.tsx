@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
-import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { blogPage, site } from "@/lib/content";
@@ -45,14 +44,10 @@ export default function BlogPage() {
 
         <section className="section-y">
           <div className="container-page">
-            <Reveal>
-              <SectionHeading title={blogPage.heading} align="center" />
-            </Reveal>
-
-            <ul className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-14 lg:grid-cols-3">
+            <ul className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {blogPage.items.map((post, i) => (
                 <Reveal as="li" key={post.title} delay={(i % 3) * 0.06} className="flex">
-                  <article className="flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:shadow-card">
+                  <article className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-1 hover:shadow-lift">
                     {/* Square, as the reference crops them */}
                     <div className="relative aspect-square overflow-hidden bg-surface">
                       <Image
@@ -61,12 +56,12 @@ export default function BlogPage() {
                         fill
                         sizes="(min-width: 1024px) 24rem, (min-width: 640px) 45vw, 92vw"
                         loading={i < 3 ? "eager" : "lazy"}
-                        className="object-cover"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
 
                     <div className="flex flex-1 flex-col p-5 sm:p-6">
-                      <h2 className="font-display text-lg leading-snug font-semibold sm:text-xl">
+                      <h2 className="font-display text-lg leading-snug font-semibold transition-colors group-hover:text-brand-500 sm:text-xl">
                         {post.title}
                       </h2>
                       {/* Clamped so a long excerpt cannot stretch its row of
@@ -74,6 +69,15 @@ export default function BlogPage() {
                       <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500 line-clamp-5">
                         {post.excerpt}
                       </p>
+                      {/* No post pages yet, so this is a button with nothing
+                          wired to it rather than a link. */}
+                      <button
+                        suppressHydrationWarning
+                        type="button"
+                        className="mt-4 inline-flex cursor-pointer items-center self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
+                      >
+                        {blogPage.readMore}
+                      </button>
                     </div>
                   </article>
                 </Reveal>

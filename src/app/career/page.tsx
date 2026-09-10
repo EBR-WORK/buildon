@@ -47,7 +47,7 @@ export default function CareerPage() {
         <section className="section-y">
           <div className="container-page">
             <Reveal>
-              <SectionHeading title={careerPage.openings.title} />
+              <SectionHeading title={careerPage.openings.title} align="center" />
             </Reveal>
 
             <ul className="mt-8 space-y-4 sm:mt-10">
@@ -55,7 +55,7 @@ export default function CareerPage() {
                 <Reveal as="li" key={`${job.title}-${job.location}`} delay={i * 0.08}>
                   <article className="group flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 transition hover:border-brand-200 hover:shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-7">
                     <div className="min-w-0">
-                      <h3 className="font-display text-xl leading-snug font-semibold sm:text-2xl">
+                      <h3 className="font-display text-xl leading-snug font-semibold transition-colors group-hover:text-brand-500 sm:text-2xl">
                         {job.title}
                       </h3>
                       <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-[15px] text-ink-500">
