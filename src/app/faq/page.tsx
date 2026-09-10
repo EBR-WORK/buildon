@@ -23,6 +23,9 @@ export const metadata: Metadata = {
  * The reference drives its accordion with JavaScript. This uses <details> and
  * <summary> instead: it opens and closes with no script, is keyboard operable
  * for free, and the answers stay in the page for search engines and find-in-page.
+ *
+ * Every panel shares one `name`, so only one answer is open at a time across
+ * the whole page — including across group headings.
  */
 export default function FaqPage() {
   const faqJsonLd = {
@@ -69,7 +72,13 @@ export default function FaqPage() {
                     delay={Math.min(i, 4) * 0.05}
                     className="overflow-hidden rounded-2xl border border-line bg-white"
                   >
-                    <details className="group">
+                    {/* A shared `name` makes these an exclusive accordion:
+                        the browser closes whichever one is open when another
+                        is opened, the same way same-named radios work. No
+                        script, no state. A browser too old to know the
+                        attribute ignores it and simply allows several open at
+                        once, which is where this started. */}
+                    <details name="faq" className="group">
                       <summary className="flex cursor-pointer list-none items-start gap-4 p-5 sm:p-6 [&::-webkit-details-marker]:hidden">
                         <h3 className="flex-1 font-display text-lg leading-snug font-semibold">
                           {item.question}
