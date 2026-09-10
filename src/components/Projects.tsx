@@ -17,6 +17,7 @@ export default function Projects() {
 
         <div className="mt-8 sm:mt-10">
           <button
+            suppressHydrationWarning
             type="button"
             className="inline-flex cursor-pointer items-center justify-center rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600"
           >

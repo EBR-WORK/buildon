@@ -185,10 +185,8 @@ export const about = {
   image: "/projects/project-2.png",
 } as const;
 
+/** Just the marquee's logo track — the home page runs it without a heading. */
 export const clients = {
-  title: "Meet Our Clients",
-  intro:
-    "As a leader of Gypsum products in India, we cater to most of the leading builders across the nation.",
   logos: [
     "/clients/mahindra.jpg",
     "/clients/client-1.png",

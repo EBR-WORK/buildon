@@ -68,6 +68,7 @@ export default function EnquiryForm({ className = "" }: { className?: string }) 
   <Field name="message" label={contact.fields.message} error={errors.message} multiline />
 
   <button
+    suppressHydrationWarning
     type="submit"
     className="group mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600 sm:w-auto"
   >
@@ -110,6 +111,7 @@ function Field({
       <div className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-brand-500 after:transition-all after:duration-300 after:content-[''] has-[:focus]:after:w-full">
         {multiline ? (
           <textarea
+            suppressHydrationWarning
             id={name}
             name={name}
             rows={4}
@@ -121,6 +123,7 @@ function Field({
           />
         ) : (
           <input
+            suppressHydrationWarning
             id={name}
             name={name}
             type={type}

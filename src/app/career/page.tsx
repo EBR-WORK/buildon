@@ -73,6 +73,7 @@ export default function CareerPage() {
                     {/* The job page is not built yet, so this is a button with
                         nothing wired to it rather than a link. */}
                     <button
+                      suppressHydrationWarning
                       type="button"
                       className="inline-flex shrink-0 cursor-pointer items-center gap-2 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:self-auto"
                     >

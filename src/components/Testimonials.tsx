@@ -76,6 +76,7 @@ export default function Testimonials() {
             <div className="flex gap-2">
               {testimonials.items.map((item, i) => (
                 <button
+                  suppressHydrationWarning
                   key={item.author}
                   type="button"
                   onClick={() => goTo(i)}
@@ -89,6 +90,7 @@ export default function Testimonials() {
             </div>
 
             <button
+              suppressHydrationWarning
               type="button"
               className="cursor-pointer text-sm font-semibold text-brand-500 hover:text-brand-600 sm:ml-auto"
             >

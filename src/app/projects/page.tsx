@@ -68,6 +68,7 @@ export default function ProjectsPage() {
                         {project.body}
                       </p>
                       <button
+                        suppressHydrationWarning
                         type="button"
                         className="mt-4 inline-flex cursor-pointer items-center self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
                       >

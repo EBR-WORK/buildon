@@ -5,19 +5,25 @@ import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { clientelePage, clients, site } from "@/lib/content";
+import { clientelePage, site } from "@/lib/content";
 
 const totalLogos = clientelePage.cities.reduce((n, city) => n + city.logos.length, 0);
 
+// Built from the page's own banner copy plus the city list, now that there is
+// no standing intro paragraph to lift.
+const description = `${clientelePage.banner.headingLines.join(" ")} ${totalLogos} clients across ${clientelePage.cities
+  .map((city) => city.name)
+  .join(", ")}.`;
+
 export const metadata: Metadata = {
   title: clientelePage.title,
-  description: clients.intro,
+  description,
   alternates: { canonical: "/clientele" },
   openGraph: {
     type: "website",
     url: `${site.url}/clientele/`,
     title: `${clientelePage.title} | ${site.name}`,
-    description: clients.intro,
+    description,
   },
 };
 
@@ -36,12 +42,6 @@ export default function ClientelePage() {
           image={clientelePage.banner.image}
           headingLines={clientelePage.banner.headingLines}
         />
-
-        <section className="section-y">
-          <Reveal className="container-page">
-            <SectionHeading title={clients.title} intro={clients.intro} align="center" />
-          </Reveal>
-        </section>
 
         {clientelePage.cities.map((city, cityIndex) => (
           <section

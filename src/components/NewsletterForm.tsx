@@ -41,6 +41,7 @@ export default function NewsletterForm() {
         </label>
         <MailIcon className="pointer-events-none absolute top-1/2 left-5 size-5 -translate-y-1/2 text-ink-400" />
         <input
+          suppressHydrationWarning
           id="newsletter-email"
           name="email"
           type="email"
@@ -52,6 +53,7 @@ export default function NewsletterForm() {
           }`}
         />
         <button
+          suppressHydrationWarning
           type="submit"
           aria-label={newsletter.submit}
           className="absolute top-1/2 right-2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-brand-500 text-white transition hover:bg-brand-600"

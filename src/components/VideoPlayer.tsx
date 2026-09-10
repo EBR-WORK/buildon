@@ -39,6 +39,7 @@ export default function VideoPlayer({ src, poster, label, className = "" }: Prop
 
       {!started && (
         <button
+          suppressHydrationWarning
           type="button"
           onClick={() => videoRef.current?.play()}
           className="group absolute inset-0 grid cursor-pointer place-items-center"

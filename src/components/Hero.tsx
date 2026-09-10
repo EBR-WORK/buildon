@@ -41,9 +41,21 @@ export default function Hero() {
         </p>
 
         <div className="mt-8 flex w-full animate-rise flex-col items-center gap-4 [animation-delay:360ms] sm:mt-10 sm:w-auto sm:flex-row sm:gap-6">
-          {/* Both destinations are still to be wired up, so these are buttons
-              rather than anchors — an <a href=""> would reload the page. */}
+          {/*
+            Both destinations are still to be wired up, so these are buttons
+            rather than anchors — an <a href=""> would reload the page.
+
+            suppressHydrationWarning, here and on every other button and field
+            in the app: password managers and autofill extensions stamp their
+            own attribute (fdprocessedid) onto form controls between the HTML
+            arriving and React hydrating it. React then reports an attribute it
+            never rendered as a hydration mismatch. It is the visitor's browser
+            doing this, not us, and there is nothing to repair — so the warning
+            is suppressed on the elements they touch. It only silences
+            attribute diffing on that one element, not its children.
+          */}
           <button
+            suppressHydrationWarning
             type="button"
             className="group inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-7 py-3.5 font-display font-medium tracking-wide text-white shadow-card transition hover:bg-brand-600 sm:w-auto"
           >
@@ -59,6 +71,7 @@ export default function Hero() {
             sits left of its bounding box, so dead-centre reads as off-centre.
           */}
           <button
+            suppressHydrationWarning
             type="button"
             className="group inline-flex cursor-pointer items-center justify-center gap-3.5 font-display text-[15px] font-medium tracking-[0.06em] text-white"
           >
