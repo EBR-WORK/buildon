@@ -89,7 +89,11 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
 
   return (
     <>
-      <div className="mt-10 space-y-12 sm:mt-12 sm:space-y-14">
+      {/* The reference keeps "Life at Buildon" and the first gallery's title in
+          one block, so they read as a heading and its subtitle: a tight gap
+          between them, a wider one before the photographs. Galleries after the
+          first take their separation from space-y instead. */}
+      <div className="mt-4 space-y-12 sm:mt-5 sm:space-y-14">
         {galleries.map((gallery, galleryIndex) => (
           <div key={gallery.title}>
             <Reveal>
@@ -98,12 +102,13 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
               </h3>
             </Reveal>
 
-            <ul className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-3 sm:gap-4">
+            <ul className="mt-6 grid grid-cols-2 gap-3 sm:mt-7 sm:grid-cols-3 sm:gap-4">
               {gallery.images.map((src, i) => {
                 const index = offsets[galleryIndex] + i;
                 return (
                   <Reveal as="li" key={src} delay={(i % 3) * 0.06}>
                     <button
+                      suppressHydrationWarning
                       type="button"
                       onClick={(e) => {
                         openerRef.current = e.currentTarget;
@@ -134,6 +139,7 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
            still reads behind the viewer. */
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-secondary/45 p-3 backdrop-blur-md sm:p-6">
           <button
+            suppressHydrationWarning
             type="button"
             onClick={close}
             aria-label="Close"
@@ -163,6 +169,7 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
               />
 
               <button
+                suppressHydrationWarning
                 type="button"
                 onClick={toggleFullscreen}
                 aria-label={isFullscreen ? "Leave fullscreen" : "View fullscreen"}
@@ -176,6 +183,7 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
               </button>
 
               <button
+                suppressHydrationWarning
                 type="button"
                 onClick={() => step(-1)}
                 aria-label="Previous photograph"
@@ -184,6 +192,7 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
                 <ArrowIcon className="size-5 rotate-180" />
               </button>
               <button
+                suppressHydrationWarning
                 type="button"
                 onClick={() => step(1)}
                 aria-label="Next photograph"
@@ -207,6 +216,7 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
                   {flat.map((item, i) => (
                     <li key={item.src} data-index={i} className="shrink-0">
                       <button
+                        suppressHydrationWarning
                         type="button"
                         onClick={() => setOpenAt(i)}
                         aria-label={`Go to photograph ${i + 1} of ${flat.length}`}
@@ -237,6 +247,7 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
                 {openAt + 1}/{flat.length}
               </p>
               <button
+                suppressHydrationWarning
                 type="button"
                 onClick={close}
                 aria-label="Close"

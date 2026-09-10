@@ -1,7 +1,5 @@
 import Image from "next/image";
 import { clients } from "@/lib/content";
-import SectionHeading from "./SectionHeading";
-import Reveal from "./Reveal";
 
 export default function Clients() {
   // Duplicated once so the marquee can loop seamlessly at -50%.
@@ -12,14 +10,10 @@ export default function Clients() {
       id="clients"
       className="section-y scroll-mt-28 border-t border-line"
     >
-      <Reveal className="container-page">
-        <SectionHeading title={clients.title} intro={clients.intro} align="center" />
-      </Reveal>
-
       {/* Tiles shrink on small screens, so the loop duration shortens to keep the
           logos moving at roughly the same speed across breakpoints. */}
       <div
-        className="group relative mt-10 overflow-hidden [--marquee-duration:30s] [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:mt-12 sm:[--marquee-duration:36s] lg:mt-14 lg:[--marquee-duration:42s] lg:[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+        className="group relative overflow-hidden [--marquee-duration:30s] [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:[--marquee-duration:36s] lg:[--marquee-duration:42s] lg:[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
         role="region"
         aria-label="Client logos"
       >

@@ -36,12 +36,19 @@ export default function ContactDetails() {
     <section id="contact" className="scroll-mt-28 bg-surface">
       <div className="grid lg:grid-cols-2">
         <div className="section-y">
-          {/* The padding lives on this block, not the column, and the cap is
-              40rem — half of container-page's 80rem. That makes its content
-              edge exactly (50% - 40rem + padding), which is the same value
-              container-page resolves to, so this lines up with every other
-              section at every width. */}
-          <Reveal className="ml-auto w-full max-w-[40rem] px-5 sm:px-7 lg:pr-12 lg:pl-8">
+          {/* The padding lives on this block, not the column, so it matches
+              container-page's own 1.25/1.75rem at every width.
+
+              The 40rem cap and the ml-auto that pulls the block to the inner
+              edge are lg-only, and must stay that way. At lg the column is half
+              the container, so a 40rem block pushed right has its content edge
+              at exactly (50% - 40rem + padding) — the value container-page
+              resolves to, which is what lines this up with every other section.
+              Below lg there is no second column to line up against: the same
+              two utilities just park a 40rem block against the right edge of a
+              full-width viewport, which is what left tablets with the form
+              shoved into the right two-thirds. Stacked, it runs full width. */}
+          <Reveal className="w-full px-5 sm:px-7 lg:ml-auto lg:max-w-[40rem] lg:pr-12 lg:pl-8">
             <SectionHeading title={contact.title} />
 
             <ul className="mt-8 space-y-6 sm:mt-10">

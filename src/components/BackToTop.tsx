@@ -32,6 +32,7 @@ export default function BackToTop() {
 
   return (
     <button
+      suppressHydrationWarning
       type="button"
       onClick={() =>
         window.scrollTo({

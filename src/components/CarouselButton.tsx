@@ -19,6 +19,7 @@ export default function CarouselButton({
 }: Props) {
   return (
     <button
+      suppressHydrationWarning
       type="button"
       onClick={onClick}
       disabled={disabled}

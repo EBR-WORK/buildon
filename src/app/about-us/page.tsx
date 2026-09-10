@@ -134,21 +134,25 @@ export default function AboutUsPage() {
         */}
         <div className="container-page my-16 sm:my-20 lg:my-[100px]">
           <Reveal className="bg-white p-5 shadow-lift sm:p-[30px]">
-            <div className="grid items-stretch gap-8 md:grid-cols-2 md:gap-0">
-              {/* 540x668 source; the column is a similar portrait, so filling
-                  its height crops almost nothing. */}
-              <div className="relative min-h-[22rem] w-full md:min-h-[30rem]">
+            {/* The split waits for lg. At md the two columns are only ~350px
+                each, which left the photo a slot and the body text a gutter —
+                so tablets stack, photo full width above the copy. */}
+            <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-0">
+              {/* 540x668 source. Beside the copy it fills a portrait column and
+                  crops almost nothing; stacked it becomes a 4:3 band, with the
+                  min-height as a floor so narrow phones still get some depth. */}
+              <div className="relative aspect-4/3 min-h-[22rem] w-full lg:aspect-auto lg:min-h-[30rem]">
                 <Image
                   src={aboutPage.manufacturing.image}
                   alt={aboutPage.manufacturing.imageAlt}
                   fill
-                  sizes="(min-width: 768px) 30rem, 92vw"
+                  sizes="(min-width: 1024px) 30rem, 92vw"
                   loading="lazy"
                   className="object-cover object-center"
                 />
               </div>
 
-              <div className="flex flex-col justify-center md:pr-[25px] md:pl-[60px]">
+              <div className="flex flex-col justify-center lg:pr-[25px] lg:pl-[60px]">
                 <SectionHeading title={aboutPage.manufacturing.title} />
                 <p className="mt-5 text-base leading-relaxed text-ink-500">
                   {aboutPage.manufacturing.body}

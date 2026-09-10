@@ -110,6 +110,7 @@ export default function SiteHeader() {
 
           <div className="flex items-center gap-2">
             <button
+              suppressHydrationWarning
               ref={toggleRef}
               type="button"
               onClick={() => setOpen((v) => !v)}
@@ -146,6 +147,7 @@ export default function SiteHeader() {
                 className="h-12 w-auto sm:h-14"
               />
               <button
+                suppressHydrationWarning
                 type="button"
                 onClick={() => {
                   setOpen(false);
