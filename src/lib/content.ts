@@ -306,23 +306,23 @@ export const footerHeadings = {
 
 export const footerLinks = {
   about: [
-    { label: "Who We Are?", href: "" },
-    { label: "Our Branches", href: "" },
+    { label: "Who We Are?", href: "/contact-us" },
+    { label: "Our Branches", href: "/contact-us" },
     { label: "Privacy Policy", href: "" },
     { label: "User Agreement", href: "" },
-    { label: "Download Catalogue", href: "" },
+    { label: "Download Catalogue", href: "/faq" },
   ],
   quick: [
     { label: "Home", href: "/" },
-    { label: "Our Projects", href: "" },
-    { label: "Our Products", href: "" },
-    { label: "Careers", href: "" },
+    { label: "Our Projects", href: "/projects" },
+    { label: "Our Products", href: "/products" },
+    { label: "Careers", href: "/career" },
     { label: "Customer Reviews", href: "" },
   ],
   support: [
-    { label: "Contact Us", href: "#contact" },
-    { label: "FAQs", href: "" },
-    { label: "Partner With Us", href: "" },
+    { label: "Contact Us", href: "/contact-us" },
+    { label: "FAQs", href: "/faq" },
+    { label: "Partner With Us", href: "/faq" },
   ],
 } as const;
 

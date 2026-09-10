@@ -138,15 +138,28 @@ export default function AboutUsPage() {
                 each, which left the photo a slot and the body text a gutter —
                 so tablets stack, photo full width above the copy. */}
             <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-0">
-              {/* 540x668 source. Beside the copy it fills a portrait column and
-                  crops almost nothing; stacked it becomes a 4:3 band, with the
-                  min-height as a floor so narrow phones still get some depth. */}
-              <div className="relative aspect-4/3 min-h-[22rem] w-full lg:aspect-auto lg:min-h-[30rem]">
+              {/*
+                The box carries the source's own 540x668 ratio, so object-cover
+                has nothing to crop and no letterbox appears at any width.
+
+                It matters because this photograph is tall. A 4:3 band showed
+                61% of it on a tablet, and letting it stretch to the copy's
+                height at lg showed 70% — the copy is long, so that column runs
+                far taller than the picture. Its edges are too varied for a flat
+                letterbox colour to hide the difference, which rules out
+                object-contain.
+
+                Capped and centred when stacked: full-bleed at this ratio would
+                be ~860px tall on a tablet, more than a screenful. At lg
+                self-center opts out of the row's stretch so it keeps its shape
+                beside the taller text.
+              */}
+              <div className="relative mx-auto aspect-[540/668] w-full max-w-[24rem] lg:max-w-none lg:self-center">
                 <Image
                   src={aboutPage.manufacturing.image}
                   alt={aboutPage.manufacturing.imageAlt}
                   fill
-                  sizes="(min-width: 1024px) 30rem, 92vw"
+                  sizes="(min-width: 1024px) 30rem, 24rem"
                   loading="lazy"
                   className="object-cover object-center"
                 />

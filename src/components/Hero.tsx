@@ -66,9 +66,13 @@ export default function Hero() {
           {/*
             The reference's play control is a 48px disc set inside a hairline
             ring, with the label in Oswald at 15px beside it. The ring and the
-            disc are separate layers so the gap between them stays even, and
-            the glyph is nudged a hair right of true centre: a triangle's mass
-            sits left of its bounding box, so dead-centre reads as off-centre.
+            disc are separate layers so the gap between them stays even.
+
+            No transform on the glyph: PlayIcon's triangle already has its
+            centroid on the viewBox centre (12.04, 12), which is what reads as
+            centred for a shape whose area leans toward its base. Nudging it
+            right only moved it off centre — at this size the old 1.5px put the
+            centroid at x=14.
           */}
           <button
             suppressHydrationWarning
@@ -80,7 +84,7 @@ export default function Hero() {
                 aria-hidden
                 className="absolute inset-1 rounded-full bg-white/15 backdrop-blur transition group-hover:bg-brand-500"
               />
-              <PlayIcon className="relative size-[1.15rem] translate-x-[1.5px]" />
+              <PlayIcon className="relative size-[1.15rem]" />
             </span>
             {hero.videoCta.label}
           </button>
