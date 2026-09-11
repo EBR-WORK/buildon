@@ -1,6 +1,10 @@
 import { hero } from "@/lib/content";
 import BackgroundVideo from "./BackgroundVideo";
+import CtaLink from "./CtaLink";
 import { ArrowIcon, PlayIcon } from "./icons";
+
+const primaryCtaClass =
+  "group inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-7 py-3.5 font-display font-medium tracking-wide text-white shadow-card transition hover:bg-brand-600 sm:w-auto";
 
 /**
  * Full-bleed banner: the looping clip fills the section, a dark wash keeps the
@@ -41,32 +45,17 @@ export default function Hero() {
         </p>
 
         <div className="mt-8 flex w-full animate-rise flex-col items-center gap-4 [animation-delay:360ms] sm:mt-10 sm:w-auto sm:flex-row sm:gap-6">
-          {/*
-            Both destinations are still to be wired up, so these are buttons
-            rather than anchors — an <a href=""> would reload the page.
-
-            suppressHydrationWarning, here and on every other button and field
-            in the app: password managers and autofill extensions stamp their
-            own attribute (fdprocessedid) onto form controls between the HTML
-            arriving and React hydrating it. React then reports an attribute it
-            never rendered as a hydration mismatch. It is the visitor's browser
-            doing this, not us, and there is nothing to repair — so the warning
-            is suppressed on the elements they touch. It only silences
-            attribute diffing on that one element, not its children.
-          */}
-          <button
-            suppressHydrationWarning
-            type="button"
-            className="group inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-7 py-3.5 font-display font-medium tracking-wide text-white shadow-card transition hover:bg-brand-600 sm:w-auto"
-          >
+          {/* Both CTAs follow their href in content.ts through CtaLink: a real
+              link once one is filled in, an inert button while it is empty. */}
+          <CtaLink href={hero.primaryCta.href} className={primaryCtaClass}>
             {hero.primaryCta.label}
             <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
-          </button>
+          </CtaLink>
 
           {/*
             The reference's play control is a 48px disc set inside a hairline
-            ring, with its 15px label beside it. The ring and the
-            disc are separate layers so the gap between them stays even.
+            ring, with its 15px label beside it. The ring and the disc are
+            separate layers so the gap between them stays even.
 
             No transform on the glyph: PlayIcon's triangle already has its
             centroid on the viewBox centre (12.04, 12), which is what reads as
@@ -74,9 +63,8 @@ export default function Hero() {
             right only moved it off centre — at this size the old 1.5px put the
             centroid at x=14.
           */}
-          <button
-            suppressHydrationWarning
-            type="button"
+          <CtaLink
+            href={hero.videoCta.href}
             className="group inline-flex cursor-pointer items-center justify-center gap-3.5 font-display text-[15px] font-medium tracking-[0.06em] text-white"
           >
             <span className="relative inline-flex size-12 shrink-0 items-center justify-center rounded-full ring-1 ring-white/40 transition group-hover:ring-white/80">
@@ -87,7 +75,7 @@ export default function Hero() {
               <PlayIcon className="relative size-[1.15rem]" />
             </span>
             {hero.videoCta.label}
-          </button>
+          </CtaLink>
         </div>
       </div>
     </section>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import CtaLink from "@/components/CtaLink";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
@@ -67,13 +68,12 @@ export default function ProductsPage() {
                       <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">
                         {product.body}
                       </p>
-                      <button
-                        suppressHydrationWarning
-                        type="button"
+                      <CtaLink
+                        href={product.href}
                         className="mt-4 inline-flex cursor-pointer items-center gap-1.5 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
                       >
                         {products.readMore}
-                      </button>
+                      </CtaLink>
                     </div>
                   </article>
                 </Reveal>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import CtaLink from "@/components/CtaLink";
 import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
@@ -69,15 +70,12 @@ export default function BlogPage() {
                       <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500 line-clamp-5">
                         {post.excerpt}
                       </p>
-                      {/* No post pages yet, so this is a button with nothing
-                          wired to it rather than a link. */}
-                      <button
-                        suppressHydrationWarning
-                        type="button"
+                      <CtaLink
+                        href={post.href}
                         className="mt-4 inline-flex cursor-pointer items-center self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
                       >
                         {blogPage.readMore}
-                      </button>
+                      </CtaLink>
                     </div>
                   </article>
                 </Reveal>

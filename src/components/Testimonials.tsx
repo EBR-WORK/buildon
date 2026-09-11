@@ -3,6 +3,7 @@
 import { testimonials } from "@/lib/content";
 import { useSnapCarousel } from "@/lib/useSnapCarousel";
 import CarouselButton from "./CarouselButton";
+import CtaLink from "./CtaLink";
 import { QuoteIcon } from "./icons";
 import SectionHeading from "./SectionHeading";
 import VideoPlayer from "./VideoPlayer";
@@ -87,13 +88,12 @@ export default function Testimonials() {
               ))}
             </div>
 
-            <button
-              suppressHydrationWarning
-              type="button"
+            <CtaLink
+              href={testimonials.cta.href}
               className="cursor-pointer text-sm font-semibold text-brand-500 hover:text-brand-600 sm:ml-auto"
             >
               {testimonials.cta.label}
-            </button>
+            </CtaLink>
           </div>
         </div>
       </Reveal>

@@ -59,7 +59,7 @@ export const hero = {
   eyebrow: "WE GIVE YOU THE BEST!",
   titleLines: ["FINEST GYPSUM PRODUCTS.", "IT'S HERE OR NOWHERE."],
   intro: "We are India's leading importer and manufacturer of Gypsum Plaster.",
-  primaryCta: { label: "KNOW MORE", href: "" },
+  primaryCta: { label: "KNOW MORE", href: "/about-us" },
   videoCta: {
     label: "PLAY VIDEO",
     href: "",
@@ -1035,180 +1035,210 @@ export const blogPage = {
   items: [
     {
       title: "Why Use Gypsum for Repairing Interior Plaster Walls",
+      href: "",
       excerpt:
         "When it comes to interior wall repairs in India, choosing the right material can make all the difference between a long-lasting solution and a temporary fix. With increasing urbanisation and the need for durable, cost-effective construction materials, gypsum plaster has emerged as the preferred choice for homeowners and builders alike. If you’re considering wall repairs …",
       image: "/blog/why-use-gypsum-for-repairing-interior-plaster-walls.webp",
     },
     {
       title: "How to Create Wall with Plaster and Materials",
+      href: "",
       excerpt:
         "Building the perfect wall requires more than just bricks and mortar it demands the right plastering technique and quality materials. In India’s diverse climate conditions, from Mumbai’s monsoons to Delhi’s harsh winters, choosing the correct plaster and application method can make the difference between a wall that lasts decades and one that develops cracks within …",
       image: "/blog/how-to-create-wall-with-plaster-and-materials.webp",
     },
     {
       title: "What Is Decorative Plaster? How It Works",
+      href: "",
       excerpt:
         "Gypsum plaster is not only used for finishing of internal walls, it is also used for ceilings, pillars, walls, corners, lobby areas & more. Have you ever walked into a beautifully designed home or office and wondered what gave those walls their stunning, flawless finish? The answer often lies in the skilled application of decorative …",
       image: "/blog/buildon-blog-1080-x-1080-px.webp",
     },
     {
       title: "What Type of Plastering Is Used for Interior Walls?",
+      href: "",
       excerpt:
         "When building or renovating your home, choosing the right type of plastering for your interior walls is crucial for both aesthetics and functionality. From the traditional lime plaster used in heritage buildings to modern gypsum solutions, the plastering landscape in India has evolved significantly. Whether you’re constructing a new home in Mumbai or renovating an …",
       image: "/blog/chatgpt-image-jul-18-2025-12-39-24-pm.webp",
     },
     {
       title: "Various Types of Wall Plaster Material and Its Purpose",
+      href: "",
       excerpt:
         "When you walk into a beautifully finished home, have you ever wondered what creates those perfectly smooth, crack-free walls? The secret lies in choosing the right wall plaster material. In India’s diverse climate and construction landscape, selecting appropriate plastering materials can make the difference between walls that last decades and those that require constant maintenance. …",
       image: "/blog/various-types-of-wall-plaster-material-and-its-purpose.webp",
     },
     {
       title: "Which One is Harder, Plastering or Bricklaying? Why?",
+      href: "",
       excerpt:
         "When stepping into the construction industry, contractors, builders, and interior designers often debate which trade requires more skill and presents greater challenges. The age-old question of whether plastering or bricklaying is harder has practical implications for project planning, workforce development, and cost estimation. Understanding the complexities of each trade helps make informed decisions about career …",
       image: "/blog/chatgpt-image-jun-19-2025-03-48-58-pm.webp",
     },
     {
       title: "How do you prevent clumps when mixing plaster?",
+      href: "",
       excerpt:
         "Nothing frustrates Masons, interior designers, contractors, and builders more than discovering lumps and clumps in their plaster mix just when they’re ready to apply it. These unwanted formations can ruin an entire project, leading to uneven surfaces, poor adhesion, and ultimately, costly rework. Whether you’re working with gypsum plaster for residential projects or commercial spaces, …",
       image: "/blog/chatgpt-image-jun-19-2025-03-09-11-pm.webp",
     },
     {
       title: "Gypsum Plaster or Lime Plaster: Which Is More Durable?",
+      href: "",
       excerpt:
         "When it comes to interior wall plastering, contractors, builders, and interior designers face a crucial decision: choosing between gypsum plaster and lime plaster. This choice significantly impacts not only the immediate project outcome but also the long-term durability and maintenance requirements of the structure. Understanding the durability characteristics of each wall plastering material can save …",
       image: "/blog/buildon-blog-1080-x-1080-px-1-1-1.webp",
     },
     {
       title: "Is the Plaster of Paris and Gypsum Plaster the Same?",
+      href: "",
       excerpt:
         "When walking through construction sites or planning interior wall plastering projects, you’ve likely encountered both terms: gypsum plaster and Plaster of Paris. But are they the same material? This question confuses many builders, contractors, and interior designers, leading to incorrect material selection and potentially compromised project outcomes. The short answer is no – while both …",
       image: "/blog/buildon-blog-1080-x-1080-px-1.webp",
     },
     {
       title: "How to Fix Cracks in Gypsum Plaster?",
+      href: "",
       excerpt:
         "Builders and homeowners have relied on gypsum plaster for years because it delivers tough walls with smooth finishes that improve interior design. Gypsum plaster shares the common characteristic of all building materials since it develops cracks over time because of multiple contributing factors. While cracks in walls and ceilings diminish their appearance, they also signal …",
       image: "/blog/buildon-blog-1080-x-1080-px-1-2.webp",
     },
     {
       title: "Gypsum Plaster for False Ceilings – Advantages & Installation",
+      href: "",
       excerpt:
         "Introduction to Gypsum Plaster for False Ceilings False ceilings now serve as fundamental components in contemporary interior design, offering both functional benefits and visual appeal. Gypsum plaster emerges as the top material selection among architects and interior designers for false ceiling construction due to its widespread acceptance by homeowners. The versatile nature of this material …",
       image: "/blog/buildon-blog-1080-x-1080-px-2.webp",
     },
     {
       title: "Best Practices for Gypsum Plaster Application – Do’s and Don’ts",
+      href: "",
       excerpt:
         "Introduction to Gypsum Plaster Gypsum plaster stands out as the preferred material among professionals and homeowners in today’s construction and interior finishing projects. This flexible material delivers better finishing quality along with enhanced durability and visual appeal when contrasted with Traditional plastering methods. The construction solutions leader BuildOn endorses gypsum plaster because of its many …",
       image: "/blog/untitled-1080-x-1080-px.webp",
     },
     {
       title: "10 Key Benefits of Using Gypsum Plaster in Construction 2025",
+      href: "",
       excerpt:
         "Introduction In the ever-evolving world of construction, materials that offer speed, sustainability, and superior quality are becoming the top choice among builders, architects, and interior designers. One such revolutionary material making waves in 2025 is Gypsum Plaster. Known for its exceptional performance, smooth finish, and time-saving properties in interior wall plastering. Gypsum, a naturally occurring …",
       image: "/blog/buildon-blog-2.webp",
     },
     {
       title: "Types of Gypsum Plaster and Their Uses",
+      href: "",
       excerpt:
         "Introduction Modern construction finishing and surface coating methods have been transformed using gypsum plaster. Gypsum plaster stands out from traditional cement plaster because it is lightweight while delivering a smooth finish, which simplifies the painting process. In residential projects as well as commercial and industrial spaces, gypsum plaster is becoming more popular because it combines …",
       image: "/blog/buildon-blog.webp",
     },
     {
       title: "Gypsum Plaster Vs Wall Putty: Which is Better?",
+      href: "",
       excerpt:
         "The selection of surface preparation materials that will give the finish the desired aesthetics and durability is paramount to every interior wall finishing work. In the context of construction, gypsum plaster and wall putty are widely accepted applications. Gypsum plaster and wall putty differ very significantly as to the area of application, some advantages, and …",
       image: "/blog/buildon-blog-1.webp",
     },
     {
       title: "Bonding Agent for Forming Chemical & Mechanical Bond",
+      href: "",
       excerpt:
         "In this case, they are essential to make strong and durable bonds of numerous materials from both the construction and industrial sectors. No matter if you are in the process of bonding concrete to concrete, or composites to composites, that starts with finding the right bonding agent. Plaster Bond+ and Bondit 151 are two top-tier …",
       image: "/blog/www-buildon-co-in.webp",
     },
     {
       title: "What is Gypsum Plaster? A Complete Guide",
+      href: "",
       excerpt:
         "Gypsum plaster has gained immense popularity in modern construction due to its smooth finish, fast application, and eco-friendly properties. Unlike traditional cement plaster, gypsum wall plaster offers superior durability, fire resistance, and moisture resistance, making it an ideal choice for interior wall finishing. With the growing demand for gypsum-based construction materials, architects, builders, and homeowners …",
       image: "/blog/buildon-blog-2-2.webp",
     },
     {
       title: "Classic Gypsum Plaster: Why Does the Imported Version Offer Superior Quality?",
+      href: "",
       excerpt:
         "For long, gypsum plaster has been preferred for construction on account of its suitable properties, easy application, and attractive aesthetic appearance. An ideal option for its outstanding quality and maximum durability available among different types, Classic Gypsum Plaster has earned a niche in the public mind. Yet, imported gypsum plaster is more favorable than locally …",
       image: "/blog/buildon-blog-3.webp",
     },
     {
       title: "Why Gypsum Plaster with Perlite is a Better Solution for Higher Coverage?",
+      href: "",
       excerpt:
         "High-performance plastering solutions have been making quite a buzz in the construction sector nowadays. Everyone, from builders to architects, wants something good in everything they need, like coverage, durability, and workability. One solution worth its weight in gold nowadays is perlite gypsum plaster. In fact, the blog examines why gypsum plaster with perlite is the …",
       image: "/blog/whatsapp-image-2025-02-13-at-14-08-46-29222d4b.webp",
     },
     {
       title: "Difference Between Gypsum in Fertilizer and Wall Plastering",
+      href: "",
       excerpt:
         "Gypsum is a mineral that can be used in very different ways. It is indispensable in agriculture and construction. Gypsum can be used in the field to improve the structure of the soil, increase nutrient availability, and meet sustainable farming. It is also good for creating smooth, durable wall finishings and improving building efficiency. Understanding …",
       image: "/blog/whatsapp-image-2025-01-18-at-11-36-32-5d95f0d1.webp",
     },
     {
       title: "Top 5 Areas in India Where Imported Gypsum Plaster Is Revolutionizing Construction",
+      href: "",
       excerpt:
         "The adoption of modern materials and techniques has helped construct the fast-growing Indian construction industry. Out of these, India has become very popular for its imported gypsum plaster in India, which has carved out a successful niche for itself for being efficient and sustainable at the same time. Gypsum plaster is quickly becoming the material …",
       image: "/blog/whatsapp-image-2025-01-17-at-20-14-04-cc735091.webp",
     },
     {
       title: "Why Top Builders in India Prefer Imported Gypsum Plaster Over Cement Plaster",
+      href: "",
       excerpt:
         "With builders wanting more from the construction industry in India, the industry is not one to remain static. Of all that is available, imported gypsum plaster has become superior to cement plaster. Gypsum plaster is known for its setting time, lightweight nature, and eco-friendly properties, and it is reshaping the way modern buildings are being …",
       image: "/blog/whatsapp-image-2025-01-15-at-16-23-57-b9abf497.webp",
     },
     {
       title: "Difference Between Gypsum Plaster & Gypsum Powder",
+      href: "",
       excerpt:
         "Gypsum is a naturally formed mineral of calcium sulfate dihydrate, CaSO4·2H2O, which has turned into a fundamental wellspring of contemporary construction and different undertakings. Gypsum plaster and gypsum powder are two forms of gypsum products that are the one rather extensively used. Although they share a common origin, they have very different properties and applications …",
       image: "/blog/whatsapp-image-2025-01-15-at-16-20-49-ca9da7bb.webp",
     },
     {
       title: "Buildon Ready-mix P20 – Enhancing Plastering Efficiency",
+      href: "",
       excerpt:
         "In a rapidly changing construction industry, there’s a constant need for efficient and reliable plastering solutions that can deliver a high-quality finish. An emerging game-changer for use in interior and exterior plastering, Buildon Ready-mix P20 is a cementitious dry ready-mix plaster. Due to its innovative formulation, it has superior application efficiency with enhanced durability and …",
       image: "/blog/whatsapp-image-2024-12-27-at-11-30-35-963adb1f.webp",
     },
     {
       title: "Role of Bonding Agents in Gypsum Plastering Work",
+      href: "",
       excerpt:
         "Gypsum plaster has absolutely revolutionised the world of construction by becoming the most optimal choice among builders. Its durability, accessibility, convenience and extraordinary features give it a very sophisticated look. Since traditional plastering is lacking in many ways, the advantages of gypsum plaster has emerged as the best option for people by combating flaws of …",
       image: "/blog/whatsapp-image-2024-12-27-at-11-30-40-da954b3d.webp",
     },
     {
       title: "Is Gypsum Plaster Used by Big Builders Only or Even Small Builders Use Gypsum Plaster?",
+      href: "",
       excerpt:
         "When it comes to construction, many builders consider gypsum plaster as their top choice. The reason is simple: it comes with innumerable benefits. Gypsum plaster is an exceptional material that has a quick setting time and provides a smooth texture making it ideal for interior use. Many builders, homeowners and architects are making it a …",
       image: "/blog/buildon-blog-1-2.webp",
     },
     {
       title: "Why the Usage of Gypsum Plaster is Rising in Construction Across India: Key Advantages and Trends",
+      href: "",
       excerpt:
         "Gypsum plaster has become a preferred material in modern building projects as the Indian construction industry is transforming massively. Gypsum plaster is valued for its setting time speed, smoothness of finish, and eco-friendly character, which is replacing the traditional methods to meet the fast pace of urbanization and sustainable development. Moreover, the Government further pushes …",
       image: "/blog/buildon-blog-4.webp",
     },
     {
       title: "What Are the Costs of Gypsum Plastering?",
+      href: "",
       excerpt:
         "To date, gypsum plastering has become a high-quality alternative to traditional cement plastering in the construction world. Gypsum plastering is known for its smooth finish, quick application, and durability. It commands a large demand in residential as well as commercial projects, across India. If you decide to use this technique on your project, you will …",
       image: "/blog/2.webp",
     },
     {
       title: "What Are the Benefits of Using Sustainable Construction Materials?",
+      href: "",
       excerpt:
         "It’s clear: sustainability is more than a buzzword! Builders, developers, homeowners and everyone down in the lane are turning practical with their choices. Yes, people are encouraging using green construction materials as they come with economic and social benefits. One such material is gypsum plaster, which is revolutionizing the construction industry. Wondering what are those …",
       image: "/blog/3.webp",
     },
     {
       title: "Advantages and Disadvantages of Gypsum Plaster",
+      href: "",
       excerpt:
         "Gypsum plaster is becoming a well known material in today’s time. From homeowners to builders, gypsum plaster in India is gaining recognition because of its fantastic features making it a good investment. Gone were the days when people used to apply traditional plastering on the internal walls, like cement plaster. With time, it has been …",
       image: "/blog/1.webp",

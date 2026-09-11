@@ -1,4 +1,5 @@
 import { projects } from "@/lib/content";
+import CtaLink from "./CtaLink";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
@@ -17,13 +18,12 @@ export default function Projects() {
     >
       <Reveal className="container-page">
         <SectionHeading title={projects.title} intro={projects.intro} align="center" />
-        <button
-          suppressHydrationWarning
-          type="button"
+        <CtaLink
+          href={projects.cta.href}
           className="mt-8 inline-flex cursor-pointer items-center justify-center rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600"
         >
           {projects.cta.label}
-        </button>
+        </CtaLink>
       </Reveal>
     </section>
   );

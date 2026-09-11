@@ -4,6 +4,7 @@ import Image from "next/image";
 import { products } from "@/lib/content";
 import { useSnapCarousel } from "@/lib/useSnapCarousel";
 import CarouselButton from "./CarouselButton";
+import CtaLink from "./CtaLink";
 import SectionHeading from "./SectionHeading";
 import Reveal from "./Reveal";
 
@@ -99,14 +100,13 @@ export default function Products() {
                         sits partly below the fold. Cancelling the press's
                         default keeps focus where it is; the click still fires,
                         and keyboard focus is untouched. */}
-                    <button
-                      suppressHydrationWarning
-                      type="button"
+                    <CtaLink
+                      href={product.href}
                       onMouseDown={(event) => event.preventDefault()}
                       className="mt-4 inline-flex cursor-pointer items-center gap-1.5 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
                     >
                       {products.readMore}
-                    </button>
+                    </CtaLink>
                   </div>
                 </article>
               </Reveal>
