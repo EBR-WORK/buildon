@@ -185,25 +185,35 @@ export const about = {
   image: "/projects/project-2.webp",
 } as const;
 
-/** Just the marquee's logo track — the home page runs it without a heading. */
 export const clients = {
+  title: "Meet Our Clients",
+  intro:
+    "As a leader of Gypsum products in India, we cater to most of the leading builders across the nation.",
+  /**
+   * In the reference's display order: six across, then five centred beneath.
+   * The files were saved as client-N, so names are from the artwork itself.
+   * width/height are each file's own pixels, so every logo reserves its exact
+   * shape before it loads.
+   */
   logos: [
-    "/clients/mahindra.webp",
-    "/clients/client-1.webp",
-    "/clients/client-2.webp",
-    "/clients/client-3.webp",
-    "/clients/client-4.webp",
-    "/clients/client-5.webp",
-    "/clients/client-6.webp",
-    "/clients/client-7.webp",
-    "/clients/client-8.webp",
-    "/clients/client-9.webp",
-    "/clients/client-10.webp",
+    { src: "/clients/client-1.webp", name: "Adani", width: 198, height: 81 },
+    { src: "/clients/client-2.webp", name: "Godrej & Boyce", width: 191, height: 78 },
+    { src: "/clients/client-3.webp", name: "Larsen & Toubro", width: 185, height: 75 },
+    { src: "/clients/client-4.webp", name: "Lodha", width: 190, height: 78 },
+    { src: "/clients/client-5.webp", name: "Lokhandwala Infrastructure", width: 163, height: 66 },
+    { src: "/clients/mahindra.webp", name: "Mahindra Lifespaces", width: 300, height: 130 },
+    { src: "/clients/client-6.webp", name: "Peninsula Land", width: 186, height: 62 },
+    { src: "/clients/client-7.webp", name: "Runwal", width: 122, height: 67 },
+    { src: "/clients/client-10.webp", name: "Tata Housing", width: 182, height: 78 },
+    { src: "/clients/client-9.webp", name: "Sheth", width: 180, height: 97 },
+    { src: "/clients/client-8.webp", name: "Shapoorji Pallonji", width: 173, height: 78 },
   ],
 } as const;
 
-/** Just the band's call to action — it runs without a heading. */
 export const projects = {
+  title: "Projects Where Our Products Are Used",
+  intro:
+    "Here are the finest projects in which our gypsum products are being used to ensure the best quality in construction.",
   cta: { label: "VIEW MORE", href: "" },
 } as const;
 

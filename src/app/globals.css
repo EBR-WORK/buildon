@@ -56,8 +56,6 @@
   --shadow-card: 0 1px 2px rgb(22 24 29 / 0.04), 0 8px 24px -12px rgb(22 24 29 / 0.14);
   --shadow-lift: 0 2px 4px rgb(22 24 29 / 0.05), 0 24px 48px -20px rgb(22 24 29 / 0.28);
 
-  --animate-marquee: marquee var(--marquee-duration, 42s) linear infinite;
-
   /* Hero copy settles in on load; `both` holds it hidden through its delay */
   --animate-rise: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 
@@ -66,10 +64,6 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
 }
 
 /*

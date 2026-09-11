@@ -1,89 +1,50 @@
 import Image from "next/image";
 import { clients } from "@/lib/content";
+import Reveal from "./Reveal";
+import SectionHeading from "./SectionHeading";
 
 /**
- * One marquee row. The logos are laid out twice and the pair slides by -50%,
- * which lands the second copy exactly where the first began — so the loop has
- * no visible restart.
+ * "Meet Our Clients", as on buildon.co.in: heading, one line of intro, then the
+ * logos laid straight on white — six across, the remaining five centred beneath.
+ * No tiles and no marquee.
  *
- * That only holds if half the track is exactly one copy wide, so tiles are
- * spaced with a right margin rather than `gap`. With `gap` the track has one
- * fewer space than tiles, half of it falls half a gap short of a copy, and
- * every loop jumps by 6-8px.
- */
-function LogoRow({
-  logos,
-  reverse = false,
-}: {
-  logos: readonly string[];
-  reverse?: boolean;
-}) {
-  const track = [...logos, ...logos];
-
-  return (
-    <div
-      // The second row repeats the first's logos, so assistive tech reads the
-      // clients once. Under reduced motion it is dropped altogether: two static
-      // strips of the same logos add nothing.
-      aria-hidden={reverse || undefined}
-      className={`overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] lg:[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] ${
-        reverse ? "motion-reduce:hidden" : ""
-      }`}
-    >
-      <ul
-        className={`flex w-max animate-marquee items-center group-hover:[animation-play-state:paused] motion-reduce:w-full motion-reduce:animate-none motion-reduce:snap-x motion-reduce:overflow-x-auto ${
-          reverse ? "[animation-direction:reverse]" : ""
-        }`}
-      >
-        {track.map((logo, i) => {
-          const duplicate = i >= logos.length;
-          return (
-            <li
-              key={`${logo}-${i}`}
-              aria-hidden={(!reverse && duplicate) || undefined}
-              className="mr-3 flex h-20 w-36 shrink-0 items-center justify-center rounded-xl border border-line bg-white px-4 motion-reduce:snap-start sm:mr-4 sm:h-24 sm:w-44 sm:px-5"
-            >
-              <Image
-                src={logo}
-                alt={reverse || duplicate ? "" : "Client of Buildon Plasters"}
-                width={180}
-                height={78}
-                loading="lazy"
-                className="max-h-11 w-auto object-contain mix-blend-multiply sm:max-h-14"
-              />
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
-/**
- * Two marquees running in opposite directions. The second carries the same
- * logos in reverse order, so the two rows never show matching pairs side by
- * side as they pass.
- *
- * Hover sits on the shared wrapper, so pausing either row pauses both. Tiles
- * shrink on small screens, so the loop duration shortens with them to keep the
- * logos moving at roughly the same speed at every breakpoint.
+ * The reference assembles this from 12-column rows (six col-sm-2, then five in a
+ * padded row) plus a separate mobile-only copy of every logo in pairs. One
+ * flex-wrap list covers both: from sm each logo takes a sixth of the width, so
+ * eleven wrap six-then-five and justify-center centres the short row; below sm
+ * each takes half, so they pair up with the eleventh centred on its own.
  */
 export default function Clients() {
   return (
-    // Top padding matches section-y (64/80/112px). The bottom is roughly halved:
-    // the VIEW MORE band follows directly and brings its own padding, so the full
-    // amount stacked into a 168px gap above a single button on desktop.
     <section
       id="clients"
-      className="scroll-mt-28 border-t border-line pt-16 pb-8 sm:pt-20 sm:pb-10 lg:pt-28 lg:pb-12"
+      className="scroll-mt-28 bg-white pt-12 pb-16 sm:pt-14 sm:pb-20 lg:pt-16 lg:pb-24"
     >
-      <div
-        role="region"
-        aria-label="Client logos"
-        className="group space-y-3 [--marquee-duration:30s] sm:space-y-4 sm:[--marquee-duration:36s] lg:[--marquee-duration:42s]"
-      >
-        <LogoRow logos={clients.logos} />
-        <LogoRow logos={[...clients.logos].reverse()} reverse />
+      <div className="container-page">
+        <Reveal>
+          <SectionHeading title={clients.title} intro={clients.intro} align="center" />
+        </Reveal>
+
+        <ul className="mx-auto mt-8 flex max-w-[56rem] flex-wrap justify-center gap-y-8 sm:mt-10 sm:gap-y-10">
+          {clients.logos.map((logo, i) => (
+            <Reveal
+              as="li"
+              key={logo.src}
+              delay={(i % 6) * 0.05}
+              className="flex basis-1/2 items-center justify-center px-3 sm:basis-1/6"
+            >
+              {/* multiply drops the off-white box some of the artwork carries */}
+              <Image
+                src={logo.src}
+                alt={logo.name}
+                width={logo.width}
+                height={logo.height}
+                loading="lazy"
+                className="h-auto max-h-16 w-auto max-w-full object-contain mix-blend-multiply"
+              />
+            </Reveal>
+          ))}
+        </ul>
       </div>
     </section>
   );
