@@ -70,7 +70,13 @@ function LogoRow({
  */
 export default function Clients() {
   return (
-    <section id="clients" className="section-y scroll-mt-28 border-t border-line">
+    // Top padding matches section-y (64/80/112px). The bottom is roughly halved:
+    // the VIEW MORE band follows directly and brings its own padding, so the full
+    // amount stacked into a 168px gap above a single button on desktop.
+    <section
+      id="clients"
+      className="scroll-mt-28 border-t border-line pt-16 pb-8 sm:pt-20 sm:pb-10 lg:pt-28 lg:pb-12"
+    >
       <div
         role="region"
         aria-label="Client logos"
