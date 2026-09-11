@@ -10,7 +10,7 @@ type Props = {
 
 /**
  * The label-over-value block buildon.co.in repeats across its contact pages:
- * a bold Oswald label, the value beneath in body grey, and a hairline rule
+ * a bold label, the value beneath in body grey, and a hairline rule
  * carrying a short skin-colour tick at its left end.
  */
 export default function DetailBlock({ label, value, href, icon: Icon }: Props) {

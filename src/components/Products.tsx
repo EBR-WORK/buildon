@@ -39,10 +39,15 @@ export default function Products() {
           </div>
 
           {/* The negative right margin absorbs the last card's gutter, so the
-              row still ends flush with the container. */}
+              row still ends flush with the container.
+
+              No tabIndex on the track. Focusable, a click anywhere on a card
+              focused the whole list, and the browser scrolled the page to fit
+              it into view — a smooth glide, since html has scroll-behavior:
+              smooth. Keyboard users lose nothing: the Read More buttons are
+              focusable, and tabbing to one brings its card into view. */}
           <ul
             ref={trackRef}
-            tabIndex={0}
             aria-label="Buildon gypsum products"
             className="-mr-4 flex snap-x snap-mandatory overflow-x-auto pb-1 sm:-mr-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
@@ -74,9 +79,15 @@ export default function Products() {
                     <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">
                       {product.body}
                     </p>
+                    {/* A mouse press would move focus here, and the browser
+                        scrolls to reveal a newly focused element when its card
+                        sits partly below the fold. Cancelling the press's
+                        default keeps focus where it is; the click still fires,
+                        and keyboard focus is untouched. */}
                     <button
                       suppressHydrationWarning
                       type="button"
+                      onMouseDown={(event) => event.preventDefault()}
                       className="mt-4 inline-flex cursor-pointer items-center gap-1.5 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
                     >
                       {products.readMore}

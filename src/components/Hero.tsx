@@ -65,7 +65,7 @@ export default function Hero() {
 
           {/*
             The reference's play control is a 48px disc set inside a hairline
-            ring, with the label in Oswald at 15px beside it. The ring and the
+            ring, with its 15px label beside it. The ring and the
             disc are separate layers so the gap between them stays even.
 
             No transform on the glyph: PlayIcon's triangle already has its

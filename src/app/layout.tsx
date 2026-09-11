@@ -1,24 +1,8 @@
 import type { Metadata } from "next";
-import { Open_Sans, Oswald } from "next/font/google";
 import BackToTop from "@/components/BackToTop";
 import ScrollToTop from "@/components/ScrollToTop";
 import { site } from "@/lib/content";
 import "./globals.css";
-
-// Typography follows buildon.co.in: Oswald for display, Open Sans for body copy.
-const openSans = Open_Sans({
-  variable: "--font-open-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-// Oswald tops out at 700 — never ask for an 800 weight the family does not have.
-const oswald = Oswald({
-  variable: "--font-oswald",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -75,7 +59,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en-IN"
-      className={`${openSans.variable} ${oswald.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <body className="min-h-full">
         <a

@@ -47,12 +47,12 @@ export const nav: readonly NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about-us" },
   { label: "Products", href: "/products" },
-  { label: "Clientele", href: "/clientele" },
-  { label: "Projects", href: "/projects" },
-  { label: "Careers", href: "/career" },
-  { label: "Blog", href: "/blog" },
+  { label: "Clientele", href: "" },
+  { label: "Projects", href: "" },
+  { label: "Careers", href: "" },
+  { label: "Blog", href: "" },
   { label: "Contact Us", href: "/contact-us" },
-  { label: "FAQs", href: "/faq" },
+  { label: "FAQs", href: "" },
 ];
 
 export const hero = {
@@ -310,19 +310,19 @@ export const footerLinks = {
     { label: "Our Branches", href: "/contact-us" },
     { label: "Privacy Policy", href: "" },
     { label: "User Agreement", href: "" },
-    { label: "Download Catalogue", href: "/faq" },
+    { label: "Download Catalogue", href: "" },
   ],
   quick: [
     { label: "Home", href: "/" },
     { label: "Our Projects", href: "/projects" },
     { label: "Our Products", href: "/products" },
-    { label: "Careers", href: "/career" },
+    { label: "Careers", href: "" },
     { label: "Customer Reviews", href: "" },
   ],
   support: [
     { label: "Contact Us", href: "/contact-us" },
-    { label: "FAQs", href: "/faq" },
-    { label: "Partner With Us", href: "/faq" },
+    { label: "FAQs", href: "" },
+    { label: "Partner With Us", href: "" },
   ],
 } as const;
 
