@@ -279,9 +279,9 @@ export const contact = {
     phone: "Phone",
   },
   fields: {
-    name: "Full Name",
-    email: "Your mail",
-    phone: "Your Phone Number",
+    name: "Full Name*",
+    email: "Your Mail Id*",
+    phone: "Your Phone Number*",
     message: "Your Message",
   },
 } as const;
