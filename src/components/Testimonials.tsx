@@ -62,14 +62,12 @@ export default function Testimonials() {
                 label="Previous testimonial"
                 onClick={() => goTo(index - 1)}
                 disabled={atStart}
-                className="bg-brand-500 text-white hover:bg-brand-600"
               />
               <CarouselButton
                 direction="next"
                 label="Next testimonial"
                 onClick={() => goTo(index + 1)}
                 disabled={atEnd}
-                className="bg-brand-500 text-white hover:bg-brand-600"
               />
             </div>
 

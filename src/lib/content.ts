@@ -180,7 +180,7 @@ export const productsPage = {
 } as const;
 
 export const about = {
-  titleLines: ["Here’s Who We Are:", "About Us"],
+  titleLines: ["Here’s Who We Are:"],
   body: "Buildon stands as a prominent manufacturer and importer of pioneering this endeavour in India. Our factory produces the world’s finest Gypsum plaster, renowned for its pristine white colour and hardness surpassing other Indian market options by over 40%. This positions it as a global standard and the premier choice for construction-grade Gypsum.",
   image: "/projects/project-2.webp",
 } as const;

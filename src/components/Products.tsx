@@ -27,14 +27,12 @@ export default function Products() {
               label="Previous products"
               onClick={() => goTo(index - 1)}
               disabled={atStart}
-              className="border border-line bg-white text-ink-700 hover:bg-brand-500 hover:text-white hover:border-brand-500"
             />
             <CarouselButton
               direction="next"
               label="Next products"
               onClick={() => goTo(index + 1)}
               disabled={atEnd}
-              className="border border-line bg-white text-ink-700 hover:bg-brand-500 hover:text-white hover:border-brand-500"
             />
           </div>
 
