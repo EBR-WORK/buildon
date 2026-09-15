@@ -2,7 +2,7 @@
  * Single source of truth for the homepage.
  *
  * Every string below is copied verbatim from https://buildon.co.in/ — including
- * its punctuation and its typos ("get out latest product news", "What Client's
+ * its punctuation and its typos ("get our latest product news", "What Client's
  * say ?"). Fix them on the source site first, then mirror the fix here.
  */
 
@@ -47,12 +47,12 @@ export const nav: readonly NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about-us" },
   { label: "Products", href: "/products" },
-  { label: "Clientele", href: "" },
-  { label: "Projects", href: "" },
-  { label: "Careers", href: "" },
-  { label: "Blog", href: "" },
+  { label: "Clientele", href: "/clientele" },
+  { label: "Projects", href: "/projects" },
+  { label: "Careers", href: "/career" },
+  { label: "Blog", href: "blog" },
   { label: "Contact Us", href: "/contact-us" },
-  { label: "FAQs", href: "" },
+  { label: "FAQs", href: "faq" },
 ];
 
 export const hero = {
@@ -82,7 +82,7 @@ export const whyUs = {
   items: [
     {
       title: "Guaranteed Quality",
-      body: "It is 40% harder and has a pure white colour than any other gypsum available in the Indian market.",
+      body: "It is 40% harder and has a pure whiter than any other gypsum available in the Indian market.",
       icon: "shield",
     },
     {
@@ -97,7 +97,7 @@ export const whyUs = {
     },
     {
       title: "World-class Manufacturing Facility",
-      body: "Our advanced manufacturing facility boasts state-of-the-art, fully automated Gypsum processing machines.",
+      body: "Our advanced manufacturing facility boasts state-of-the-art, fully automated gypsum-processing machines.",
       icon: "factory",
     },
   ],
@@ -127,15 +127,15 @@ export const productCatalogue = [
     image: "/products/master.webp",
   },
   {
-    name: "Gypsum Plaster Perlite One coat super 200",
+    name: "Gypsum Plaster Perlite One-Coat Super 200",
     href: "",
-    body: "Buildon perlite plaster a gypsum plaster with special additives and light weight aggregates. The aggregates contein …",
+    body: "Buildon perlite plaster a gypsum plaster with special additives and light weight aggregates. The aggregates contain …",
     image: "/products/perlite.webp",
   },
   {
     name: "Gypsum Plaster Vermiculite",
     href: "",
-    body: "Buildon Vermiculite Plaster a gypsum hemihydrates plaster with special additives and light weight aggregates.",
+    body: "Buildon Vermiculite Plaster a gypsum hemihydrates plaster with special additives and lightweight aggregates.",
     image: "/products/vermiculite.webp",
   },
   {
@@ -153,7 +153,7 @@ export const productCatalogue = [
   {
     name: "Bondit-151",
     href: "",
-    body: "BONDIT-151 is high performance bonding agent for Gypsum on concrete blocks/RCC surfaces.",
+    body: "BONDIT-151 is high-performance bonding agent for Gypsum on concrete blocks/RCC surfaces.",
     image: "/products/bondit-151.webp",
   },
   {
@@ -168,7 +168,7 @@ export const productCatalogue = [
 export const products = {
   title: "Get Introduced To The Best Gypsum Producer",
   intro:
-    "Explore our range of products.",
+    ["Being India’s largest and leading manufacturer & importer of","finest quality of Gypsum, we offer an array of products."],
   readMore: "Read More >",
   items: productCatalogue.slice(0, 6),
 } as const;
@@ -177,6 +177,8 @@ export const products = {
 export const productsPage = {
   title: "Products",
   heading: "Finest quality Gypsum products in India.",
+  /** Its own line, not the home section's — that one runs two lines long. */
+  intro: "Explore our range of products.",
 } as const;
 
 export const about = {
@@ -218,7 +220,7 @@ export const projects = {
 } as const;
 
 export const testimonials = {
-  title: "What Client's say ?",
+  title: "What Clients say ?",
   cta: { label: "Read More >", href: "" },
   /**
    * The clip the reference plays beside these quotes. Hot-linked from
@@ -233,22 +235,22 @@ export const testimonials = {
   items: [
     {
       quote:
-        "\"Namaste, we have used Buildon company Gypsum in 2013 at our house in Kagal, Maharashtra and response till date is superb, and no cracks have appeared on the wall till now, been 10 years we are using this material & flakes have not been seen till now, used on traditional red bricks and we have done sand cement plaster from outer side of walls properly and have experienced no leakages till date. No cracks have been seen\"",
+        "\"Namaste, we have used Buildon Gypsum in 2013 at our house in Kagal, Maharashtra and response till date is superb, and no cracks have appeared on the wall till now, been 10 years we are using this material & flakes have not been seen till now, used on traditional red bricks and we have done sand cement plaster from outer side of walls properly and have experienced no leakages till date. No cracks have been seen\"",
       author: "Kagal, Kolhapur client of Buildon since 2013",
     },
     {
       quote:
-        "This is to certify that \"Buildon Plasters Pvt Ltd'' is our approved vendor for supply of Gypsum Plaster 1 coat in our projects . We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
+        "This is to certify that \"Buildon Plasters Pvt Ltd'' is our approved vendor for supply of Gypsum Plaster 1 coat in our projects. We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
       author: "MS Group (Pune)",
     },
     {
       quote:
-        "This is to certify that \"Buildon Plasters Pvt Ltd'' is our approved vendor for supply of Gypsum Plaster 1 coat in our projects . We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
+        "This is to certify that \"Buildon Plasters Pvt Ltd'' is our approved vendor for supply of Gypsum Plaster 1 coat in our projects. We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
       author: "D R Gavhane | Landmarks LLP (Moshi, Pune)",
     },
     {
       quote:
-        "This is to certify that \"Buildon Plasters Pvt Ltd'' is our approved vendor for supply of Gypsum Plaster 1 coat in our projects . We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services",
+        "This is to certify that \"Buildon Plasters Pvt Ltd'' is our approved vendor for supply of Gypsum Plaster 1 coat in our projects. We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services",
       author: "Contractor Shamim Khan (Bangalore)",
     },
     {
@@ -290,7 +292,7 @@ export const newsletter = {
   titleLead: "Subscribe to Our ",
   titleAccent: "Newsletter",
   intro: "Sign up for our monthly promotion and get out latest product news!",
-  placeholder: "Your Email Address...",
+  placeholder: "Your Email Address",
   submit: "SUBMIT",
 } as const;
 
@@ -351,7 +353,7 @@ export const aboutPage = {
   },
   overview: {
     title: "Company Overview",
-    body: "Buildon stands as a pioneering force in India, emerging as a leading manufacturer and importer of finest quality Gypsum plaster and other products. Our Mumbai-based enterprise has ventured into unexplored territories, producing the world’s finest Gypsum plaster at our state-of-the-art factory. Renowned for its pure white colour and a hardness surpassing market standards by over 40%, our Gypsum is a testament to excellence, setting the gold standard in the construction realm.",
+    body: "Buildon stands as a pioneering force in India, emerging as a leading manufacturer and importer of finest-quality Gypsum plaster and other products. Our Mumbai-based enterprise has ventured into unexplored territories, producing the world’s finest Gypsum plaster at our state-of-the-art factory. Renowned for its pure white colour and a hardness surpassing market standards by over 40%, our Gypsum is a testament to excellence, setting the gold standard in the construction realm.",
     image: "/about/team.webp",
     imageAlt: "The Buildon team reviewing a project together",
   },
@@ -359,11 +361,11 @@ export const aboutPage = {
     title: "Why choose us?",
     items: [
       "India’s finest quality Gypsum",
-      "Pure white colour Gypsum",
+      "Pure white Gypsum",
       "Over 40% compared to market standards",
       "International Standards Manufacturing Facility",
       "Vast network across India",
-      "Advanced Technology & Professional Workforce",
+      "Advanced technology and a professional workforce",
     ],
   },
   birdsEye: {
@@ -374,7 +376,7 @@ export const aboutPage = {
   },
   manufacturing: {
     title: "Our Manufacturing Excellence",
-    body: "Our manufacturing facility is equipped with cutting-edge, fully automated Gypsum processing machines. Overseen by highly qualified engineers and a skilled workforce from around the world, we ensure the highest standards of production. With a vast network of marketing offices strategically positioned nationwide, and additional offices near major seaports, we guarantee swift and uninterrupted delivery of our quality Gypsum plaster. Our dynamic team of young and enthusiastic professionals provides unwavering technical support to meet the diverse needs of our customers.",
+    body: "Our manufacturing facility is equipped with cutting-edge, fully automated gypsum-processing machines. Overseen by highly qualified engineers and a skilled workforce from around the world, we ensure the highest standards of production. With a vast network of marketing offices strategically positioned nationwide, and additional offices near major seaports, we guarantee swift and uninterrupted delivery of our quality Gypsum plaster. Our dynamic team of young and enthusiastic professionals provides unwavering technical support to meet the diverse needs of our customers.",
     image: "/about/interior-plants.webp",
     imageAlt: "A finished interior wall plastered with Buildon gypsum",
   },
@@ -402,7 +404,7 @@ export const aboutPage = {
     title: "Our Branches",
     addressLabel: "Address- Head Office",
     address:
-      "3-B, Mapkhan Compound, Mapkhan Nagar, Marol Maroshi Road, Andheri (E), Mumbai-400059,Maharashtra",
+      "3-B, Mapkhan Compound, Mapkhan Nagar, Marol Maroshi Road, Andheri (E), Mumbai - 400059, Maharashtra",
     emailLabel: "Email",
     phoneLabel: "Phone",
     phone: "022 29200565 / 569",
@@ -423,7 +425,7 @@ export const contactPage = {
     headingLines: ["Have questions?", "Contact us"],
   },
   branchDetails: {
-    title: "Buildon Plasters PVT. LTD. Branch Details",
+    title: "Buildon Plasters Pvt. Ltd. Branch Details",
     headOfficeLabel: "Head Office",
     headOffice: "Mumbai",
     addressLabel: "Address",
@@ -435,7 +437,7 @@ export const contactPage = {
     branches: "Nashik | Bangalore | Chennai | Hyderabad | Indore | Pune | Kolkata | Kochi| Nagpur",
   },
   factories: {
-    title: "Buildon Plasters PVT. LTD. Factories",
+    title: "Buildon Plasters Pvt. Ltd. Factories",
     addressLabel: "Address",
     items: [
       {
@@ -452,7 +454,7 @@ export const contactPage = {
       },
       {
         zone: "East Zone",
-        location: "West Bengal (Kolkata) : (operational Shortly)",
+        location: "West Bengal (Kolkata) : (operational shortly)",
         address:
           "Amta industrial park 2 .mouza - Ismalpur,p.s. - j.b .pur,p.o - islampur,pin - 711401",
       },
@@ -482,49 +484,49 @@ export const faqPage = {
       title: "Gypsum plaster",
       items: [
         {
-          question: "What is the use of gypsum Plaster on wall?",
+          question: "What is gypsum plaster used for on walls?",
           answer:
-            "Gypsum plaster has good insulation properties, fire resistant and impact resistant. Also, gypsum saves a lot of time during construction and has superior finish. These properties have clearly drawn attention of real estate builders and contractors towards choosing gypsum plaster over traditional cement plaster.",
+            "Gypsum plaster has good insulation properties, fire-resistant and impact-resistant. Also, gypsum saves a lot of time during construction and has superior finish. These properties have clearly drawn attention of real estate builders and contractors towards choosing gypsum plaster over traditional cement plaster.",
         },
         {
-          question: "Is gypsum plaster eco friendly?",
+          question: "Is Gypsum Plaster eco-friendly?",
           answer:
             "Gypsum is an inherently sustainable material as it can be completely recycled an infinite number of times. Removing water from gypsum rocks through dehydration produces a plaster powder scientifically known as calcium sulphate.",
         },
         {
-          question: "Advantages and disadvantages of gypsum plaster?",
+          question: "Advantages and disadvantages of Gypsum Plaster?",
           answer:
             "It doesn’t perform well against water We cannot use gypsum plaster for outer walls. These retain dampness and are not the most suitable for areas with walls that come in regular contact with water, such as bathrooms and toilets.",
         },
         {
-          question: "What is the minimum thickness of gypsum plaster?",
+          question: "What is the minimum thickness of Gypsum Plaster?",
           answer:
             "Gypsum Plaster is usually applied in a thickness range of (6 -20)mm. The thickness of the undercoat gypsum plaster is normally 11mm for walls, it’s 8mm for the ceiling area and for that of the finished coat.",
         },
         {
-          question: "What is the ratio of gypsum plaster to water?",
+          question: "What is the ratio of Gypsum Plaster to water?",
           answer:
             "Water to plaster ratio (1 part of water: 1.25 part of plaster by weight) should be maintained to have a good cohesive workable mix.",
         },
         {
-          question: "What is the tolerance for gypsum walls?",
+          question: "What is the tolerance for Gypsum Walls?",
           answer:
             "The plane and alignment of the panels depend on the plane and alignment of the framing members, backing or devices to which it is attached, and/or conceals. The tolerance of 1/8” in 10′-0” is commonly used in jobsite specifications and referred to as the “industry standard” for flatness in gypsum board finishing.",
         },
         {
-          question: "What is the coverage of gypsum plaster per bag?",
+          question: "What is the coverage of Gypsum Plaster per bag?",
           answer:
             "20 – 25 Sq. ft. Initial Setting Time: 15 – 20 minutes. Coverage @ thickness of 10 mm. : 20 – 25 Sq. ft./Bag of 25 Kg.",
         },
         {
-          question: "Why is gypsum plaster used?",
+          question: "Why is Gypsum Plaster used?",
           answer:
-            "Gypsum plastering is an environmental friendly alternative to traditional sand-cement application for internal plastering surfaces. Gypsum plastering is also a faster application method for internal surfaces, since it does not require a time consuming water curing process.",
+            "Gypsum plastering is an environmentally friendly alternative to traditional sand-cement application for internal plastering surfaces. Gypsum plastering is also a faster application method for internal surfaces, since it does not require a time-consuming water curing process.",
         },
         {
           question: "Which Standard Compliance to refer for Gypsum?",
           answer:
-            "Purity of gypsum – 90% an above Color of gypsum – Pure white color Availability & lead time of material – lead time within 72hours ,throughout the year Indian Green Building council bearing membership – IGBCMP131535 ISO certification – ISO 9001:2015 MHADA approval letter",
+            "Purity of gypsum – 90% and above Color of gypsum – Pure white color Availability & lead time of material – lead time within 72 hours ,throughout the year Indian Green Building council bearing membership – IGBCMP131535 ISO certification – ISO 9001:2015 MHADA approval letter",
         },
         {
           question: "Why should we do a false ceiling with Buildon Gypsum?",
@@ -534,7 +536,7 @@ export const faqPage = {
         {
           question: "What are the benefits of doing a false ceiling at home?",
           answer:
-            "What are the benefits of doing a false ceiling at home? A false ceiling is also known as a dropped ceiling, plays a very important role in Home Interiors. It is one of the easiest, cost-effective & quickest ways to transform your interior space. There is no limitation to ideas which can come alive as ceilings. many other functional benefits come along with the aesthetic value of ceilings. Uniform light distribution to the entire room through ceiling lights. Mess-free home with all wirings, pipes covered under the ceiling. Cooler homes with dropped ceilings Express your style through ceiling designs. Ceiling designs can be customized as per room size and lighting requirements.",
+            "What are the benefits of doing a false ceiling at home? A false ceiling is also known as a dropped ceiling, plays a very important role in home interiors. It is one of the easiest, cost-effective & quickest ways to transform your interior space. There is no limitation to ideas which can come alive as ceilings. Many other functional benefits come along with the aesthetic value of ceilings. Uniform light distribution to the entire room through ceiling lights. Mess-free home with all wirings, pipes covered under the ceiling. Cooler homes with dropped ceilings Express your style through ceiling designs. Ceiling designs can be customized as per room size and lighting requirements.",
         },
         {
           question: "How does a ceiling system reduce air conditioning needs & need of more lighting which helps lower electricity bills?",
@@ -547,14 +549,14 @@ export const faqPage = {
       title: "Bonding Agents (Bondit 151 & Plaster Bond+)",
       items: [
         {
-          question: "How to use Buildon Bonding agents in Gypsum wall plastering ?",
+          question: "How to use Buildon Bonding agents in all plastering ?",
           answer:
-            "Step 1 – Ensure all the surface are clean from any containments that may hinder adhesion, including any loose or flaking material. Step 2 – Ensure that the wall is dry Step 3 – Thoroughly stir bonding agents before use. Step 4 – Do not dilute, Simply apply a single coat using a brush roller and leave to dry (Bondit 151 for 40 mins & Plaster Bond + for 24 hrs before wall plastering)",
+            "Step 1 – Ensure all the surfaces are clean from any contaminants that may hinder adhesion, including any loose or flaking material. Step 2 – Ensure that the wall is dry Step 3 – Thoroughly stir bonding agents before use. Step 4 – Do not dilute, simply apply a single coat using a brush roller and leave to dry (Bondit 151 for 40 mins & Plaster Bond + for 24 hrs before wall plastering)",
         },
         {
           question: "Are Buildon bonding agents alternative to hacking ?",
           answer:
-            "Bonding agents are always a better alternative over hacking. Hacking is not only very crude method of creating bond between Gypsum and Concrete surface but also, it weakens the RCC structure. Hacking is not uniformly distributed since it’s done in a random way. Depth of hacking and pitch of hacking variance over a given surface remains high due to fatigue factor.",
+            "Bonding agents are always a better alternative to hacking. Hacking is not only a very crude method of creating bond between Gypsum and Concrete surface but also, it weakens the RCC structure. Hacking is not uniformly distributed since it’s done in a random way. Depth of hacking and pitch of hacking variance over a given surface remains high due to fatigue factor.",
         },
         {
           question: "How Buildon Bonding agents are different as compared to other bonding agents in the market?",
@@ -567,14 +569,14 @@ export const faqPage = {
       title: "Sand-Cement Ready Mix plaster - P20",
       items: [
         {
-          question: "What is the difference between traditional Sand cement mortar & Buildon Ready Mix plaster ?",
+          question: "What is the difference between traditional sand-cement mortar & Buildon Ready Mix plaster ?",
           answer:
             "Ready Mix plaster saves time & labour, No hassle of maintaining Mortar ratio. Factory manufactured material gives standardization in entire projects.",
         },
         {
           question: "How Buildon Ready mix plaster is better than the rest of products?",
           answer:
-            "We use Narmada river well graded sand & Ultratech cement along with Reliance PP fibers. Very less rebound loss. Numbers on the bags are easy for reconciliation.",
+            "We use Narmada river well graded sand & Ultratech cement along with Reliance PP fibers. Very little rebound loss. Numbers on the bags are easy for reconciliation.",
         },
         {
           question: "How long does it take for cement sand plaster to cure?",
@@ -600,145 +602,145 @@ export const clientelePage = {
   title: "Clientele",
   banner: {
     image: "/clientele/banner.webp",
-    headingLines: ["The testimony of", "our excellence.", "OUr Clients."],
+    headingLines: ["The testimony of", "our excellence.", "Our Clients."],
   },
   cities: [
     {
       name: "MUMBAI",
       logos: [
-        { src: "/clientele/adani.webp", name: "Adani" },
-        { src: "/clientele/godrej-properties.webp", name: "Godrej Properties" },
-        { src: "/clientele/l-t-realty-jpg.webp", name: "L T Realty" },
-        { src: "/clientele/lodha.webp", name: "Lodha" },
-        { src: "/clientele/lokanandwala.webp", name: "Lokanandwala" },
-        { src: "/clientele/mahindra.webp", name: "Mahindra" },
-        { src: "/clientele/marathon.webp", name: "Marathon" },
-        { src: "/clientele/penninsula.webp", name: "Penninsula" },
-        { src: "/clientele/runwal.webp", name: "Runwal" },
-        { src: "/clientele/shapoorji.webp", name: "Shapoorji" },
-        { src: "/clientele/sheth.webp", name: "Sheth" },
-        { src: "/clientele/tata-housing.webp", name: "Tata Housing" },
+        { src: "/clientele/adani.webp", name: "Adani", width: 150, height: 100 },
+        { src: "/clientele/godrej-properties.webp", name: "Godrej Properties", width: 400, height: 210 },
+        { src: "/clientele/l-t-realty-jpg.webp", name: "L T Realty", width: 320, height: 150 },
+        { src: "/clientele/lodha.webp", name: "Lodha", width: 150, height: 100 },
+        { src: "/clientele/lokanandwala.webp", name: "Lokanandwala", width: 150, height: 100 },
+        { src: "/clientele/mahindra.webp", name: "Mahindra", width: 150, height: 100 },
+        { src: "/clientele/marathon.webp", name: "Marathon", width: 150, height: 100 },
+        { src: "/clientele/penninsula.webp", name: "Peninsula", width: 150, height: 100 },
+        { src: "/clientele/runwal.webp", name: "Runwal", width: 150, height: 100 },
+        { src: "/clientele/shapoorji.webp", name: "Shapoorji", width: 150, height: 100 },
+        { src: "/clientele/sheth.webp", name: "Sheth", width: 150, height: 100 },
+        { src: "/clientele/tata-housing.webp", name: "Tata Housing", width: 150, height: 100 },
       ],
     },
     {
       name: "PUNE",
       logos: [
-        { src: "/clientele/kolte-pati.webp", name: "Kolte Pati" },
-        { src: "/clientele/mahindra.webp", name: "Mahindra" },
-        { src: "/clientele/clover-builders-pune-1-3.webp", name: "Clover Builders Pune 1" },
-        { src: "/clientele/geol-ganga-group.webp", name: "Geol Ganga Group" },
-        { src: "/clientele/godrej-properties.webp", name: "Godrej Properties" },
-        { src: "/clientele/dnv.webp", name: "" },
-        { src: "/clientele/dreams.webp", name: "Dreams" },
-        { src: "/clientele/legacy-1.webp", name: "Legacy" },
-        { src: "/clientele/anshul.webp", name: "Anshul" },
-        { src: "/clientele/paranjape.webp", name: "Paranjape" },
-        { src: "/clientele/gd-sqaure.webp", name: "GD Sqaure" },
-        { src: "/clientele/silver-group-pune-1.webp", name: "Silver Group Pune" },
-        { src: "/clientele/gera.webp", name: "Gera" },
-        { src: "/clientele/madhuban.webp", name: "Madhuban" },
-        { src: "/clientele/shapoorji.webp", name: "Shapoorji" },
-        { src: "/clientele/kalpataru.webp", name: "Kalpataru" },
+        { src: "/clientele/kolte-pati.webp", name: "Kolte Pati", width: 150, height: 100 },
+        { src: "/clientele/mahindra.webp", name: "Mahindra", width: 150, height: 100 },
+        { src: "/clientele/clover-builders-pune-1-3.webp", name: "Clover Builders Pune 1", width: 150, height: 100 },
+        { src: "/clientele/geol-ganga-group.webp", name: "Geol Ganga Group", width: 150, height: 100 },
+        { src: "/clientele/godrej-properties.webp", name: "Godrej Properties", width: 400, height: 210 },
+        { src: "/clientele/dnv.webp", name: "", width: 150, height: 100 },
+        { src: "/clientele/dreams.webp", name: "Dreams", width: 150, height: 100 },
+        { src: "/clientele/legacy-1.webp", name: "Legacy", width: 150, height: 100 },
+        { src: "/clientele/anshul.webp", name: "Anshul", width: 150, height: 100 },
+        { src: "/clientele/paranjape.webp", name: "Paranjape", width: 150, height: 100 },
+        { src: "/clientele/gd-sqaure.webp", name: "GD Sqaure", width: 150, height: 100 },
+        { src: "/clientele/silver-group-pune-1.webp", name: "Silver Group Pune", width: 150, height: 100 },
+        { src: "/clientele/gera.webp", name: "Gera", width: 150, height: 100 },
+        { src: "/clientele/madhuban.webp", name: "Madhuban", width: 150, height: 100 },
+        { src: "/clientele/shapoorji.webp", name: "Shapoorji", width: 150, height: 100 },
+        { src: "/clientele/kalpataru.webp", name: "Kalpataru", width: 300, height: 150 },
       ],
     },
     {
       name: "NASIK",
       logos: [
-        { src: "/clientele/ashokha.webp", name: "Ashokha" },
-        { src: "/clientele/bhagad.webp", name: "Bhagad" },
-        { src: "/clientele/dhatrak.webp", name: "Dhatrak" },
-        { src: "/clientele/garja.webp", name: "Garja" },
-        { src: "/clientele/ml-developers.webp", name: "ML Developers" },
-        { src: "/clientele/nirmal-group.webp", name: "Nirmal Group" },
-        { src: "/clientele/patil-group.webp", name: "Patil Group" },
-        { src: "/clientele/rachit-builders.webp", name: "Rachit Builders" },
+        { src: "/clientele/ashokha.webp", name: "Ashokha", width: 150, height: 100 },
+        { src: "/clientele/bhagad.webp", name: "Bhagad", width: 150, height: 100 },
+        { src: "/clientele/dhatrak.webp", name: "Dhatrak", width: 150, height: 100 },
+        { src: "/clientele/garja.webp", name: "Garja", width: 150, height: 100 },
+        { src: "/clientele/ml-developers.webp", name: "ML Developers", width: 150, height: 100 },
+        { src: "/clientele/nirmal-group.webp", name: "Nirmal Group", width: 150, height: 100 },
+        { src: "/clientele/patil-group.webp", name: "Patil Group", width: 150, height: 100 },
+        { src: "/clientele/rachit-builders.webp", name: "Rachit Builders", width: 150, height: 100 },
       ],
     },
     {
       name: "GOA",
       logos: [
-        { src: "/clientele/clara-mount.webp", name: "Clara Mount" },
-        { src: "/clientele/oiuine.webp", name: "" },
-        { src: "/clientele/em-ghee.webp", name: "EM Ghee" },
-        { src: "/clientele/naifer.webp", name: "Naifer" },
+        { src: "/clientele/clara-mount.webp", name: "Clara Mount", width: 150, height: 100 },
+        { src: "/clientele/oiuine.webp", name: "", width: 150, height: 100 },
+        { src: "/clientele/em-ghee.webp", name: "EM Ghee", width: 150, height: 100 },
+        { src: "/clientele/naifer.webp", name: "Naifer", width: 150, height: 100 },
       ],
     },
     {
       name: "BANGALORE",
       logos: [
-        { src: "/clientele/alpine.webp", name: "Alpine" },
-        { src: "/clientele/brigade-banglore-1.webp", name: "Brigade Banglore" },
-        { src: "/clientele/embassy.webp", name: "Embassy" },
-        { src: "/clientele/gannon.webp", name: "Gannon" },
-        { src: "/clientele/g-corp.webp", name: "G Corp" },
-        { src: "/clientele/habitat.webp", name: "Habitat" },
-        { src: "/clientele/pashmina.webp", name: "Pashmina" },
-        { src: "/clientele/prestige-group.webp", name: "Prestige Group" },
-        { src: "/clientele/tgr.webp", name: "" },
-        { src: "/clientele/zonasha.webp", name: "Zonasha" },
-        { src: "/clientele/l-t-realty-jpg.webp", name: "L T Realty" },
-        { src: "/clientele/tvs-emerald-banglore-chennai-1-1.webp", name: "TVS Emerald Banglore Chennai 1" },
+        { src: "/clientele/alpine.webp", name: "Alpine", width: 150, height: 100 },
+        { src: "/clientele/brigade-banglore-1.webp", name: "Brigade Banglore", width: 150, height: 100 },
+        { src: "/clientele/embassy.webp", name: "Embassy", width: 150, height: 100 },
+        { src: "/clientele/gannon.webp", name: "Gannon", width: 150, height: 100 },
+        { src: "/clientele/g-corp.webp", name: "G Corp", width: 150, height: 100 },
+        { src: "/clientele/habitat.webp", name: "Habitat", width: 150, height: 100 },
+        { src: "/clientele/pashmina.webp", name: "Pashmina", width: 150, height: 100 },
+        { src: "/clientele/prestige-group.webp", name: "Prestige Group", width: 150, height: 100 },
+        { src: "/clientele/tgr.webp", name: "", width: 150, height: 100 },
+        { src: "/clientele/zonasha.webp", name: "Zonasha", width: 150, height: 100 },
+        { src: "/clientele/l-t-realty-jpg.webp", name: "L T Realty", width: 320, height: 150 },
+        { src: "/clientele/tvs-emerald-banglore-chennai-1-1.webp", name: "TVS Emerald Bangalore Chennai 1", width: 150, height: 100 },
       ],
     },
     {
       name: "CHENNAI",
       logos: [
-        { src: "/clientele/appaswamy.webp", name: "Appaswamy" },
-        { src: "/clientele/tvs-emerald-banglore-chennai-1-1-1.webp", name: "TVS Emerald Banglore Chennai 1 1" },
-        { src: "/clientele/snp-foundation-chennai.webp", name: "SNP Foundation Chennai" },
-        { src: "/clientele/download-10-2.webp", name: "" },
-        { src: "/clientele/images-1.webp", name: "" },
-        { src: "/clientele/casa.webp", name: "Casa" },
-        { src: "/clientele/downl.webp", name: "" },
-        { src: "/clientele/dacnew.webp", name: "" },
+        { src: "/clientele/appaswamy.webp", name: "Appaswamy", width: 150, height: 100 },
+        { src: "/clientele/tvs-emerald-banglore-chennai-1-1-1.webp", name: "TVS Emerald Bangalore Chennai 1 1", width: 150, height: 100 },
+        { src: "/clientele/snp-foundation-chennai.webp", name: "SNP Foundation Chennai", width: 150, height: 100 },
+        { src: "/clientele/download-10-2.webp", name: "", width: 300, height: 135 },
+        { src: "/clientele/images-1.webp", name: "", width: 225, height: 119 },
+        { src: "/clientele/casa.webp", name: "Casa", width: 300, height: 150 },
+        { src: "/clientele/downl.webp", name: "", width: 300, height: 150 },
+        { src: "/clientele/dacnew.webp", name: "", width: 300, height: 150 },
       ],
     },
     {
       name: "HYDERABAD",
       logos: [
-        { src: "/clientele/sri-srinivasa.webp", name: "Sri Srinivasa" },
-        { src: "/clientele/kalpataru.webp", name: "Kalpataru" },
-        { src: "/clientele/vasavi-builders-logo-png-hyderabadnew-rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g.webp", name: "Vasavi Builders Logo Png Hyderabadnew Rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g" },
-        { src: "/clientele/alekya-png-logo-hyderabad-rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco.webp", name: "Alekya Png Logo Hyderabad Rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco" },
-        { src: "/clientele/aparna-logo.webp", name: "Aparna" },
-        { src: "/clientele/myhome-logo.webp", name: "Myhome" },
-        { src: "/clientele/sumadhura-infracon-3.webp", name: "Sumadhura Infracon" },
-        { src: "/clientele/dsr-hyderabad-1.webp", name: "Dsr Hyderabad" },
+        { src: "/clientele/sri-srinivasa.webp", name: "Sri Srinivasa", width: 300, height: 150 },
+        { src: "/clientele/kalpataru.webp", name: "Kalpataru", width: 300, height: 150 },
+        { src: "/clientele/vasavi-builders-logo-png-hyderabadnew-rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g.webp", name: "Vasavi Builders Logo Png Hyderabadnew Rrpcjy91vgcd4ec54z3cvquwj0i4uruck6hkeli86g", width: 300, height: 100 },
+        { src: "/clientele/alekya-png-logo-hyderabad-rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco.webp", name: "Alekya Png Logo Hyderabad Rrpcjxb7omb2ssdiagoqb93fxmmrn2qm81u2xbjmco", width: 300, height: 100 },
+        { src: "/clientele/aparna-logo.webp", name: "Aparna", width: 310, height: 163 },
+        { src: "/clientele/myhome-logo.webp", name: "Myhome", width: 304, height: 166 },
+        { src: "/clientele/sumadhura-infracon-3.webp", name: "Sumadhura Infracon", width: 300, height: 160 },
+        { src: "/clientele/dsr-hyderabad-1.webp", name: "DSR Hyderabad", width: 300, height: 160 },
       ],
     },
     {
       name: "DELHI",
       logos: [
-        { src: "/clientele/dlf-capital-green.webp", name: "DLF Capital Green" },
-        { src: "/clientele/lemon-tree-hotels.webp", name: "Lemon Tree Hotels" },
-        { src: "/clientele/m3m.webp", name: "" },
-        { src: "/clientele/tata-housing-1.webp", name: "Tata Housing" },
+        { src: "/clientele/dlf-capital-green.webp", name: "DLF Capital Green", width: 150, height: 100 },
+        { src: "/clientele/lemon-tree-hotels.webp", name: "Lemon Tree Hotels", width: 150, height: 100 },
+        { src: "/clientele/m3m.webp", name: "", width: 150, height: 100 },
+        { src: "/clientele/tata-housing-1.webp", name: "Tata Housing", width: 150, height: 100 },
       ],
     },
     {
       name: "NAGPUR",
       logos: [
-        { src: "/clientele/images-2-1.webp", name: "" },
-        { src: "/clientele/download-5-1.webp", name: "" },
-        { src: "/clientele/image-119.webp", name: "" },
-        { src: "/clientele/image-117.webp", name: "" },
-        { src: "/clientele/1654503679145-rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0.webp", name: "1654503679145 Rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0" },
-        { src: "/clientele/sachidanand-realties-nagpur-png-logo-1.webp", name: "Sachidanand Realties Nagpur Png Logo" },
-        { src: "/clientele/sdpl-nagpur-logo-1.webp", name: "Sdpl Nagpur Logo" },
-        { src: "/clientele/pyramid-group-nagpur-logo.webp", name: "Pyramid Group Nagpur" },
+        { src: "/clientele/images-2-1.webp", name: "", width: 150, height: 100 },
+        { src: "/clientele/download-5-1.webp", name: "", width: 150, height: 100 },
+        { src: "/clientele/image-119.webp", name: "", width: 150, height: 100 },
+        { src: "/clientele/image-117.webp", name: "", width: 150, height: 100 },
+        { src: "/clientele/1654503679145-rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0.webp", name: "1654503679145 Rrpcjuhnac1f3u9fmo6s8baj68dix6kma78matqfe0", width: 150, height: 100 },
+        { src: "/clientele/sachidanand-realties-nagpur-png-logo-1.webp", name: "Sachidanand Realties Nagpur Png Logo", width: 300, height: 150 },
+        { src: "/clientele/sdpl-nagpur-logo-1.webp", name: "Sdpl Nagpur Logo", width: 300, height: 150 },
+        { src: "/clientele/pyramid-group-nagpur-logo.webp", name: "Pyramid Group Nagpur", width: 300, height: 150 },
       ],
     },
     {
       name: "KOLKATA",
       logos: [
-        { src: "/clientele/sugam-kolkata-logo-1.webp", name: "Sugam Kolkata Logo" },
-        { src: "/clientele/godrej-properties.webp", name: "Godrej Properties" },
-        { src: "/clientele/alcove-realty-kolkata.webp", name: "Alcove Realty Kolkata" },
-        { src: "/clientele/siddha-group-kolkata.webp", name: "Siddha Group Kolkata" },
-        { src: "/clientele/primarc-kolkata.webp", name: "Primarc Kolkata" },
-        { src: "/clientele/rajat-group-kolkata-logo.webp", name: "Rajat Group Kolkata" },
-        { src: "/clientele/merlin-group-kolkata-logo.webp", name: "Merlin Group Kolkata" },
-        { src: "/clientele/purti-realty-kolkata-logo.webp", name: "Purti Realty Kolkata" },
+        { src: "/clientele/sugam-kolkata-logo-1.webp", name: "Sugam Kolkata Logo", width: 300, height: 175 },
+        { src: "/clientele/godrej-properties.webp", name: "Godrej Properties", width: 400, height: 210 },
+        { src: "/clientele/alcove-realty-kolkata.webp", name: "Alcove Realty Kolkata", width: 300, height: 175 },
+        { src: "/clientele/siddha-group-kolkata.webp", name: "Siddha Group Kolkata", width: 300, height: 175 },
+        { src: "/clientele/primarc-kolkata.webp", name: "Primarc Kolkata", width: 300, height: 175 },
+        { src: "/clientele/rajat-group-kolkata-logo.webp", name: "Rajat Group Kolkata", width: 300, height: 175 },
+        { src: "/clientele/merlin-group-kolkata-logo.webp", name: "Merlin Group Kolkata", width: 300, height: 175 },
+        { src: "/clientele/purti-realty-kolkata-logo.webp", name: "Purti Realty Kolkata", width: 300, height: 175 },
       ],
     },
   ],
@@ -792,7 +794,7 @@ export const projectsPage = {
       href: "",
       image: "/projects/mask-group-1-1.webp",
       body:
-        "Goel Ganga Group is one of the known real estate brands in Pune.The builder has delivered 74 projects so far. Around 7 projects are upcoming.",
+        "Goel Ganga Group is one of the known real estate brands in  builder has delivered 74 projects so far. Around 7 projects are upcoming.",
     },
     {
       name: "Godrej Infinity – Pune",
@@ -820,7 +822,7 @@ export const projectsPage = {
       href: "",
       image: "/projects/lodha-palava-1.webp",
       body:
-        "Lodha Palava city is a dream project by Lodha. The township is well equipped with all the facilities and modern amenities. It’s like a smart city experience.",
+        "Lodha Palava City is a dream project by Lodha. The township is well equipped with all the facilities and modern amenities. It’s like a smart city experience.",
     },
     {
       name: "L&T Realty presents Raintree Boulevard – Bangalore",
@@ -848,7 +850,7 @@ export const projectsPage = {
       href: "",
       image: "/projects/dlf-garden-city-indore.webp",
       body:
-        "One of the most upcoming townships with a lot of amenities nearby such as a very good CBSE School nearby and colleges. There is Central India largest mall which is easily accessible.",
+        "One of the most upcoming townships with a lot of amenities nearby such as a very good CBSE School nearby and colleges. There is Central India's largest mall which is easily accessible.",
     },
     {
       name: "L & T Crescent Bay – Parel, Mumbai",
@@ -869,7 +871,7 @@ export const projectsPage = {
       href: "",
       image: "/projects/prestige-bella-vista-chennai.webp",
       body:
-        "Located on Mount Poonamallee Road, Porur – Bella Vista is touted to be one of Chennai’s most lavish and serene Residential Developments.",
+        "Located on Mount Poonamallee Road, Porur – Bella Vista is touted to be one of Chennai’s most lavish and serene residential developments.",
     },
     {
       name: "Alcove New Kolkata",
@@ -918,7 +920,7 @@ export const projectsPage = {
       href: "",
       image: "/projects/raga-sarvolam-kolkata.webp",
       body:
-        "It is a well-designed and comfortable home that offers an excellent quality of life. It is a 230-unit project spread over 2.5 acres in Howrah, Kolkata.",
+        "It is a well-designed and comfortable home that offers an excellent quality of life. It is a 230-unit project spread over 2.5 acres in Howrah, Kolkata.  Each apartment is designed to have excellent lighting and ventilation, close to Howrah Maidan Metro Station, ",
     },
     {
       name: "Kshetrum Aspire",
@@ -941,25 +943,25 @@ export const careerPage = {
     headingLines: ["Find a job that", "will help build", "a better nation."],
   },
   openings: {
-    title: "Careers Openings",
+    title: "Career Openings",
     more: "More Details",
     items: [
       {
         title: "Business Development Manager",
         href: "",
-        experience: "5 years Experience",
+        experience: "5 years of Experience",
         location: "Hyderabad",
       },
       {
         title: "Sales Associate",
         href: "",
-        experience: "2 years Experience",
+        experience: "2 years of experience",
         location: "Bangalore",
       },
       {
         title: "Sales Associate",
         href: "",
-        experience: "2 years Experience",
+        experience: "2 years of experience",
         location: "Kolkata",
       },
     ],
@@ -968,7 +970,7 @@ export const careerPage = {
     title: "Life at Buildon",
     galleries: [
       {
-        title: "Annual conference 2024",
+        title: "Annual Conference 2024",
         images: [
           "/career/rectangle-5576.webp",
           "/career/rectangle-5577.webp",
@@ -1114,7 +1116,7 @@ export const blogPage = {
       title: "Best Practices for Gypsum Plaster Application – Do’s and Don’ts",
       href: "",
       excerpt:
-        "Introduction to Gypsum Plaster Gypsum plaster stands out as the preferred material among professionals and homeowners in today’s construction and interior finishing projects. This flexible material delivers better finishing quality along with enhanced durability and visual appeal when contrasted with Traditional plastering methods. The construction solutions leader BuildOn endorses gypsum plaster because of its many …",
+        "Introduction to Gypsum Plaster Gypsum plaster stands out as the preferred material among professionals and homeowners in today’s construction and interior finishing projects. This flexible material delivers better finishing quality along with enhanced durability and visual appeal when contrasted with traditional plastering methods. The construction solutions leader BuildOn endorses gypsum plaster because of its many …",
       image: "/blog/untitled-1080-x-1080-px.webp",
     },
     {
@@ -1149,7 +1151,7 @@ export const blogPage = {
       title: "What is Gypsum Plaster? A Complete Guide",
       href: "",
       excerpt:
-        "Gypsum plaster has gained immense popularity in modern construction due to its smooth finish, fast application, and eco-friendly properties. Unlike traditional cement plaster, gypsum wall plaster offers superior durability, fire resistance, and moisture resistance, making it an ideal choice for interior wall finishing. With the growing demand for gypsum-based construction materials, architects, builders, and homeowners …",
+        "Gypsum plaster has gained immense popularity in modern construction due to its smooth finish, fast application, and eco-friendly properties. Unlike traditional cement plaster, Gypsum wall plaster offers superior durability, fire resistance, and moisture resistance, making it an ideal choice for interior wall finishing. With the growing demand for gypsum-based construction materials, architects, builders, and homeowners …",
       image: "/blog/buildon-blog-2-2.webp",
     },
     {
@@ -1240,7 +1242,7 @@ export const blogPage = {
       title: "Advantages and Disadvantages of Gypsum Plaster",
       href: "",
       excerpt:
-        "Gypsum plaster is becoming a well known material in today’s time. From homeowners to builders, gypsum plaster in India is gaining recognition because of its fantastic features making it a good investment. Gone were the days when people used to apply traditional plastering on the internal walls, like cement plaster. With time, it has been …",
+        "Gypsum plaster is becoming a well-known material in today’s time. From homeowners to builders, gypsum plaster in India is gaining recognition because of its fantastic features making it a good investment. Gone were the days when people used to apply traditional plastering on the internal walls, like cement plaster. With time, it has been …",
       image: "/blog/1.webp",
     },
   ],

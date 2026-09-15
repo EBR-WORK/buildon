@@ -9,7 +9,7 @@ import { productCatalogue, products, productsPage, site } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: productsPage.title,
-  description: `${productsPage.heading} ${products.intro}`,
+  description: `${productsPage.heading} ${productsPage.intro}`,
   alternates: { canonical: "/products" },
   openGraph: {
     type: "website",
@@ -35,10 +35,11 @@ export default function ProductsPage() {
         <section className="section-y">
           <div className="container-page">
             <Reveal>
-              <SectionHeading title={productsPage.heading} align="center" />
-              <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-ink-500">
-                {products.intro}
-              </p>
+              <SectionHeading
+                title={productsPage.heading}
+                intro={productsPage.intro}
+                align="center"
+              />
             </Reveal>
 
             <ul className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-14 lg:grid-cols-3">

@@ -64,15 +64,31 @@ export default function ClientelePage() {
                     as="li"
                     key={`${city.name}-${logo.src}`}
                     delay={(i % 4) * 0.06}
-                    className="flex h-24 items-center justify-center rounded-xl border border-line bg-white p-4 transition hover:border-brand-200 hover:shadow-card sm:h-28 sm:p-5"
+                    className="flex h-28 items-center justify-center rounded-xl border border-line bg-white p-3 transition hover:border-brand-200 hover:shadow-card sm:h-32 sm:p-4"
                   >
+                    {/* These logos are almost all taller than 2:1, so height is
+                        what limits them, not the tile's width — they already
+                        sit in spare width. The tile is taller and its padding
+                        tighter, which lifts the room they have from 64 to 88px
+                        on phones and 72 to 96px above that, at the same tile
+                        width.
+
+                        max-w-full is the guard for the other direction: a few
+                        logos run 3:1, and with only max-h-full they would spill
+                        past the tile once the height allowance grew.
+
+                        Each logo declares its own pixels. Sharing one 200x90
+                        shape capped every logo at 90px tall and, on narrow
+                        tiles where width binds first, letterboxed the artwork
+                        inside a box wider than itself — costing height exactly
+                        where there was least of it. */}
                     <Image
                       src={logo.src}
                       alt={logo.name ? `${logo.name} — Buildon client` : "Client of Buildon Plasters"}
-                      width={200}
-                      height={90}
+                      width={logo.width}
+                      height={logo.height}
                       loading="lazy"
-                      className="max-h-full w-auto object-contain mix-blend-multiply"
+                      className="max-h-full max-w-full object-contain mix-blend-multiply"
                     />
                   </Reveal>
                 ))}

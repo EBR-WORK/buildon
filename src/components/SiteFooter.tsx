@@ -57,7 +57,7 @@ export default function SiteFooter() {
       </div>
 
       {/* Link columns */}
-      <div className="relative container-page grid gap-10 py-12 sm:grid-cols-2 sm:gap-x-8 sm:py-14 lg:grid-cols-4">
+      <div className="relative container-page grid grid-cols-2 gap-x-6 gap-y-10 py-12 sm:gap-x-8 sm:py-14 lg:grid-cols-4">
         {columns.map((column) => (
           <nav key={column.heading} aria-label={column.heading}>
             <h2 className="font-display text-lg font-semibold text-white">{column.heading}</h2>
@@ -87,7 +87,7 @@ export default function SiteFooter() {
           >
             {site.email}
           </a>
-          <ul className="mt-5 flex flex-wrap gap-2.5">
+          <ul className="mt-5 flex flex-wrap gap-2 sm:gap-2.5">
             {social.map((item) => {
               const Icon = socialIcons[item.icon];
               return (
@@ -95,7 +95,7 @@ export default function SiteFooter() {
                   <a
                     href={item.href}
                     aria-label={item.label}
-                    className="inline-flex size-10 items-center justify-center rounded-full bg-brand-500 text-white transition hover:bg-brand-600"
+                    className="inline-flex size-9 items-center justify-center rounded-full bg-brand-500 text-white transition hover:bg-brand-600 sm:size-10"
                   >
                     <Icon className="size-4.5" />
                   </a>

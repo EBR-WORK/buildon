@@ -6,11 +6,23 @@ type Props = {
    * inside a single h2 — "Here's Who We Are:" over "About Us", for instance.
    */
   title: string | readonly string[];
-  intro?: string;
+  /** Same deal as `title`: an array is rendered as lines split by <br>. */
+  intro?: string | readonly string[];
   align?: "left" | "center";
   tone?: "light" | "dark";
   id?: string;
 };
+
+/** Renders one string as-is, or several as lines separated by <br>. */
+function lineBreaks(value: string | readonly string[]) {
+  const lines = typeof value === "string" ? [value] : value;
+  return lines.map((line, i) => (
+    <Fragment key={line}>
+      {i > 0 && <br />}
+      {line}
+    </Fragment>
+  ));
+}
 
 export default function SectionHeading({
   title,
@@ -21,8 +33,6 @@ export default function SectionHeading({
 }: Props) {
   const centered = align === "center";
   const dark = tone === "dark";
-  const lines = typeof title === "string" ? [title] : title;
-
   return (
     <div className={`max-w-2xl ${centered ? "mx-auto text-center" : ""}`}>
       <h2
@@ -31,12 +41,7 @@ export default function SectionHeading({
           dark ? "text-white" : ""
         }`}
       >
-        {lines.map((line, i) => (
-          <Fragment key={line}>
-            {i > 0 && <br />}
-            {line}
-          </Fragment>
-        ))}
+        {lineBreaks(title)}
       </h2>
       {intro && (
         <p
@@ -44,7 +49,7 @@ export default function SectionHeading({
             dark ? "text-white/70" : "text-ink-500"
           }`}
         >
-          {intro}
+          {lineBreaks(intro)}
         </p>
       )}
     </div>
