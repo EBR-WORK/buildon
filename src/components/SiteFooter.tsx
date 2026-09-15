@@ -35,7 +35,7 @@ export default function SiteFooter() {
       <div className="relative container-page flex justify-end">
         <a
           href={site.primaryPhoneHref}
-          className="relative z-10 -top-2 -mb-2 inline-block rounded-md bg-brand-500 px-6 py-3.5 text-center transition hover:bg-brand-600 sm:px-8"
+          className="relative z-10 -top-2 -mb-2 inline-block rounded-md bg-accent-500 px-6 py-3.5 text-center transition hover:bg-accent-600 sm:px-8"
         >
           <h3 className="font-display text-xl leading-snug font-semibold whitespace-nowrap text-white sm:text-2xl">
             {site.callUs}

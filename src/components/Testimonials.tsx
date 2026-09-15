@@ -45,7 +45,7 @@ export default function Testimonials() {
                 className="w-full min-w-0 shrink-0 snap-start pr-1"
                 aria-roledescription="slide"
               >
-                <QuoteIcon className="size-8 text-brand-200" />
+                <QuoteIcon className="size-8 text-accent-500/30" />
                 <blockquote className="mt-3 text-[15px] leading-relaxed break-words text-ink-500">
                   {item.quote}
                 </blockquote>
@@ -82,7 +82,7 @@ export default function Testimonials() {
                   aria-label={`Go to testimonial ${i + 1} of ${count}`}
                   aria-current={i === index}
                   className={`size-2.5 rounded-full transition ${
-                    i === index ? "bg-brand-500" : "bg-line hover:bg-brand-300"
+                    i === index ? "bg-accent-500" : "bg-line hover:bg-accent-500/40"
                   }`}
                 />
               ))}

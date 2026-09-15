@@ -48,7 +48,7 @@ export default function BackToTop() {
       // so it is never a focus stop pointing at a scroll position you are in.
       aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}
-      className={`fixed right-4 bottom-4 z-40 inline-flex size-11 cursor-pointer items-center justify-center rounded-full bg-brand-500 text-white shadow-lift transition duration-300 hover:bg-brand-600 focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 sm:right-6 sm:bottom-6 ${
+      className={`fixed right-4 bottom-4 z-40 inline-flex size-11 cursor-pointer items-center justify-center rounded-full bg-accent-500 text-white shadow-lift transition duration-300 hover:bg-accent-600 focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 sm:right-6 sm:bottom-6 ${
         visible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-3 opacity-0"

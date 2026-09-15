@@ -31,7 +31,7 @@ export default function DetailBlock({ label, value, href, icon: Icon }: Props) {
   );
 
   return (
-    <div className="relative border-b border-line pb-5 after:absolute after:-bottom-px after:left-0 after:h-0.5 after:w-7 after:bg-brand-600 after:content-['']">
+    <div className="relative border-b border-line pb-5 after:absolute after:-bottom-px after:left-0 after:h-0.5 after:w-7 after:bg-accent-500 after:content-['']">
       {Icon ? (
         <div className="flex gap-4">
           <Icon className="mt-0.5 size-6 shrink-0 text-brand-500" />

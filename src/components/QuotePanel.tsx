@@ -49,12 +49,18 @@ export default function QuotePanel() {
         onClick={() => setOpen(true)}
         aria-expanded={open}
         aria-controls="quote-panel"
-        className="fixed top-1/2 right-0 z-40 inline-flex -translate-y-1/2 rotate-180 cursor-pointer items-center gap-2 rounded-r-lg bg-brand-500 px-2.5 py-4 font-display text-sm font-medium tracking-wide text-white shadow-lift transition hover:bg-brand-600 [writing-mode:vertical-rl]"
+        className="fixed top-1/2 right-0 z-40 inline-flex -translate-y-1/2 rotate-180 cursor-pointer items-center gap-2 rounded-r-lg bg-accent-500 px-5 py-3 font-display text-sm font-medium tracking-wide text-white shadow-lift transition hover:bg-accent-600 [writing-mode:vertical-rl]"
       >
-        {/* Upright inside vertical text, and the parent's rotate-180 — which is
-            what makes the label read bottom-to-top — turns it back the right
-            way up. */}
-        <PhoneIcon className="size-4 rotate-90" />
+        {/* px/py above are padding-inline/padding-block, and vertical-rl turns
+            the inline axis vertical — so px is the space at the ends of the
+            label and py is the space either side of it. They read swapped here
+            on purpose; writing them the "obvious" way pinches the text against
+            the rounded ends.
+
+            The icon is upright inside vertical text, and the parent's
+            rotate-180 — which is what makes the label read bottom-to-top —
+            turns it back the right way up. */}
+        <PhoneIcon className="size-5 rotate-90" />
         {quote.tab}
       </button>
 

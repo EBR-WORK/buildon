@@ -28,6 +28,11 @@
   --color-signal-500: #c1141f;
   --color-signal-600: #a41019;
 
+  /* The logo's red. Deliberately separate from signal-*, which means
+     "error": a red field border has to keep saying something is wrong. */
+  --color-accent-500: #c1141f;
+  --color-accent-600: #a41019;
+
   /* Dark sections */
   --color-secondary: #2b343b;
 

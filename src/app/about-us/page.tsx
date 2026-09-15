@@ -93,7 +93,7 @@ export default function AboutUsPage() {
               <ul className="mt-4 grid gap-3 sm:grid-flow-col sm:grid-rows-3 sm:auto-cols-fr sm:gap-x-8">
                 {aboutPage.whyChoose.items.map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-[15px] text-ink-700">
-                    <CheckIcon className="mt-1 size-4 shrink-0 text-brand-500" />
+                    <CheckIcon className="mt-1 size-4 shrink-0 text-accent-500" />
                     {item}
                   </li>
                 ))}
