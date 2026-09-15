@@ -77,7 +77,10 @@ export default function SiteFooter() {
           </nav>
         ))}
 
-        <div>
+        {/* Phones only: a single column there is ~128px, where the five icons
+            break onto two or three rows. From sm its column is 276px, wide
+            enough for the row of 240px, so it sits normally. */}
+        <div className="col-span-2 sm:col-span-1">
           <h2 className="font-display text-lg font-semibold text-white">
             {footerHeadings.connect}
           </h2>
@@ -87,7 +90,7 @@ export default function SiteFooter() {
           >
             {site.email}
           </a>
-          <ul className="mt-5 flex flex-wrap gap-2 sm:gap-2.5">
+          <ul className="mt-5 flex flex-wrap gap-2.5">
             {social.map((item) => {
               const Icon = socialIcons[item.icon];
               return (
@@ -95,7 +98,7 @@ export default function SiteFooter() {
                   <a
                     href={item.href}
                     aria-label={item.label}
-                    className="inline-flex size-9 items-center justify-center rounded-full bg-brand-500 text-white transition hover:bg-brand-600 sm:size-10"
+                    className="inline-flex size-10 items-center justify-center rounded-full bg-brand-500 text-white transition hover:bg-brand-600"
                   >
                     <Icon className="size-4.5" />
                   </a>
