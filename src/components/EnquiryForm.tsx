@@ -10,9 +10,22 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
  * The enquiry form itself, with no section chrome — shared by the home page's
- * "Send Us Message" block and the /contact-us page.
+ * "Send Us Message" block, the /contact-us page and the quote panel.
+ *
+ * `idPrefix` exists because two of those can be on screen at once: the quote
+ * panel opens over a page that already has this form, and without a prefix both
+ * copies would claim the ids "name", "email" and so on. Duplicate ids point
+ * every label at the first copy, so clicking a label in the panel would focus
+ * the field behind it. The `name` attributes stay unprefixed — they are what
+ * the submission reads.
  */
-export default function EnquiryForm({ className = "" }: { className?: string }) {
+export default function EnquiryForm({
+  className = "",
+  idPrefix = "",
+}: {
+  className?: string;
+  idPrefix?: string;
+}) {
   const [errors, setErrors] = useState<Errors>({});
 
   /**
@@ -49,33 +62,47 @@ export default function EnquiryForm({ className = "" }: { className?: string }) 
   }
 
   return (
-<form onSubmit={handleSubmit} noValidate className={className}>
-  <Field name="name" label={contact.fields.name} error={errors.name} autoComplete="name" />
-  <Field
-    name="email"
-    label={contact.fields.email}
-    type="email"
-    error={errors.email}
-    autoComplete="email"
-  />
-  <Field
-    name="phone"
-    label={contact.fields.phone}
-    type="tel"
-    error={errors.phone}
-    autoComplete="tel"
-  />
-  <Field name="message" label={contact.fields.message} error={errors.message} multiline />
+    <form onSubmit={handleSubmit} noValidate className={className}>
+      <Field
+        name="name"
+        idPrefix={idPrefix}
+        label={contact.fields.name}
+        error={errors.name}
+        autoComplete="name"
+      />
+      <Field
+        name="email"
+        idPrefix={idPrefix}
+        label={contact.fields.email}
+        type="email"
+        error={errors.email}
+        autoComplete="email"
+      />
+      <Field
+        name="phone"
+        idPrefix={idPrefix}
+        label={contact.fields.phone}
+        type="tel"
+        error={errors.phone}
+        autoComplete="tel"
+      />
+      <Field
+        name="message"
+        idPrefix={idPrefix}
+        label={contact.fields.message}
+        error={errors.message}
+        multiline
+      />
 
-  <button
-    suppressHydrationWarning
-    type="submit"
-    className="group mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600 sm:w-auto"
-  >
-    {contact.submit}
-    <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
-  </button>
-</form>
+      <button
+        suppressHydrationWarning
+        type="submit"
+        className="group mt-8 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600 sm:w-auto"
+      >
+        {contact.submit}
+        <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
+      </button>
+    </form>
   );
 }
 
@@ -89,6 +116,7 @@ export default function EnquiryForm({ className = "" }: { className?: string }) 
  */
 function Field({
   name,
+  idPrefix = "",
   label,
   type = "text",
   error,
@@ -96,12 +124,15 @@ function Field({
   multiline = false,
 }: {
   name: string;
+  idPrefix?: string;
   label: string;
   type?: string;
   error?: string;
   autoComplete?: string;
   multiline?: boolean;
 }) {
+  const id = `${idPrefix}${name}`;
+  const errorId = `${id}-error`;
   const field =
     "peer w-full border-b bg-transparent pt-6 pb-2 text-base outline-none sm:text-[15px] " +
     (error ? "border-signal-500" : "border-line");
@@ -112,38 +143,38 @@ function Field({
         {multiline ? (
           <textarea
             suppressHydrationWarning
-            id={name}
+            id={id}
             name={name}
             rows={4}
             placeholder=" "
             aria-invalid={Boolean(error)}
-            aria-describedby={error ? `${name}-error` : undefined}
+            aria-describedby={error ? errorId : undefined}
             aria-required
             className={`${field} resize-y`}
           />
         ) : (
           <input
             suppressHydrationWarning
-            id={name}
+            id={id}
             name={name}
             type={type}
             autoComplete={autoComplete}
             placeholder=" "
             aria-invalid={Boolean(error)}
-            aria-describedby={error ? `${name}-error` : undefined}
+            aria-describedby={error ? errorId : undefined}
             aria-required
             className={field}
           />
         )}
         <label
-          htmlFor={name}
+          htmlFor={id}
           className="pointer-events-none absolute top-6 left-0 text-base text-ink-500 transition-all duration-200 peer-focus:top-0 peer-focus:text-xs peer-focus:text-brand-500 peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs sm:text-[15px]"
         >
           {label}
         </label>
       </div>
       {error && (
-        <p id={`${name}-error`} className="mt-1.5 text-sm text-signal-500">
+        <p id={errorId} className="mt-1.5 text-sm text-signal-500">
           {error}
         </p>
       )}

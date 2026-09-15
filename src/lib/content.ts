@@ -288,6 +288,12 @@ export const contact = {
   },
 } as const;
 
+/** The tab pinned to the right edge of every page, and the panel it opens. */
+export const quote = {
+  tab: "Get a Quote",
+  title: "Get a Quote",
+} as const;
+
 export const newsletter = {
   titleLead: "Subscribe to Our ",
   titleAccent: "Newsletter",

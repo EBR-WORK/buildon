@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import BackToTop from "@/components/BackToTop";
+import QuotePanel from "@/components/QuotePanel";
 import ScrollToTop from "@/components/ScrollToTop";
 import { site } from "@/lib/content";
 import "./globals.css";
@@ -76,6 +77,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ScrollToTop />
         {children}
         <BackToTop />
+        <QuotePanel />
         <script
           type="application/ld+json"
           // Static, locally-authored object — no user input reaches this string.
