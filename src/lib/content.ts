@@ -47,12 +47,12 @@ export const nav: readonly NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about-us" },
   { label: "Products", href: "/products" },
-  { label: "Clientele", href: "" },
-  { label: "Projects", href: "" },
-  { label: "Careers", href: "" },
-  { label: "Blog", href: "" },
+  { label: "Clientele", href: "/clientele" },
+  { label: "Projects", href: "/projects" },
+  { label: "Careers", href: "/career" },
+  { label: "Blog", href: "/blog" },
   { label: "Contact Us", href: "/contact-us" },
-  { label: "FAQs", href: "" },
+  { label: "FAQs", href: "/faq" },
 ];
 
 export const hero = {

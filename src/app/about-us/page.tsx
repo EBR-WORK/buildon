@@ -223,22 +223,30 @@ export default function AboutUsPage() {
             <Reveal>
               <SectionHeading title={aboutPage.branches.title} />
 
-              <ul className="mt-8 space-y-5">
+              {/* Each row closes with the same hairline-and-accent-tick rule
+                  DetailBlock draws on the contact page, so the two address
+                  blocks read as one treatment. */}
+              <ul className="mt-8 space-y-6">
                 {branchDetails.map((detail) => (
-                  <li key={detail.label} className="flex gap-3.5 sm:gap-4">
-                    <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-500">
-                      <detail.icon className="size-5" />
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="font-display text-lg leading-snug font-semibold">
-                        {detail.label}
-                      </h3>
-                      <a
-                        href={detail.href}
-                        className="mt-1 block leading-[25px] text-ink-500 transition hover:text-brand-500"
-                      >
-                        {detail.value}
-                      </a>
+                  <li
+                    key={detail.label}
+                    className="relative border-b border-line pb-5 after:absolute after:-bottom-px after:left-0 after:h-0.5 after:w-7 after:bg-accent-500 after:content-['']"
+                  >
+                    <div className="flex gap-3.5 sm:gap-4">
+                      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-500">
+                        <detail.icon className="size-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="font-display text-lg leading-snug font-semibold">
+                          {detail.label}
+                        </h3>
+                        <a
+                          href={detail.href}
+                          className="mt-1 block leading-[25px] text-ink-500 transition hover:text-brand-500"
+                        >
+                          {detail.value}
+                        </a>
+                      </div>
                     </div>
                   </li>
                 ))}
@@ -251,6 +259,8 @@ export default function AboutUsPage() {
               <h2 className="font-display text-2xl font-semibold">
                 {aboutPage.branches.branchesLabel}
               </h2>
+              {/* Matches the rule under the contact page's own "Branches" */}
+              <span aria-hidden className="mt-3 block h-1 w-14 bg-accent-500" />
               <ul className="mt-6 flex flex-wrap gap-2.5">
                 {branches.map((branch) => (
                   <li
