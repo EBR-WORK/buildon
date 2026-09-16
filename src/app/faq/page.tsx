@@ -85,7 +85,7 @@ export default function FaqPage() {
                         </h3>
                         <PlusIcon
                           aria-hidden
-                          className="mt-0.5 size-5 shrink-0 text-brand-500 transition-transform duration-300 group-open:rotate-45"
+                          className="mt-0.5 size-5 shrink-0 text-brand-500 transition duration-300 group-hover:text-accent-500 group-open:rotate-45"
                         />
                       </summary>
                       <p className="px-5 pb-5 text-[15px] leading-relaxed text-ink-500 sm:px-6 sm:pb-6">

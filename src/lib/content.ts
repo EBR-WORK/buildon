@@ -62,7 +62,7 @@ export const hero = {
   primaryCta: { label: "KNOW MORE", href: "/about-us" },
   videoCta: {
     label: "PLAY VIDEO",
-    href: "",
+    href: "https://youtu.be/ffdFtDPtqBs?si=6p0oz656hwd9G_hx",
   },
   /** The looping banner behind the hero copy. */
   video: "/brand/banner-vid.mp4",

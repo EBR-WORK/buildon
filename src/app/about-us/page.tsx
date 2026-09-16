@@ -259,8 +259,12 @@ export default function AboutUsPage() {
               <h2 className="font-display text-2xl font-semibold">
                 {aboutPage.branches.branchesLabel}
               </h2>
-              {/* Matches the rule under the contact page's own "Branches" */}
-              <span aria-hidden className="mt-3 block h-1 w-14 bg-accent-500" />
+              {/* Same hairline-and-tick rule DetailBlock draws, matching the
+                  contact page's own "Branches" */}
+              <span
+                aria-hidden
+                className="relative mt-4 block border-b border-line after:absolute after:-bottom-px after:left-0 after:h-0.5 after:w-7 after:bg-accent-500 after:content-['']"
+              />
               <ul className="mt-6 flex flex-wrap gap-2.5">
                 {branches.map((branch) => (
                   <li
