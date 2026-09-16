@@ -35,7 +35,7 @@ export default function SiteFooter() {
       <div className="relative container-page flex justify-end">
         <a
           href={site.primaryPhoneHref}
-          className="relative z-10 -top-2 -mb-2 inline-block rounded-md bg-brand-500 px-6 py-3.5 text-center transition hover:bg-brand-600 sm:px-8"
+          className="relative z-10 -top-2 -mb-2 inline-block rounded-md bg-accent-500 px-6 py-3.5 text-center transition hover:bg-accent-600 sm:px-8"
         >
           <h3 className="font-display text-xl leading-snug font-semibold whitespace-nowrap text-white sm:text-2xl">
             {site.callUs}
@@ -57,7 +57,7 @@ export default function SiteFooter() {
       </div>
 
       {/* Link columns */}
-      <div className="relative container-page grid gap-10 py-12 sm:grid-cols-2 sm:gap-x-8 sm:py-14 lg:grid-cols-4">
+      <div className="relative container-page grid grid-cols-2 gap-x-6 gap-y-10 py-12 sm:gap-x-8 sm:py-14 lg:grid-cols-4">
         {columns.map((column) => (
           <nav key={column.heading} aria-label={column.heading}>
             <h2 className="font-display text-lg font-semibold text-white">{column.heading}</h2>
@@ -77,7 +77,10 @@ export default function SiteFooter() {
           </nav>
         ))}
 
-        <div>
+        {/* Phones only: a single column there is ~128px, where the five icons
+            break onto two or three rows. From sm its column is 276px, wide
+            enough for the row of 240px, so it sits normally. */}
+        <div className="col-span-2 sm:col-span-1">
           <h2 className="font-display text-lg font-semibold text-white">
             {footerHeadings.connect}
           </h2>

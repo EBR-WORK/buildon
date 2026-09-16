@@ -45,7 +45,7 @@ export default function VideoPlayer({ src, poster, label, className = "" }: Prop
           className="group absolute inset-0 grid cursor-pointer place-items-center"
         >
           <span className="grid size-14 place-items-center rounded-full bg-brand-500 text-white shadow-lift transition group-hover:scale-105 group-hover:bg-brand-600 sm:size-16">
-            <PlayIcon className="size-6 translate-x-px sm:size-7" />
+            <PlayIcon className="size-6 sm:size-7" />
           </span>
           <span className="sr-only">{label}</span>
         </button>

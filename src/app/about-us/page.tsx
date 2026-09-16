@@ -93,7 +93,7 @@ export default function AboutUsPage() {
               <ul className="mt-4 grid gap-3 sm:grid-flow-col sm:grid-rows-3 sm:auto-cols-fr sm:gap-x-8">
                 {aboutPage.whyChoose.items.map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-[15px] text-ink-700">
-                    <CheckIcon className="mt-1 size-4 shrink-0 text-brand-500" />
+                    <CheckIcon className="mt-1 size-4 shrink-0 text-accent-500" />
                     {item}
                   </li>
                 ))}
@@ -138,15 +138,28 @@ export default function AboutUsPage() {
                 each, which left the photo a slot and the body text a gutter —
                 so tablets stack, photo full width above the copy. */}
             <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-0">
-              {/* 540x668 source. Beside the copy it fills a portrait column and
-                  crops almost nothing; stacked it becomes a 4:3 band, with the
-                  min-height as a floor so narrow phones still get some depth. */}
-              <div className="relative aspect-4/3 min-h-[22rem] w-full lg:aspect-auto lg:min-h-[30rem]">
+              {/*
+                The box carries the source's own 540x668 ratio, so object-cover
+                has nothing to crop and no letterbox appears at any width.
+
+                It matters because this photograph is tall. A 4:3 band showed
+                61% of it on a tablet, and letting it stretch to the copy's
+                height at lg showed 70% — the copy is long, so that column runs
+                far taller than the picture. Its edges are too varied for a flat
+                letterbox colour to hide the difference, which rules out
+                object-contain.
+
+                Capped and centred when stacked: full-bleed at this ratio would
+                be ~860px tall on a tablet, more than a screenful. At lg
+                self-center opts out of the row's stretch so it keeps its shape
+                beside the taller text.
+              */}
+              <div className="relative mx-auto aspect-[540/668] w-full max-w-[24rem] lg:max-w-none lg:self-center">
                 <Image
                   src={aboutPage.manufacturing.image}
                   alt={aboutPage.manufacturing.imageAlt}
                   fill
-                  sizes="(min-width: 1024px) 30rem, 92vw"
+                  sizes="(min-width: 1024px) 30rem, 24rem"
                   loading="lazy"
                   className="object-cover object-center"
                 />
@@ -178,7 +191,7 @@ export default function AboutUsPage() {
         <section className="relative isolate overflow-hidden bg-surface">
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-[url('/about/banner-about.png')] bg-cover bg-center"
+            className="absolute inset-0 -z-10 bg-[url('/about/banner-about.webp')] bg-cover bg-center"
           />
           <div className="container-page section-y">
             <Reveal className="bg-line/60 p-4 shadow-lift sm:p-5">
@@ -210,22 +223,30 @@ export default function AboutUsPage() {
             <Reveal>
               <SectionHeading title={aboutPage.branches.title} />
 
-              <ul className="mt-8 space-y-5">
+              {/* Each row closes with the same hairline-and-accent-tick rule
+                  DetailBlock draws on the contact page, so the two address
+                  blocks read as one treatment. */}
+              <ul className="mt-8 space-y-6">
                 {branchDetails.map((detail) => (
-                  <li key={detail.label} className="flex gap-3.5 sm:gap-4">
-                    <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-500">
-                      <detail.icon className="size-5" />
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="font-display text-lg leading-snug font-semibold">
-                        {detail.label}
-                      </h3>
-                      <a
-                        href={detail.href}
-                        className="mt-1 block leading-[25px] text-ink-500 transition hover:text-brand-500"
-                      >
-                        {detail.value}
-                      </a>
+                  <li
+                    key={detail.label}
+                    className="relative border-b border-line pb-5 after:absolute after:-bottom-px after:left-0 after:h-0.5 after:w-7 after:bg-accent-500 after:content-['']"
+                  >
+                    <div className="flex gap-3.5 sm:gap-4">
+                      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-500">
+                        <detail.icon className="size-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="font-display text-lg leading-snug font-semibold">
+                          {detail.label}
+                        </h3>
+                        <a
+                          href={detail.href}
+                          className="mt-1 block leading-[25px] text-ink-500 transition hover:text-brand-500"
+                        >
+                          {detail.value}
+                        </a>
+                      </div>
                     </div>
                   </li>
                 ))}
@@ -238,6 +259,8 @@ export default function AboutUsPage() {
               <h2 className="font-display text-2xl font-semibold">
                 {aboutPage.branches.branchesLabel}
               </h2>
+              {/* Matches the rule under the contact page's own "Branches" */}
+              <span aria-hidden className="mt-3 block h-1 w-14 bg-accent-500" />
               <ul className="mt-6 flex flex-wrap gap-2.5">
                 {branches.map((branch) => (
                   <li

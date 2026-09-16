@@ -10,7 +10,7 @@ type Props = {
 
 /**
  * The label-over-value block buildon.co.in repeats across its contact pages:
- * a bold Oswald label, the value beneath in body grey, and a hairline rule
+ * a bold label, the value beneath in body grey, and a hairline rule
  * carrying a short skin-colour tick at its left end.
  */
 export default function DetailBlock({ label, value, href, icon: Icon }: Props) {
@@ -31,7 +31,7 @@ export default function DetailBlock({ label, value, href, icon: Icon }: Props) {
   );
 
   return (
-    <div className="relative border-b border-line pb-5 after:absolute after:-bottom-px after:left-0 after:h-0.5 after:w-7 after:bg-brand-600 after:content-['']">
+    <div className="relative border-b border-line pb-5 after:absolute after:-bottom-px after:left-0 after:h-0.5 after:w-7 after:bg-accent-500 after:content-['']">
       {Icon ? (
         <div className="flex gap-4">
           <Icon className="mt-0.5 size-6 shrink-0 text-brand-500" />

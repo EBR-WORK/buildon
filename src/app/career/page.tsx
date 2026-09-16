@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LifeGalleries from "@/components/LifeGalleries";
+import CtaLink from "@/components/CtaLink";
 import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
@@ -29,8 +30,8 @@ export const metadata: Metadata = {
  * Buildon" photo galleries.
  *
  * The reference's job board renders each opening as a row with the title on the
- * left and its specs on the right; the same shape is kept here, with the whole
- * row as one link rather than a separate "More Details" anchor.
+ * left and its specs on the right; the same shape is kept here. "More Details"
+ * links to the job page once its href is filled in content.ts.
  */
 export default function CareerPage() {
   return (
@@ -69,17 +70,13 @@ export default function CareerPage() {
                         </span>
                       </div>
                     </div>
-
-                    {/* The job page is not built yet, so this is a button with
-                        nothing wired to it rather than a link. */}
-                    <button
-                      suppressHydrationWarning
-                      type="button"
+                    <CtaLink
+                      href={job.href}
                       className="inline-flex shrink-0 cursor-pointer items-center gap-2 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:self-auto"
                     >
                       {careerPage.openings.more}
                       <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-                    </button>
+                    </CtaLink>
                   </article>
                 </Reveal>
               ))}

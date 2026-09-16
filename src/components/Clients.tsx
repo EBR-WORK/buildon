@@ -1,38 +1,48 @@
 import Image from "next/image";
 import { clients } from "@/lib/content";
+import Reveal from "./Reveal";
+import SectionHeading from "./SectionHeading";
 
+/**
+ * "Meet Our Clients", as on buildon.co.in: heading, one line of intro, then the
+ * logos laid straight on white — six across, the remaining five centred beneath.
+ * No tiles and no marquee.
+ *
+ * The reference assembles this from 12-column rows (six col-sm-2, then five in a
+ * padded row) plus a separate mobile-only copy of every logo in pairs. One
+ * flex-wrap list covers both: from sm each logo takes a sixth of the width, so
+ * eleven wrap six-then-five and justify-center centres the short row; below sm
+ * each takes half, so they pair up with the eleventh centred on its own.
+ */
 export default function Clients() {
-  // Duplicated once so the marquee can loop seamlessly at -50%.
-  const track = [...clients.logos, ...clients.logos];
-
   return (
     <section
       id="clients"
-      className="section-y scroll-mt-28 border-t border-line"
+      className="scroll-mt-28 bg-white pt-12 pb-16 sm:pt-14 sm:pb-20 lg:pt-16 lg:pb-24"
     >
-      {/* Tiles shrink on small screens, so the loop duration shortens to keep the
-          logos moving at roughly the same speed across breakpoints. */}
-      <div
-        className="group relative overflow-hidden [--marquee-duration:30s] [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:[--marquee-duration:36s] lg:[--marquee-duration:42s] lg:[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
-        role="region"
-        aria-label="Client logos"
-      >
-        <ul className="flex w-max animate-marquee items-center gap-3 group-hover:[animation-play-state:paused] motion-reduce:w-full motion-reduce:animate-none motion-reduce:snap-x motion-reduce:overflow-x-auto sm:gap-4">
-          {track.map((logo, i) => (
-            <li
-              key={`${logo}-${i}`}
-              aria-hidden={i >= clients.logos.length}
-              className="flex h-20 w-36 shrink-0 items-center justify-center rounded-xl border border-line bg-white px-4 motion-reduce:snap-start sm:h-24 sm:w-44 sm:px-5"
+      <div className="container-page">
+        <Reveal>
+          <SectionHeading title={clients.title} intro={clients.intro} align="center" />
+        </Reveal>
+
+        <ul className="mx-auto mt-8 flex max-w-[56rem] flex-wrap justify-center gap-y-8 sm:mt-10 sm:gap-y-10">
+          {clients.logos.map((logo, i) => (
+            <Reveal
+              as="li"
+              key={logo.src}
+              delay={(i % 6) * 0.05}
+              className="flex basis-1/2 items-center justify-center px-3 sm:basis-1/6"
             >
+              {/* multiply drops the off-white box some of the artwork carries */}
               <Image
-                src={logo}
-                alt={i < clients.logos.length ? "Client of Buildon Plasters" : ""}
-                width={180}
-                height={78}
+                src={logo.src}
+                alt={logo.name}
+                width={logo.width}
+                height={logo.height}
                 loading="lazy"
-                className="max-h-11 w-auto object-contain mix-blend-multiply sm:max-h-14"
+                className="h-auto max-h-16 w-auto max-w-full object-contain mix-blend-multiply"
               />
-            </li>
+            </Reveal>
           ))}
         </ul>
       </div>

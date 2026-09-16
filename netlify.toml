@@ -1,0 +1,14 @@
+# Only used when the site is connected to a Git repo. A drag-and-drop deploy
+# ignores this file entirely — there you just drop the `out` folder.
+
+[build]
+  command = "npm run build"
+
+  # `out`, not `.next`. next.config.ts sets output: "export", so the build
+  # writes a plain static site to out/ — that is the servable folder.
+  publish = "out"
+
+[build.environment]
+  # next@16 requires Node >= 20.9. Pinned so a change to Netlify's default
+  # image cannot move it underneath us.
+  NODE_VERSION = "22"

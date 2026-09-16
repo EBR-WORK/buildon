@@ -20,6 +20,12 @@ type Props = {
   className?: string;
   /** Seconds to hold before starting, for staggering neighbouring blocks. */
   delay?: number;
+  /**
+   * How far below its resting place the element starts, in px. Pass 0 for a
+   * plain fade — required inside anything that scrolls, where a translated child
+   * becomes scrollable overflow and hijacks the mouse wheel.
+   */
+  y?: number;
 };
 
 /**
@@ -32,7 +38,13 @@ type Props = {
  * The data-reveal hook is what the <noscript> rule in the root layout targets,
  * so the copy is still visible if the script never runs.
  */
-export default function Reveal({ children, as = "div", className, delay = 0 }: Props) {
+export default function Reveal({
+  children,
+  as = "div",
+  className,
+  delay = 0,
+  y = 24,
+}: Props) {
   const reduced = useReducedMotion();
 
   if (reduced) {
@@ -46,7 +58,7 @@ export default function Reveal({ children, as = "div", className, delay = 0 }: P
     <Animated
       data-reveal
       className={className}
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15, margin: "0px 0px -8% 0px" }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}

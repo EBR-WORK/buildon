@@ -26,10 +26,12 @@ export default function About() {
       <div className="container-page">
         <Reveal className="relative z-10 -mt-[90px] bg-white p-5 shadow-lift sm:-mt-[125px] sm:p-[30px]">
           <div className="grid items-center gap-8 md:grid-cols-2 md:gap-0">
-            {/* The source is 659x800. Framing it 4:5 keeps almost the whole
-                photograph in shot — a box sized to the text column's height
-                cropped it to bare wall. */}
-            <div className="relative mx-auto aspect-4/5 w-full max-w-md md:max-w-none">
+            {/* The photograph is now cropped to the sofa and table: 659x423.
+                The box carries that exact ratio, so object-cover has nothing
+                left to trim — the old 4:5 portrait box showed barely half its
+                width. Landscape, it can run the column's full width at every
+                size, so the portrait-era max-width cap is gone. */}
+            <div className="relative aspect-[659/423] w-full">
               <Image
                 src={about.image}
                 alt="Interior wall finished with Buildon gypsum plaster"

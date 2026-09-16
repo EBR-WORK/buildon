@@ -28,6 +28,11 @@
   --color-signal-500: #c1141f;
   --color-signal-600: #a41019;
 
+  /* The logo's red. Deliberately separate from signal-*, which means
+     "error": a red field border has to keep saying something is wrong. */
+  --color-accent-500: #c1141f;
+  --color-accent-600: #a41019;
+
   /* Dark sections */
   --color-secondary: #2b343b;
 
@@ -46,14 +51,15 @@
   /* Extra-small phones (320-400px) still need a stacking step of their own */
   --breakpoint-xs: 26rem;
 
-  /* Same pairing as buildon.co.in — Oswald for display, Open Sans for copy */
-  --font-display: var(--font-oswald), "Arial Narrow", Arial, Helvetica, sans-serif;
-  --font-sans: var(--font-open-sans), Tahoma, Geneva, Arial, sans-serif;
+  /* TT Hoves Pro for everything — headings, body copy and buttons alike. The
+     @font-face rules that load it sit just below @theme. The fallbacks are
+     system grotesks of similar width, so text keeps roughly its shape until the
+     font arrives. */
+  --font-display: "TT Hoves Pro", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "TT Hoves Pro", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --shadow-card: 0 1px 2px rgb(22 24 29 / 0.04), 0 8px 24px -12px rgb(22 24 29 / 0.14);
   --shadow-lift: 0 2px 4px rgb(22 24 29 / 0.05), 0 24px 48px -20px rgb(22 24 29 / 0.28);
-
-  --animate-marquee: marquee var(--marquee-duration, 42s) linear infinite;
 
   /* Hero copy settles in on load; `both` holds it hidden through its delay */
   --animate-rise: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -63,10 +69,49 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
+}
+
+/*
+  TT Hoves Pro comes in two weights here, Regular and Medium. Put the licensed
+  files in public/fonts/ under these names and they load with no code change:
+
+    public/fonts/TT-Hoves-Pro-Regular.woff2   (or .woff)
+    public/fonts/TT-Hoves-Pro-Medium.woff2    (or .woff)
+
+  local() is tried first, so a machine that already has the font installed uses
+  it without downloading anything.
+
+  Each face claims a weight RANGE, not a single weight. The site asks for 400,
+  500, 600 and 700; with only two files, the browser would fake 600 and 700 by
+  smearing Medium thicker. Mapping 450-900 onto Medium makes every semibold and
+  bold class render the real Medium cut instead.
+
+  These are plain @font-face rules rather than next/font/local on purpose:
+  next/font resolves its files at build time and fails the build when they are
+  missing, while a root-relative url() here simply falls back until they exist.
+*/
+@font-face {
+  font-family: "TT Hoves Pro";
+  src:
+    local("TT Hoves Pro Regular"),
+    local("TTHovesPro-Regular"),
+    url("/fonts/TT-Hoves-Pro-Regular.woff2") format("woff2"),
+    url("/fonts/TT-Hoves-Pro-Regular.woff") format("woff");
+  font-weight: 100 449;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TT Hoves Pro";
+  src:
+    local("TT Hoves Pro Medium"),
+    local("TTHovesPro-Medium"),
+    url("/fonts/TT-Hoves-Pro-Medium.woff2") format("woff2"),
+    url("/fonts/TT-Hoves-Pro-Medium.woff") format("woff");
+  font-weight: 450 900;
+  font-style: normal;
+  font-display: swap;
 }
 
 @layer base {
@@ -80,7 +125,7 @@
     background: var(--color-page);
     color: var(--color-ink-500);
     font-family: var(--font-sans);
-    /* Reference body type: Open Sans 400, 15px / 24px */
+    /* Body copy: TT Hoves Pro Regular, 15px / 24px */
     font-size: 15px;
     line-height: 24px;
     -webkit-font-smoothing: antialiased;
@@ -91,9 +136,9 @@
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    /* Oswald is already condensed — negative tracking would crowd it */
     letter-spacing: 0;
-    font-weight: 600;
+    /* Medium is the heaviest cut in use, so headings ask for it by name */
+    font-weight: 500;
     color: var(--color-ink-900);
     text-wrap: balance;
   }

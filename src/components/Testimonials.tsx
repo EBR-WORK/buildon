@@ -3,6 +3,7 @@
 import { testimonials } from "@/lib/content";
 import { useSnapCarousel } from "@/lib/useSnapCarousel";
 import CarouselButton from "./CarouselButton";
+import CtaLink from "./CtaLink";
 import { QuoteIcon } from "./icons";
 import SectionHeading from "./SectionHeading";
 import VideoPlayer from "./VideoPlayer";
@@ -44,7 +45,7 @@ export default function Testimonials() {
                 className="w-full min-w-0 shrink-0 snap-start pr-1"
                 aria-roledescription="slide"
               >
-                <QuoteIcon className="size-8 text-brand-200" />
+                <QuoteIcon className="size-8 text-accent-500/30" />
                 <blockquote className="mt-3 text-[15px] leading-relaxed break-words text-ink-500">
                   {item.quote}
                 </blockquote>
@@ -62,14 +63,12 @@ export default function Testimonials() {
                 label="Previous testimonial"
                 onClick={() => goTo(index - 1)}
                 disabled={atStart}
-                className="bg-brand-500 text-white hover:bg-brand-600"
               />
               <CarouselButton
                 direction="next"
                 label="Next testimonial"
                 onClick={() => goTo(index + 1)}
                 disabled={atEnd}
-                className="bg-brand-500 text-white hover:bg-brand-600"
               />
             </div>
 
@@ -83,19 +82,18 @@ export default function Testimonials() {
                   aria-label={`Go to testimonial ${i + 1} of ${count}`}
                   aria-current={i === index}
                   className={`size-2.5 rounded-full transition ${
-                    i === index ? "bg-brand-500" : "bg-line hover:bg-brand-300"
+                    i === index ? "bg-accent-500" : "bg-line hover:bg-accent-500/40"
                   }`}
                 />
               ))}
             </div>
 
-            <button
-              suppressHydrationWarning
-              type="button"
+            <CtaLink
+              href={testimonials.cta.href}
               className="cursor-pointer text-sm font-semibold text-brand-500 hover:text-brand-600 sm:ml-auto"
             >
               {testimonials.cta.label}
-            </button>
+            </CtaLink>
           </div>
         </div>
       </Reveal>

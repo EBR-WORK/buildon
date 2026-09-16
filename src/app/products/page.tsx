@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import CtaLink from "@/components/CtaLink";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
@@ -8,7 +9,7 @@ import { productCatalogue, products, productsPage, site } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: productsPage.title,
-  description: `${productsPage.heading} ${products.intro}`,
+  description: `${productsPage.heading} ${productsPage.intro}`,
   alternates: { canonical: "/products" },
   openGraph: {
     type: "website",
@@ -34,10 +35,11 @@ export default function ProductsPage() {
         <section className="section-y">
           <div className="container-page">
             <Reveal>
-              <SectionHeading title={productsPage.heading} align="center" />
-              <p className="mx-auto mt-4 max-w-2xl text-center text-base leading-relaxed text-ink-500">
-                {products.intro}
-              </p>
+              <SectionHeading
+                title={productsPage.heading}
+                intro={productsPage.intro}
+                align="center"
+              />
             </Reveal>
 
             <ul className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-14 lg:grid-cols-3">
@@ -67,13 +69,12 @@ export default function ProductsPage() {
                       <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">
                         {product.body}
                       </p>
-                      <button
-                        suppressHydrationWarning
-                        type="button"
+                      <CtaLink
+                        href={product.href}
                         className="mt-4 inline-flex cursor-pointer items-center gap-1.5 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
                       >
                         {products.readMore}
-                      </button>
+                      </CtaLink>
                     </div>
                   </article>
                 </Reveal>

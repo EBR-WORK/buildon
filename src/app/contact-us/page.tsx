@@ -61,7 +61,7 @@ export default function ContactUsPage() {
                 </h3>
                 <span
                   aria-hidden
-                  className="mt-4 block h-0.5 w-7 bg-brand-600"
+                  className="mt-3 block h-1 w-14 bg-accent-500"
                 />
                 {/* The reference runs these as one pipe-separated line */}
                 <ul className="mt-6 flex flex-wrap gap-2.5">
