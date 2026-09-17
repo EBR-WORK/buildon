@@ -334,7 +334,7 @@ export const footerLinks = {
     { label: "Home", href: "/" },
     { label: "Our Projects", href: "/projects" },
     { label: "Our Products", href: "/products" },
-    { label: "Careers", href: "/careers" },
+    { label: "Careers", href: "/career" },
     { label: "Customer Reviews", href: "/testimonials" },
   ],
   support: [
