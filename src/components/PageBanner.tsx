@@ -60,7 +60,7 @@ export default function PageBanner({
       {scrim !== "none" && (
         <div
           aria-hidden
-          className={`absolute inset-0 -z-10 hidden to-transparent to-80% sm:block ${
+          className={`absolute inset-0 -z-10 hidden to-transparent to-60% sm:block ${
             scrim === "strong"
               ? "bg-linear-to-r from-secondary/85 from-0% via-secondary/60 via-45%"
               : "bg-linear-to-r from-secondary/45 from-0% via-secondary/25 via-45%"
@@ -72,8 +72,12 @@ export default function PageBanner({
         {/* The product banners set the eyebrow at the same size as the title,
             so the two read as one block of caps inside the artwork's colour
             panel — hence the width cap, which is what makes it wrap there
-            rather than running across the photograph. */}
-        <div className={eyebrow ? "max-w-[19rem] sm:max-w-[26rem]" : undefined}>
+            rather than running across the photograph. It applies to every
+            product banner, eyebrow or not: Classic has none, and uncapped its
+            title ran out over the white half of the picture. */}
+        <div
+          className={eyebrow || scrim !== "none" ? "max-w-[19rem] sm:max-w-[26rem]" : undefined}
+        >
           {eyebrow && (
             <p className="mb-1 font-display text-[clamp(1.75rem,2vw+1rem,2.5rem)] leading-[1.25] font-normal tracking-wide text-white uppercase sm:mb-2">
               {eyebrow}

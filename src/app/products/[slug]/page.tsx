@@ -60,9 +60,10 @@ export async function generateMetadata({
 
 /**
  * "More Products" is a hand-picked list on the reference, not a derived one —
- * seven of the nine pages show the two Bondits and P-20 whatever the product.
- * That choice is carried in `related`; where a page names fewer than three
- * (its own self-link is dropped), the catalogue tops the row up in order.
+ * most pages show the two Bondits and P-20 whatever the product, the Bondit
+ * pages included (their own card among them). That choice is carried in
+ * `related`; where a page names fewer than three, the catalogue tops the row
+ * up in order.
  */
 function otherProducts(slug: string, related: readonly string[]) {
   const picked = related
@@ -76,6 +77,38 @@ function otherProducts(slug: string, related: readonly string[]) {
   }
 
   return picked.slice(0, 3);
+}
+
+/** A block that is a single note — Health & Safety, Storage, Precautions. */
+function isNote(section: ProductSection) {
+  return (
+    (section.kind === "icon_text" || section.kind === "icon_grid") && section.items.length === 1
+  );
+}
+
+type Run =
+  | { readonly kind: "block"; readonly section: ProductSection }
+  | { readonly kind: "notes"; readonly sections: readonly ProductSection[] };
+
+/**
+ * Adjacent single notes are gathered into one run. On the reference each is a
+ * full-width section holding two lines of text, which reads as mostly empty
+ * page; side by side as cards they read as what they are — the practical
+ * small print next to each other.
+ */
+function groupNotes(sections: readonly ProductSection[]): Run[] {
+  const runs: Run[] = [];
+  for (const section of sections) {
+    const last = runs.at(-1);
+    if (isNote(section) && last?.kind === "notes") {
+      runs[runs.length - 1] = { kind: "notes", sections: [...last.sections, section] };
+    } else if (isNote(section)) {
+      runs.push({ kind: "notes", sections: [section] });
+    } else {
+      runs.push({ kind: "block", section });
+    }
+  }
+  return runs;
 }
 
 /** The reference centres every block heading except the two at the end. */
@@ -176,6 +209,27 @@ function renderSection(section: ProductSection) {
     // Icon above a full sentence, four across — Application of Gypsum,
     // Direction For Use.
     case "icon_text":
+      // A lone item (P-20's Health & Safety and Storage, the Bondits'
+      // Precautions) is a note, not a set: the reference sets it as an icon over
+      // a paragraph, uncarded, rather than one card stranded in a grid.
+      if (section.items.length === 1) {
+        const [item] = section.items;
+        return (
+          <Reveal className="mt-8 max-w-xl sm:mt-10">
+            {item.icon && (
+              <Image
+                src={item.icon}
+                alt=""
+                width={64}
+                height={64}
+                loading="lazy"
+                className="size-12 object-contain sm:size-14"
+              />
+            )}
+            <p className="mt-4 text-[15px] leading-relaxed text-ink-500 sm:text-base">{item.text}</p>
+          </Reveal>
+        );
+      }
       return (
         <ul className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {section.items.map((item, i) => (
@@ -196,6 +250,34 @@ function renderSection(section: ProductSection) {
                 />
               )}
               <p className="mt-4 text-[15px] leading-relaxed text-ink-500">{item.text}</p>
+            </Reveal>
+          ))}
+        </ul>
+      );
+
+    // Procedural steps — Direction For Use and the Bondit blocks — as cards,
+    // three across: one step to a card, read left to right.
+    case "icon_grid":
+      return (
+        <ul className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+          {section.items.map((item, i) => (
+            <Reveal
+              as="li"
+              key={item.text}
+              delay={Math.min(i % 3, 2) * 0.05}
+              className="rounded-2xl border border-line bg-white p-5 shadow-card sm:p-6"
+            >
+              {item.icon && (
+                <Image
+                  src={item.icon}
+                  alt=""
+                  width={56}
+                  height={56}
+                  loading="lazy"
+                  className="size-11 object-contain sm:size-12"
+                />
+              )}
+              <p className="mt-4 text-[15px] leading-relaxed text-ink-700">{item.text}</p>
             </Reveal>
           ))}
         </ul>
@@ -300,7 +382,11 @@ export default async function ProductDetailPage({
   const renderBlock = (section: ProductSection, i: number) => {
     const heading = (
       <Reveal>
-        <SectionHeading title={section.heading} align={headingAlign(section)} />
+        <SectionHeading
+          title={section.heading}
+          intro={section.intro ?? undefined}
+          align={headingAlign(section)}
+        />
       </Reveal>
     );
 
@@ -334,7 +420,13 @@ export default async function ProductDetailPage({
                 <div aria-hidden className="absolute inset-0 -z-10 bg-secondary/15" />
               </>
             )}
-            <div className="container-page">{renderSection(section)}</div>
+            {/* Features sits its rows on the photograph with room above and
+                below; the tools band carries its own padding in its list. */}
+            <div
+              className={`container-page ${section.kind === "features" ? "pb-10 sm:pb-14" : ""}`}
+            >
+              {renderSection(section)}
+            </div>
           </div>
         </section>
       );
@@ -447,34 +539,93 @@ export default async function ProductDetailPage({
         {/* First block, then the enquiry form, as the reference orders them */}
         {blocks.slice(0, 1).map(renderBlock)}
 
-        <section id="enquiry" className="section-y scroll-mt-28 border-t border-line bg-surface">
-          <div className="container-page">
-            <Reveal className="overflow-hidden rounded-2xl bg-white shadow-card">
-              <div className="grid lg:grid-cols-2">
-                <div className="p-6 sm:p-8 lg:p-10">
-                  <h2 className="font-display text-2xl leading-snug font-semibold">
-                    {contact.formTitle}
-                  </h2>
-                  <EnquiryForm idPrefix={`${product.slug}-`} className="mt-6" />
+{/* Three pages carry no form on the reference (Master, Vermiculite,
+            Bondit-151); the site-wide Get a Quote tab still offers one there. */}
+        {product.hasEnquiry && (
+                  <section id="enquiry" className="section-y scroll-mt-28 border-t border-line bg-surface">
+            <div className="container-page">
+              <Reveal className="overflow-hidden rounded-2xl bg-white shadow-card">
+                <div className="grid lg:grid-cols-2">
+                  <div className="p-6 sm:p-8 lg:p-10">
+                    <h2 className="font-display text-2xl leading-snug font-semibold">
+                      {contact.formTitle}
+                    </h2>
+                    <EnquiryForm idPrefix={`${product.slug}-`} className="mt-6" />
+                  </div>
+  
+                  <div className="relative order-first min-h-[16rem] lg:order-last lg:min-h-0">
+                    <Image
+                      src="/projects/plastering.webp"
+                      alt="A plasterer smoothing a ceiling with a trowel"
+                      fill
+                      sizes="(min-width: 1024px) 34rem, 100vw"
+                      loading="lazy"
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
+              </Reveal>
+            </div>
+          </section>
+        )}
 
-                <div className="relative order-first min-h-[16rem] lg:order-last lg:min-h-0">
-                  <Image
-                    src="/projects/plastering.webp"
-                    alt="A plasterer smoothing a ceiling with a trowel"
-                    fill
-                    sizes="(min-width: 1024px) 34rem, 100vw"
-                    loading="lazy"
-                    className="object-cover"
-                  />
-                </div>
+        {/* The rest of the product's blocks, with adjacent notes grouped */}
+        {groupNotes(blocks.slice(1)).map((run, i) =>
+          run.kind === "block" ? (
+            renderBlock(run.section, i + 1)
+          ) : (
+            <section
+              key={run.sections.map((section) => section.heading).join("|")}
+              /* Lighter than section-y: one row of cards does not need a
+                 full section's worth of air around it. */
+              className="border-t border-line bg-surface py-12 sm:py-16"
+            >
+              <div className="container-page">
+                <h2 className="sr-only">
+                  {run.sections.map((section) => section.heading).join(" and ")}
+                </h2>
+                <ul
+                  className={`grid gap-5 sm:gap-6 ${
+                    run.sections.length > 1 ? "md:grid-cols-2" : "lg:max-w-3xl"
+                  }`}
+                >
+                  {run.sections.map((section, j) => {
+                    const [item] = section.items;
+                    return (
+                      <Reveal
+                        as="li"
+                        key={section.heading}
+                        delay={j * 0.08}
+                        className="flex gap-5 rounded-2xl border border-line border-l-4 border-l-brand-500 bg-white p-6 shadow-card sm:p-8"
+                      >
+                        {item.icon && (
+                          <span className="grid size-14 shrink-0 place-items-center rounded-xl bg-brand-50 sm:size-16">
+                            <Image
+                              src={item.icon}
+                              alt=""
+                              width={48}
+                              height={48}
+                              loading="lazy"
+                              className="size-8 object-contain sm:size-9"
+                            />
+                          </span>
+                        )}
+                        <div className="min-w-0">
+                          <h3 className="font-display text-xl leading-snug font-semibold">
+                            {section.heading}
+                          </h3>
+                          <p className="mt-2 text-[15px] leading-relaxed text-ink-500">
+                            {item.text}
+                          </p>
+                        </div>
+                      </Reveal>
+                    );
+                  })}
+                </ul>
               </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* The rest of the product's blocks */}
-        {blocks.slice(1).map((section, i) => renderBlock(section, i + 1))}
+            </section>
+          ),
+        )}
 
         {/* Technical specifications beside the pack shot */}
         {product.specs.length > 0 && (
@@ -554,6 +705,7 @@ export default async function ProductDetailPage({
                       times over. */}
                   <Link
                     href={item.href}
+                    aria-current={item.slug === product.slug ? "page" : undefined}
                     className="group flex w-full flex-col overflow-hidden rounded-2xl bg-white shadow-card transition hover:-translate-y-1 hover:shadow-lift focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                   >
                     <div className="relative aspect-[720/544] overflow-hidden bg-surface">

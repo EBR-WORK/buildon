@@ -12,7 +12,8 @@
  *   applied_on  photograph above a caption    Applied on
  *   features    icon and label, in a panel    Features
  *   icon_cards  icon above a short label      Advantages · Benefits
- *   icon_text   icon beside a sentence        Application of Gypsum · Direction For Use
+ *   icon_text   icon over a sentence, carded  Application of Gypsum · Advantages · Benefits
+ *   icon_grid   icon over a sentence, ruled   Direction For Use · the Bondit step blocks
  *   tools       icon above a tool name        Tools for Application
  *   steps       photograph above a caption    Application Process
  *   rich_text   heading over paragraphs       Precautions · Health & Safety · usage notes
@@ -32,6 +33,7 @@ export type ProductSectionKind =
   | "features"
   | "icon_cards"
   | "icon_text"
+  | "icon_grid"
   | "tools"
   | "steps"
   | "rich_text";
@@ -46,6 +48,8 @@ export type ProductSection = {
   readonly heading: string;
   readonly kind: ProductSectionKind;
   readonly items: readonly ProductSectionItem[];
+  /** A sentence introducing the block, shown under its heading. */
+  readonly intro: string | null;
   /**
    * The photograph the reference lays this block over, tinted by a colour wash.
    * Only the tools and features blocks have one.
@@ -85,6 +89,11 @@ export type ProductDetail = {
   readonly pack: string | null;
   /** The product's PDF catalogue — six of the nine publish one. */
   readonly catalogue: ProductCatalogue | null;
+  /**
+   * Whether the reference carries the enquiry form on this page. Three do not
+   * (Master, Vermiculite, Bondit-151); the site-wide quote tab still offers it.
+   */
+  readonly hasEnquiry: boolean;
   /** Slugs the reference lists under "More Products" on this page. */
   readonly related: readonly string[];
   /**
@@ -111,6 +120,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Applied on",
         kind: "applied_on",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-brick-wall-1.webp", text: "Brick Wall" },
           { icon: "/products/detail/2019-03-block-wall-1.webp", text: "Block Wall" },
@@ -121,6 +131,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Application of Gypsum",
         kind: "icon_text",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-application-1-1.webp", text: "The surface must be clean, dry, firm & free of dust." },
           { icon: "/products/detail/2019-02-application-3-1.webp", text: "Important properties like soluble salt content, thermal characteristics, shrinkage, strength, suction bonding properties etc of the background which is to plastered, should be evaluated before application." },
@@ -132,6 +143,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Tools for Application",
         kind: "tools",
         background: "/products/backgrounds/mask-group-26.webp",
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-vector-4.webp", text: "Mixing Bucket" },
           { icon: "/products/detail/2019-02-layer_1-2.webp", text: "Plumb BOB" },
@@ -144,8 +156,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Direction For Use",
-        kind: "icon_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-application-5-1.webp", text: "The right way to mix is to add the powder to water, not water to the powder. The ratio of the powder should be 1:1.30." },
           { icon: "/products/detail/2019-02-application-6-2.webp", text: "Avoid mixing more powder that can be used within 12 minutes - 15 minutes." },
@@ -158,6 +171,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Features",
         kind: "features",
         background: "/products/backgrounds/mask-group-27.webp",
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-layer_1-1.webp", text: "Single coat application" },
           { icon: "/products/detail/2019-02-smooth-finish-1.webp", text: "Very smooth finish" },
@@ -172,6 +186,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Application Process",
         kind: "steps",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-02-group-1000004190.webp", text: "Apply a thick layer on brick wall" },
           { icon: "/products/detail/2019-02-group-1000004174.webp", text: "Apply a thin layer on board" },
@@ -195,6 +210,7 @@ export const productDetails: readonly ProductDetail[] = [
     ],
     pack: "/products/gypsum-plaster-one-coat/pack.webp",
     catalogue: { label: "Download One coat Catalogue", href: "/products/gypsum-plaster-one-coat/catalogue.pdf" },
+    hasEnquiry: true,
     related: ["bondit-plaster-bond-plus", "bondit-151", "buildon-p-20-ready-mix-plaster"],
     cardImage: null,
   },
@@ -204,7 +220,7 @@ export const productDetails: readonly ProductDetail[] = [
     eyebrow: "FINEST PLASTER TO THE WALLS.",
     title: "IMPORTED GYPSUM PLASTER.",
     banner: "/products/imported-gypsum-plaster/banner.webp",
-    bannerScrim: "strong",
+    bannerScrim: "light",
     hero: "/products/imported-gypsum-plaster/hero.webp",
     intro: "BUILDON Gypsum Plaster is produced from the light powder-density rock sourced from the purest mines. The advantage of our Gypsum is that it is the highest grade, pure white in colour, and 40% harder than any other Gypsum Plaster available in the Indian market. This Gypsum plaster can be applied easily and directly on all surfaces without the need for sand/cement/ plaster on the walls. The coverage in a 25Kg bag is 20 Sq. Ft. with a thickness of 12mm. The Fineness of 200 Mesh and purity over 85% ensure the best atomic bond and an absolute mirror finish.",
     approvals: ["/products/approvals/2019-02-group-1000004099-1.webp"],
@@ -213,6 +229,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Applied on",
         kind: "applied_on",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-brick-wall-1.webp", text: "Brick Wall" },
           { icon: "/products/detail/2019-03-block-wall-1.webp", text: "Block Wall" },
@@ -223,6 +240,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Application of Gypsum",
         kind: "icon_text",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-application-1-1.webp", text: "The surface must be clean, dry, firm & free of dust." },
           { icon: "/products/detail/2019-02-application-3-1.webp", text: "Important properties like soluble salt content, thermal characteristics, shrinkage, strength, suction bonding properties etc of the background which is to plastered, should be evaluated before application." },
@@ -234,6 +252,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Tools for Application",
         kind: "tools",
         background: "/products/backgrounds/imported-gypsum-catlogue-1-1.webp",
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-vector-4.webp", text: "Mixing Bucket" },
           { icon: "/products/detail/2019-02-layer_1-2.webp", text: "Plumb BOB" },
@@ -246,8 +265,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Direction For Use",
-        kind: "icon_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-application-5-1.webp", text: "The right way to mix is to add the powder to water, not water to the powder. The ratio of the powder should be 1:1.30." },
           { icon: "/products/detail/2019-02-application-6-2.webp", text: "Avoid mixing more powder that can be used within 15 minutes." },
@@ -260,6 +280,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Features",
         kind: "features",
         background: "/products/backgrounds/mask-group-14.webp",
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-layer_1-1.webp", text: "Single coat application" },
           { icon: "/products/detail/2019-02-smooth-finish-1.webp", text: "Very smooth finish" },
@@ -273,6 +294,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Application Process",
         kind: "steps",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-02-group-1000004190.webp", text: "Apply a thick layer on brick wall" },
           { icon: "/products/detail/2019-02-group-1000004174.webp", text: "Apply a thin layer on board" },
@@ -296,6 +318,7 @@ export const productDetails: readonly ProductDetail[] = [
     ],
     pack: "/products/imported-gypsum-plaster/pack.webp",
     catalogue: { label: "Download Imported gypsum Catalogue", href: "/products/imported-gypsum-plaster/catalogue.pdf" },
+    hasEnquiry: true,
     related: ["classic-gypsum-plaster", "gypsum-plaster-perlite-one-coat-super-200", "gypsum-plaster-verimiculite"],
     cardImage: "/products/imported-gypsum-plaster/card.webp",
   },
@@ -314,6 +337,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Applied on",
         kind: "applied_on",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-brick-wall-1.webp", text: "Brick Wall" },
           { icon: "/products/detail/2019-03-block-wall-1.webp", text: "Block Wall" },
@@ -324,6 +348,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Application of Gypsum",
         kind: "icon_text",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-application-1-1.webp", text: "The surface must be clean, dry, firm & free of dust." },
           { icon: "/products/detail/2019-02-application-3-1.webp", text: "Important properties like soluble salt content, thermal characteristics, shrinkage, strength, suction bonding properties etc of the background which is to plastered, should be evaluated before application." },
@@ -335,6 +360,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Tools for Application",
         kind: "tools",
         background: "/products/backgrounds/beautiful-interior-living-room-with-white-walls-1.webp",
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-vector-4.webp", text: "Mixing Bucket" },
           { icon: "/products/detail/2019-02-layer_1-2.webp", text: "Plumb BOB" },
@@ -347,8 +373,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Direction For Use",
-        kind: "icon_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-application-5-1.webp", text: "The right way to mix is to add the powder to water, not water to the powder. The ratio of the powder should be 1:1.30." },
           { icon: "/products/detail/2019-02-application-6-2.webp", text: "Avoid mixing more powder that can be used within 15 minutes." },
@@ -361,6 +388,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Features",
         kind: "features",
         background: "/products/backgrounds/3d-rendering-high-tech-white-kitchen-modern-kitchen-design-1-1.webp",
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-layer_1-1.webp", text: "Single coat application" },
           { icon: "/products/detail/2019-02-smooth-finish-1.webp", text: "Very smooth finish" },
@@ -374,6 +402,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Application Process",
         kind: "steps",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-02-group-1000004190.webp", text: "Apply a thick layer on brick wall" },
           { icon: "/products/detail/2019-02-group-1000004174.webp", text: "Apply a thin layer on board" },
@@ -397,6 +426,7 @@ export const productDetails: readonly ProductDetail[] = [
     ],
     pack: "/products/gypsum-master-plaster/pack.webp",
     catalogue: { label: "Download master plaster Catalogue", href: "/products/gypsum-master-plaster/catalogue.pdf" },
+    hasEnquiry: false,
     related: ["bondit-plaster-bond-plus", "bondit-151", "buildon-p-20-ready-mix-plaster"],
     cardImage: null,
   },
@@ -415,6 +445,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Application of Gypsum",
         kind: "icon_text",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-application-1-1.webp", text: "The surface must be clean, dry, firm & free of dust." },
           { icon: "/products/detail/2019-02-application-3-1.webp", text: "Important properties like soluble salt content, thermal characteristics, shrinkage, strength, suction bonding properties etc of the background which is to plastered, should be evaluated before application." },
@@ -424,8 +455,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Direction For Use",
-        kind: "icon_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-application-5-1.webp", text: "The right way to mix is to add the powder to water, not water to the powder." },
           { icon: "/products/detail/2024-03-application-6-2.webp", text: "Avoid mixing more powder that can be used within 15 minutes." },
@@ -448,6 +480,7 @@ export const productDetails: readonly ProductDetail[] = [
     ],
     pack: "/products/gypsum-plaster-perlite-one-coat-super-200/pack.webp",
     catalogue: null,
+    hasEnquiry: true,
     related: ["bondit-plaster-bond-plus", "bondit-151", "buildon-p-20-ready-mix-plaster"],
     cardImage: "/products/gypsum-plaster-perlite-one-coat-super-200/card.webp",
   },
@@ -457,7 +490,7 @@ export const productDetails: readonly ProductDetail[] = [
     eyebrow: "Build your dream with",
     title: "GYPSUM PLASTER verimiculite",
     banner: "/products/gypsum-plaster-verimiculite/banner.webp",
-    bannerScrim: "light",
+    bannerScrim: "strong",
     hero: "/products/gypsum-plaster-verimiculite/hero.webp",
     intro: "BUILDON Gypsum Plaster Verimiculite is produced from the light powder-density rock sourced from the purest mines. The advantage of our Gypsum is that it is the highest grade, brownish white in colour, and 40% harder than any other Gypsum Plaster available in the Indian market. This Gypsum plaster can be applied easily and directly on all surfaces without the need for sand/cement/ plaster on the walls. The coverage in a 25Kg bag is 24 Sq. Ft. with a thickness of 12mm. The Fineness of 200 Mesh and purity over 90% ensure the best atomic bond and an absolute mirror finish.",
     approvals: ["/products/approvals/2019-02-indian-green-building-council-vector-logo-xs.webp", "/products/approvals/2019-03-isolation_mode-1.webp", "/products/approvals/2019-03-isolation_mode-2.webp"],
@@ -466,6 +499,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Application of Gypsum",
         kind: "icon_text",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-37.webp", text: "Surface must be clean, dry, firm & free of dust." },
           { icon: "/products/detail/2024-03-application-3-1.webp", text: "Important properties like soluble salt content, thermal characteristics, shrinkage, strength, suction bonding properties etc of the background to be plastered, should be evaluated before application." },
@@ -475,8 +509,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Direction For Use",
-        kind: "icon_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-application-5-1.webp", text: "The right way to mix is to add the powder to water, not water to the powder." },
           { icon: "/products/detail/2024-03-application-6-2.webp", text: "Avoid mixing more powder that can be used within 15 minutes." },
@@ -495,7 +530,8 @@ export const productDetails: readonly ProductDetail[] = [
     ],
     pack: "/products/gypsum-plaster-verimiculite/pack.webp",
     catalogue: null,
-    related: ["buildon-p-20-ready-mix-plaster", "gypsum-plaster-perlite-one-coat-super-200", "classic-gypsum-plaster"],
+    hasEnquiry: false,
+    related: ["bondit-plaster-bond-plus", "bondit-151", "buildon-p-20-ready-mix-plaster"],
     cardImage: "/products/gypsum-plaster-verimiculite/card.webp",
   },
   {
@@ -513,6 +549,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Application of Gypsum",
         kind: "icon_text",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-application-1-1.webp", text: "Surface must be clean, dry, firm & free of dust." },
           { icon: "/products/detail/2019-02-application-3-1.webp", text: "Important properties like soluble salt content, thermal characteristics, shrinkage, strength, suction bonding properties etc of the background which is to plastered, should be evaluated before application." },
@@ -522,8 +559,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Direction For Use",
-        kind: "icon_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-application-5-1.webp", text: "The right way to mix is to add the powder to water, not water to the powder." },
           { icon: "/products/detail/2024-03-application-6-2.webp", text: "Avoid mixing more powder that can be used within 15 minutes." },
@@ -547,6 +585,7 @@ export const productDetails: readonly ProductDetail[] = [
     ],
     pack: "/products/classic-gypsum-plaster/pack.webp",
     catalogue: null,
+    hasEnquiry: true,
     related: ["bondit-plaster-bond-plus", "bondit-151", "buildon-p-20-ready-mix-plaster"],
     cardImage: "/products/classic-gypsum-plaster/card.webp",
   },
@@ -565,6 +604,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Applied on",
         kind: "applied_on",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2019-03-brick-wall-1.webp", text: "Brick Wall" },
           { icon: "/products/detail/2019-03-block-wall-1.webp", text: "Block Wall" },
@@ -573,8 +613,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Benefits",
-        kind: "icon_cards",
+        kind: "icon_text",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1.webp", text: "Quality plaster due to best in class particle size distribution." },
           { icon: "/products/detail/2024-03-layer_1-1.webp", text: "Very less rebound loss." },
@@ -589,57 +630,20 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Health & Safety",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
-          { icon: "/products/detail/2019-03-vector-4.webp", text: "Mixing Bucket" },
-          { icon: "/products/detail/2019-02-layer_1-2.webp", text: "Plumb BOB" },
-          { icon: "/products/detail/2019-02-layer_1-3.webp", text: "Steel Trowel" },
-          { icon: "/products/detail/2019-02-layer_1-4.webp", text: "Right Angled Scale" },
-          { icon: "/products/detail/2019-02-layer_1-5.webp", text: "Line Dori" },
-          { icon: "/products/detail/2019-02-layer_1-6.webp", text: "Aluminium Channel" },
-          { icon: "/products/detail/2019-02-layer_1-7.webp", text: "Measuring Tape" },
           { icon: "/products/detail/2024-03-isolation_mode-1.webp", text: "Buildon P-20 Cementitious Dry Ready Mix Plaster is a cement based product. Avoid contact with eyes or skin. Provide adequate ventilation in working place to avoid inhalation of dust." },
         ],
       },
       {
         heading: "Storage",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-isolation_mode-2.webp", text: "Keep the product in its original bag and store in dry, covered place. In these conditions it can be stored for 3 months." },
-        ],
-      },
-      {
-        heading: "Features",
-        kind: "features",
-        background: "/products/backgrounds/3d-rendering-high-tech-white-kitchen-modern-kitchen-design-1-1.webp",
-        items: [
-          { icon: "/products/detail/2019-03-layer_1-1.webp", text: "Single coat application" },
-          { icon: "/products/detail/2019-02-smooth-finish-1.webp", text: "Very smooth finish" },
-          { icon: "/products/detail/2019-02-layer_1-8.webp", text: "Can be applied directly on all walls/surfaces" },
-          { icon: "/products/detail/2019-02-shrinkage-1.webp", text: "Free of shrinkage cracks" },
-          { icon: "/products/detail/2019-02-maintance-1.webp", text: "Zero maintenance" },
-          { icon: "/products/detail/2019-02-compatable-1.webp", text: "Compatible with all types of paints" },
-        ],
-      },
-      {
-        heading: "Application Process",
-        kind: "steps",
-        background: null,
-        items: [
-          { icon: "/products/detail/2019-02-frame-4.webp", text: "Apply a thick layer on brick wall" },
-          { icon: null, text: "Apply a thin layer on board" },
-          { icon: null, text: "Apply directly on surface" },
-          { icon: null, text: "Level it out with an aluminium channel or straight edge. Leave until partially set." },
-          { icon: null, text: "Steel Trowel is used to scrape dead plaster off the wall" },
-          { icon: null, text: "Clean all tools" },
-          { icon: "/products/detail/2019-02-group-1000004190.webp", text: "Application Process" },
-          { icon: "/products/detail/2019-02-group-1000004174.webp", text: "Apply a thick layer on brick wall" },
-          { icon: "/products/detail/2019-02-group-1000004192.webp", text: "Apply a thick layer on brick wall" },
-          { icon: "/products/detail/2019-02-group-1000004193.webp", text: "Apply a thick layer on brick wall" },
-          { icon: "/products/detail/2019-02-group-1000004194.webp", text: "Apply a thick layer on brick wall" },
-          { icon: null, text: "Apply a thick layer on brick wall" },
         ],
       },
     ],
@@ -661,6 +665,7 @@ export const productDetails: readonly ProductDetail[] = [
     ],
     pack: "/products/buildon-p-20-ready-mix-plaster/pack.webp",
     catalogue: { label: "Download P-20 Cementitious Catalogue", href: "/products/buildon-p-20-ready-mix-plaster/catalogue.pdf" },
+    hasEnquiry: true,
     related: ["imported-gypsum-plaster", "gypsum-plaster-verimiculite", "gypsum-plaster-perlite-one-coat-super-200"],
     cardImage: "/products/buildon-p-20-ready-mix-plaster/card.webp",
   },
@@ -677,31 +682,39 @@ export const productDetails: readonly ProductDetail[] = [
     sections: [
       {
         heading: "Advantages",
-        kind: "icon_cards",
+        kind: "icon_text",
         background: null,
+        intro: null,
         items: [
-          { icon: "/products/detail/2024-03-layer_1-10.webp", text: "Ready to apply single coat application" },
-          { icon: "/products/detail/2024-03-layer_1-11.webp", text: "A very strong chemical bond is created" },
-          { icon: "/products/detail/2024-03-layer_1-16.webp", text: "Coverage is about 100 sqft/kg." },
-          { icon: "/products/detail/2024-03-layer_1-13.webp", text: "PH value is 7-9" },
-          { icon: "/products/detail/2024-03-layer_1-14.webp", text: "No hacking is required on concrete surfaces. Hence prevention of microcracking in concrete & saving of labour" },
-          { icon: "/products/detail/2024-03-layer_1-15.webp", text: "The bonding strength is more than 2kgs/sqft." },
-          { icon: null, text: "It is an elastomeric material & hence can withstand movements in the structure without cracking." },
-          { icon: null, text: "BONDIT-151 is a mixture of Polymer-Cement composite and can be used for multiple purposes." },
-          { icon: "/products/detail/2024-03-layer_1-28.webp", text: "BONDIT-151 is a mixture of Polymer-Cement composite and can be used for multiple purposes." },
-          { icon: "/products/detail/2024-03-layer_1-27.webp", text: "Waterproof Coating" },
-          { icon: "/products/detail/2024-03-layer_1-29.webp", text: "Crack Sealing" },
-          { icon: "/products/detail/2024-03-layer_1-30.webp", text: "Bonding of Gypsum/Cement" },
-          { icon: "/products/detail/2024-03-layer_1-31.webp", text: "Plaster to Concrete" },
-          { icon: "/products/detail/2024-03-layer_1-32.webp", text: "Concrete Repairs" },
-          { icon: "/products/detail/2024-03-layer_1-33.webp", text: "Tile Fixing on Walls" },
-          { icon: null, text: "Fixing Tile on Tile" },
+          { icon: "/products/detail/2024-03-layer_1-9.webp", text: "Ready to apply single coat application" },
+          { icon: "/products/detail/2024-03-layer_1-10.webp", text: "A very strong chemical bond is created" },
+          { icon: "/products/detail/2024-03-layer_1-11.webp", text: "Coverage is about 100 sqft/kg." },
+          { icon: "/products/detail/2024-03-layer_1-16.webp", text: "PH value is 7-9" },
+          { icon: "/products/detail/2024-03-layer_1-13.webp", text: "No hacking is required on concrete surfaces. Hence prevention of microcracking in concrete & saving of labour" },
+          { icon: "/products/detail/2024-03-layer_1-14.webp", text: "The bonding strength is more than 2kgs/sqft." },
+          { icon: "/products/detail/2024-03-layer_1-15.webp", text: "It is an elastomeric material & hence can withstand movements in the structure without cracking." },
+        ],
+      },
+      {
+        heading: "BONDIT-151 is a mixture of Polymer-Cement composite and can be used for multiple purposes.",
+        kind: "icon_grid",
+        background: null,
+        intro: null,
+        items: [
+          { icon: "/products/detail/2024-03-layer_1-28.webp", text: "Waterproof Coating" },
+          { icon: "/products/detail/2024-03-layer_1-27.webp", text: "Crack Sealing" },
+          { icon: "/products/detail/2024-03-layer_1-29.webp", text: "Bonding of Gypsum/Cement" },
+          { icon: "/products/detail/2024-03-layer_1-30.webp", text: "Plaster to Concrete" },
+          { icon: "/products/detail/2024-03-layer_1-31.webp", text: "Concrete Repairs" },
+          { icon: "/products/detail/2024-03-layer_1-32.webp", text: "Tile Fixing on Walls" },
+          { icon: "/products/detail/2024-03-layer_1-33.webp", text: "Fixing Tile on Tile" },
         ],
       },
       {
         heading: "Waterproof Coating",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-37.webp", text: "Clean the concrete surface with brush." },
           { icon: "/products/detail/2024-03-layer_1-38.webp", text: "Fill any depression with mixture of cement, silica sand & Bondit-151 in the ratio of 1:1:50:0:50." },
@@ -718,8 +731,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Crack Sealing",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-48.webp", text: "Make V-groove on the face of the cracks." },
           { icon: "/products/detail/2024-03-layer_1-49.webp", text: "Make the crack wet." },
@@ -730,8 +744,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Bonding of Gypsum/ Plaster",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-20.webp", text: "Clean the concrete surface" },
           { icon: "/products/detail/2024-03-layer_1-21.webp", text: "Apply Bondit-151 with brush or spray machine." },
@@ -740,8 +755,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Concrete Repairs",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-20.webp", text: "Clean the pocket & wet with water." },
           { icon: "/products/detail/2024-03-layer_1-53.webp", text: "Apply in the pocket cement Bondit-151 slurry (2:1 ratio)." },
@@ -750,8 +766,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Fixing Tile on Tile",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-20.webp", text: "Clean and wash old flooring." },
           { icon: "/products/detail/2024-03-layer_1-50.webp", text: "Mix Bondit-151 & cement in the ratio of 1:3to 1:5 to make paste depending on desired viscosity." },
@@ -762,8 +779,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Precautions",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-25.webp", text: "If the material goes in the eyes wash with water till the burning stops or immediately visit doctor." },
         ],
@@ -783,7 +801,8 @@ export const productDetails: readonly ProductDetail[] = [
     ],
     pack: "/products/bondit-151/pack.webp",
     catalogue: { label: "Download Bondit 151 Catalogue", href: "/products/bondit-151/catalogue.pdf" },
-    related: ["bondit-plaster-bond-plus", "buildon-p-20-ready-mix-plaster"],
+    hasEnquiry: false,
+    related: ["bondit-plaster-bond-plus", "bondit-151", "buildon-p-20-ready-mix-plaster"],
     cardImage: "/products/bondit-151/card.webp",
   },
   {
@@ -792,41 +811,43 @@ export const productDetails: readonly ProductDetail[] = [
     eyebrow: "build a strong bond.",
     title: "BONDIT PLASTER BOND+",
     banner: "/products/bondit-plaster-bond-plus/banner.webp",
-    bannerScrim: "strong",
+    bannerScrim: "light",
     hero: "/products/bondit-plaster-bond-plus/hero.webp",
     intro: "Buildon Bondit Plaster Bond+, is a high-performance bonding agent for gypsum on concrete blocks/RCC surfaces. Further, it has waterproofing properties, and hence it prevents leakages from the cracks in the plaster.",
     approvals: ["/products/approvals/2024-03-211x300.webp"],
     sections: [
       {
         heading: "Advantages",
-        kind: "icon_cards",
+        kind: "icon_text",
         background: null,
+        intro: null,
         items: [
-          { icon: "/products/detail/2024-03-layer_1-10.webp", text: "Ready to apply single coat paint" },
-          { icon: "/products/detail/2024-03-layer_1-11.webp", text: "A very strong mechanical cum chemical bond is created" },
-          { icon: "/products/detail/2024-03-layer_1-12.webp", text: "Coverage is about 45 sqft/kg" },
-          { icon: "/products/detail/2024-03-layer_1-13.webp", text: "The green colour of BONDIT gives it good visibility" },
-          { icon: "/products/detail/2024-03-layer_1-14.webp", text: "No hacking is required on concrete surfaces. Hence prevention of microcracking in concrete & saving of labour" },
-          { icon: "/products/detail/2024-03-layer_1-15.webp", text: "The bonding strength is more than 4.5kgs/sqft" },
-          { icon: "/products/detail/2024-03-layer_1-16.webp", text: "It is an elastomeric material & hence can withstand movements in the structure without cracking" },
-          { icon: null, text: "PH value is 8.5" },
+          { icon: "/products/detail/2024-03-layer_1-9.webp", text: "Ready to apply single coat paint" },
+          { icon: "/products/detail/2024-03-layer_1-10.webp", text: "A very strong mechanical cum chemical bond is created" },
+          { icon: "/products/detail/2024-03-layer_1-11.webp", text: "Coverage is about 45 sqft/kg" },
+          { icon: "/products/detail/2024-03-layer_1-12.webp", text: "The green colour of BONDIT gives it good visibility" },
+          { icon: "/products/detail/2024-03-layer_1-13.webp", text: "No hacking is required on concrete surfaces. Hence prevention of microcracking in concrete & saving of labour" },
+          { icon: "/products/detail/2024-03-layer_1-14.webp", text: "The bonding strength is more than 4.5kgs/sqft" },
+          { icon: "/products/detail/2024-03-layer_1-15.webp", text: "It is an elastomeric material & hence can withstand movements in the structure without cracking" },
+          { icon: "/products/detail/2024-03-layer_1-16.webp", text: "PH value is 8.5" },
         ],
       },
       {
         heading: "Buildon Bondit Plaster Bond+",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: "Buildon Bondit Plaster Bond+ is a mixture of Polymer-Cement composite andcan be used for multiple purposes",
         items: [
-          { icon: "/products/detail/2024-03-layer_1-17.webp", text: "Buildon Bondit Plaster Bond+ is a mixture of Polymer-Cement composite andcan be used for multiple purposes" },
-          { icon: "/products/detail/2024-03-layer_1-18.webp", text: "Waterproof Coating" },
-          { icon: "/products/detail/2024-03-layer_1-19.webp", text: "Bonding of Gypsum/Cement" },
-          { icon: null, text: "Concrete Repairs" },
+          { icon: "/products/detail/2024-03-layer_1-17.webp", text: "Waterproof Coating" },
+          { icon: "/products/detail/2024-03-layer_1-18.webp", text: "Bonding of Gypsum/Cement" },
+          { icon: "/products/detail/2024-03-layer_1-19.webp", text: "Concrete Repairs" },
         ],
       },
       {
         heading: "Waterproof Coating",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-isolation_mode-3.webp", text: "Clean the concrete surface with brush." },
           { icon: "/products/detail/2024-03-isolation_mode-4.webp", text: "Wash the concrete surface with water one hour before application of Bondit Plaster Bond+." },
@@ -843,8 +864,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Bonding of Gypsum/ Plaster",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-20.webp", text: "Clean the concrete surface" },
           { icon: "/products/detail/2024-03-layer_1-21.webp", text: "Apply Bondit Plaster Bond+ with brush or spray machine." },
@@ -853,8 +875,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Application Procedures",
-        kind: "icon_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-isolation_mode-6.webp", text: "Mix the contents before use" },
           { icon: "/products/detail/2024-03-layer_1-23.webp", text: "BUILDON Bondit-Plaster Bond+ is used for high strength bonding of Gypsum Plaster to concrete blocks RCC. No hacking is required" },
@@ -863,8 +886,9 @@ export const productDetails: readonly ProductDetail[] = [
       },
       {
         heading: "Precautions",
-        kind: "rich_text",
+        kind: "icon_grid",
         background: null,
+        intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-25.webp", text: "If the material goes in the eyes wash with water till the burning stops or immediately visit doctor." },
         ],
@@ -884,7 +908,8 @@ export const productDetails: readonly ProductDetail[] = [
     ],
     pack: "/products/bondit-plaster-bond-plus/pack.webp",
     catalogue: { label: "Download Plaster Bond Catalogue", href: "/products/bondit-plaster-bond-plus/catalogue.pdf" },
-    related: ["bondit-151", "buildon-p-20-ready-mix-plaster"],
+    hasEnquiry: true,
+    related: ["bondit-plaster-bond-plus", "bondit-151", "buildon-p-20-ready-mix-plaster"],
     cardImage: "/products/bondit-plaster-bond-plus/card.webp",
   },
 ] as const;
