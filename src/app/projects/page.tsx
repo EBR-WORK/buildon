@@ -6,6 +6,7 @@ import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { projectsPage, site } from "@/lib/content";
+import { projectHref } from "@/lib/projectDetails";
 
 // Built from the page's own banner copy plus the development names, now that
 // there is no standing intro paragraph to lift.
@@ -70,8 +71,11 @@ export default function ProjectsPage() {
                       <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500 line-clamp-5">
                         {project.body}
                       </p>
+                      {/* content.ts leaves every href empty; a card links
+                          out once its page is transcribed in projectDetails.ts,
+                          and stays an inert button until then. */}
                       <CtaLink
-                        href={project.href}
+                        href={project.href || projectHref(project.name)}
                         className="mt-4 inline-flex cursor-pointer items-center self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
                       >
                         {projectsPage.readMore}

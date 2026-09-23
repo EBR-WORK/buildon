@@ -459,6 +459,7 @@ export default async function ProductDetailPage({
           eyebrow={product.eyebrow}
           headingLines={[product.title]}
           scrim={product.bannerScrim}
+          narrowHeading
         />
 
         {/* Product summary: the shot beside the intro, approvals and catalogue */}

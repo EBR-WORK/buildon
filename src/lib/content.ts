@@ -230,7 +230,7 @@ export const projects = {
   title: "Projects Where Our Products Are Used",
   intro:
     "Here are the finest projects in which our gypsum products are being used to ensure the best quality in construction.",
-  cta: { label: "VIEW MORE", href: "" },
+  cta: { label: "VIEW MORE", href: "/projects" },
 } as const;
 
 export const testimonials = {

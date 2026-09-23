@@ -19,6 +19,13 @@ type Props = {
    * pale ones, "light" leaves an already-dark panel its colour.
    */
   scrim?: "none" | "light" | "strong";
+  /**
+   * Keeps the heading inside the artwork's colour panel. Implied by `eyebrow`
+   * or a scrim; set it where neither applies — the product banners carry no
+   * wash, and Classic has no eyebrow, so uncapped its title ran out over the
+   * white half of the picture.
+   */
+  narrowHeading?: boolean;
 };
 
 /**
@@ -36,6 +43,7 @@ export default function PageBanner({
   subheadingLines,
   eyebrow,
   scrim = "none",
+  narrowHeading = false,
 }: Props) {
   return (
     <section className="relative isolate overflow-hidden bg-secondary">
@@ -76,7 +84,11 @@ export default function PageBanner({
             product banner, eyebrow or not: Classic has none, and uncapped its
             title ran out over the white half of the picture. */}
         <div
-          className={eyebrow || scrim !== "none" ? "max-w-[19rem] sm:max-w-[26rem]" : undefined}
+          className={
+            eyebrow || scrim !== "none" || narrowHeading
+              ? "max-w-[19rem] sm:max-w-[26rem]"
+              : undefined
+          }
         >
           {eyebrow && (
             <p className="mb-1 font-display text-[clamp(1.75rem,2vw+1rem,2.5rem)] leading-[1.25] font-normal tracking-wide text-white uppercase sm:mb-2">
