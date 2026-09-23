@@ -149,12 +149,15 @@ export default async function ProjectPage({
                 </Reveal>
 
                 <Reveal delay={0.06}>
-                  <div className="relative mt-6 aspect-[750/569] overflow-hidden rounded-2xl bg-surface shadow-card">
+                  {/* Capped at the reference's own render width. Uncapped it
+                      fills the 3/4 column, which on a wide screen pushes the
+                      copy it illustrates off the bottom of the screen. */}
+                  <div className="relative mt-6 aspect-[750/569] max-w-[47rem] overflow-hidden rounded-2xl bg-surface shadow-card">
                     <Image
                       src={project.image}
                       alt={`${project.name} — built with Buildon gypsum plaster`}
                       fill
-                      sizes="(min-width: 1024px) 48rem, 92vw"
+                      sizes="(min-width: 1024px) 47rem, 92vw"
                       priority
                       className="object-cover"
                     />
@@ -205,9 +208,19 @@ export default async function ProjectPage({
                       <h3 className="font-display text-lg leading-snug font-semibold transition-colors group-hover:text-brand-500 sm:text-xl">
                         {item.name}
                       </h3>
-                      <p className="mt-2.5 text-[15px] leading-relaxed text-ink-500 line-clamp-4">
+                      <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500 line-clamp-4">
                         {item.body}
                       </p>
+                      {/* Display only: the card itself is the link, so this is
+                          the reference's affordance without a second tab stop
+                          or a link screen readers would announce as "Read More"
+                          instead of the product's name. */}
+                      <span
+                        aria-hidden
+                        className="mt-4 inline-flex items-center self-start text-sm font-semibold text-brand-500 transition group-hover:text-brand-600 sm:mt-5"
+                      >
+                        {projectsPage.readMore}
+                      </span>
                     </div>
                   </>
                 );

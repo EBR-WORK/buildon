@@ -5,7 +5,7 @@ import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { productCatalogue, productsPage, site } from "@/lib/content";
+import { productCatalogue, products, productsPage, site } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: productsPage.title,
@@ -75,6 +75,16 @@ export default function ProductsPage() {
                       <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">
                         {product.body}
                       </p>
+                      {/* Display only: the card itself is the link, so this is
+                          the reference's affordance without a second tab stop
+                          or a link screen readers would announce as "Read More"
+                          instead of the product's name. */}
+                      <span
+                        aria-hidden
+                        className="mt-4 inline-flex items-center self-start text-sm font-semibold text-brand-500 transition group-hover:text-brand-600 sm:mt-5"
+                      >
+                        {products.readMore}
+                      </span>
                     </div>
                   </Link>
                 </Reveal>

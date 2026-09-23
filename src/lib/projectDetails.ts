@@ -43,6 +43,19 @@ export const projectDetails: readonly ProjectDetail[] = [
       "Aparna One has spacious 3 and 4-BHK, flats for sale in Shaikpet, with exclusive personal lobbies for each. The community is spread across 9.7 acres of land with 6 residential blocks and one entire block dedicated to the clubhouse along with a wide range of amenities.",
     ],
   },
+  {
+    slug: "aparna-zenon-hyderabad",
+    /* The listing writes the name with an en dash, the page's own heading with
+       a hyphen. Both kept as they are — `name` is what projectHref matches on. */
+    name: "Aparna Zenon – Hyderabad",
+    title: "Aparna Zenon - Hyderabad",
+    image: "/projects/mask-group-3.webp",
+    paragraphs: [
+      /* One paragraph on the reference, broken by a stray <br> before "your
+         work" — a layout artifact, not a sentence break, so it is closed up. */
+      "Flats for sale in Nanakramguda, Hyderabad. The project offers luxurious 2 & 3 BHK apartments for sale in Nanakramguda, Puppalaguda. Nanakramguda Financial District is an IT, real estate, and architectural suburb in Serlingampally Mandal, in Hyderabad, India. The first phase of the financial district is home to TSI Business parks making it a sought-after place, for people to reside close to. Located at a considerable distance from the city yet surrounded by prime commercial facilities, apartments for sale in Nanakramguda offer you the balance between your work and family life.",
+    ],
+  },
 ];
 
 /**

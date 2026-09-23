@@ -8,7 +8,7 @@ import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { contact, productCatalogue, site } from "@/lib/content";
+import { contact, productCatalogue, products, site } from "@/lib/content";
 import {
   getProductDetail,
   productDetails,
@@ -488,26 +488,41 @@ export default async function ProductDetailPage({
                 <p className="text-base leading-relaxed text-ink-500">{product.intro}</p>
 
                 {product.approvals.length > 0 && (
-                  <div className="mt-8">
+                  /* Four products show three landscape marks, the other five a
+                     single portrait one. The three-mark row stacks under its
+                     heading and fills the column. The lone mark does not — at
+                     the row height it left the column half empty — so it is
+                     drawn large and set beside the heading instead, the two
+                     centred against each other. Its source is 211x315, so h-48
+                     still renders under natural size. */
+                  <div
+                    className={`mt-8 ${
+                      product.approvals.length === 1
+                        ? "flex flex-col items-center gap-4 md:flex-row md:gap-10"
+                        : ""
+                    }`}
+                  >
                     <h3 className="text-center font-display text-lg leading-snug font-semibold md:text-left">
                       Approved by
                     </h3>
+
                     {/* Spread evenly across the column with a rule between
-                        each, as the reference sets them — large enough that
-                        the marks themselves are legible. */}
-                    {/* Four products show three marks; the other five show a
-                        single IGBC mark. On phones, where the copy stacks
-                        under the photo, that lone mark is centred and drawn
-                        large — at the row height it read as a stray thumbnail.
-                        From md up it returns to the row height, at the start. */}
-                    <ul className="mt-5 flex items-center divide-x divide-ink-900/60">
+                        each, as the reference sets them. Three landscape marks
+                        in a two-thirds column are limited by width, not height,
+                        so the gutters are kept narrow — raising the height
+                        alone would just letterbox them inside max-w-full. */}
+                    <ul
+                      className={`flex items-center divide-x divide-ink-900/60 ${
+                        product.approvals.length > 1 ? "mt-5 w-full" : ""
+                      }`}
+                    >
                       {product.approvals.map((approval) => (
                         <li
                           key={approval}
                           className={
                             product.approvals.length > 1
-                              ? "flex flex-1 justify-center px-3 sm:px-6"
-                              : "flex w-full justify-center md:w-auto md:justify-start"
+                              ? "flex flex-1 justify-center px-2 sm:px-4"
+                              : "flex justify-center"
                           }
                         >
                           <Image
@@ -517,8 +532,8 @@ export default async function ProductDetailPage({
                             height={140}
                             className={`w-auto max-w-full object-contain ${
                               product.approvals.length > 1
-                                ? "h-16 sm:h-24 lg:h-28"
-                                : "h-44 sm:h-52 md:h-24 lg:h-28"
+                                ? "h-16 sm:h-24 lg:h-32"
+                                : "h-44 sm:h-52 md:h-40 lg:h-48"
                             }`}
                           />
                         </li>
@@ -736,7 +751,19 @@ export default async function ProductDetailPage({
                       <h3 className="text-xl leading-snug font-semibold transition-colors group-hover:text-brand-500">
                         {item.name}
                       </h3>
-                      <p className="mt-2.5 text-[15px] leading-relaxed text-ink-500">{item.body}</p>
+                      <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500">
+                        {item.body}
+                      </p>
+                      {/* Display only: the card itself is the link, so this is
+                          the reference's affordance without a second tab stop
+                          or a link screen readers would announce as "Read More"
+                          instead of the product's name. */}
+                      <span
+                        aria-hidden
+                        className="mt-4 inline-flex items-center self-start text-sm font-semibold text-brand-500 transition group-hover:text-brand-600 sm:mt-5"
+                      >
+                        {products.readMore}
+                      </span>
                     </div>
                   </Link>
                 </Reveal>

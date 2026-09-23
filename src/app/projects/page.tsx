@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import CtaLink from "@/components/CtaLink";
+import Link from "next/link";
 import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
@@ -46,9 +46,17 @@ export default function ProjectsPage() {
         <section className="section-y">
           <div className="container-page">
             <ul className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-              {projectsPage.items.map((project, i) => (
-                <Reveal as="li" key={project.name} delay={(i % 3) * 0.06} className="flex">
-                  <article className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-1 hover:shadow-lift">
+              {projectsPage.items.map((project, i) => {
+                /* content.ts leaves every href empty; a project links out once
+                   its page is transcribed in projectDetails.ts. Where it has
+                   one the whole card is the link, as the product cards are —
+                   one target per project, and one link named after it rather
+                   than twenty-odd identical "Read More"s. The rest stay plain
+                   cards with an inert label. */
+                const href = project.href || projectHref(project.name);
+
+                const body = (
+                  <>
                     <div className="relative aspect-4/3 overflow-hidden bg-surface">
                       <Image
                         src={project.image}
@@ -71,19 +79,37 @@ export default function ProjectsPage() {
                       <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500 line-clamp-5">
                         {project.body}
                       </p>
-                      {/* content.ts leaves every href empty; a card links
-                          out once its page is transcribed in projectDetails.ts,
-                          and stays an inert button until then. */}
-                      <CtaLink
-                        href={project.href || projectHref(project.name)}
-                        className="mt-4 inline-flex cursor-pointer items-center self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
+                      {/* Display only where the card itself is the link, so it
+                          adds no second tab stop and screen readers hear the
+                          project's name rather than "Read More". */}
+                      <span
+                        aria-hidden
+                        className="mt-4 inline-flex items-center self-start text-sm font-semibold text-brand-500 transition group-hover:text-brand-600 sm:mt-5"
                       >
                         {projectsPage.readMore}
-                      </CtaLink>
+                      </span>
                     </div>
-                  </article>
-                </Reveal>
-              ))}
+                  </>
+                );
+
+                const shell =
+                  "group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white";
+
+                return (
+                  <Reveal as="li" key={project.name} delay={(i % 3) * 0.06} className="flex">
+                    {href ? (
+                      <Link
+                        href={href}
+                        className={`${shell} transition hover:-translate-y-1 hover:shadow-lift focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none`}
+                      >
+                        {body}
+                      </Link>
+                    ) : (
+                      <article className={shell}>{body}</article>
+                    )}
+                  </Reveal>
+                );
+              })}
             </ul>
           </div>
         </section>
