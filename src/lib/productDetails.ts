@@ -531,7 +531,7 @@ export const productDetails: readonly ProductDetail[] = [
     pack: "/products/gypsum-plaster-verimiculite/pack.webp",
     catalogue: null,
     hasEnquiry: false,
-    related: ["bondit-plaster-bond-plus", "bondit-151", "buildon-p-20-ready-mix-plaster"],
+    related: ["bondit-plaster-bond-plus", "gypsum-plaster-perlite-one-coat-super-200", "gypsum-master-plaster"],
     cardImage: "/products/gypsum-plaster-verimiculite/card.webp",
   },
   {
@@ -771,7 +771,7 @@ export const productDetails: readonly ProductDetail[] = [
         intro: null,
         items: [
           { icon: "/products/detail/2024-03-layer_1-20.webp", text: "Clean and wash old flooring." },
-          { icon: "/products/detail/2024-03-layer_1-50.webp", text: "Mix Bondit-151 & cement in the ratio of 1:3to 1:5 to make paste depending on desired viscosity." },
+          { icon: "/products/detail/2024-03-layer_1-50.webp", text: "Mix Bondit-151 & cement in the ratio of 1:3 to 1:5 to make paste depending on desired viscosity." },
           { icon: "/products/detail/2024-03-layer_1-56.webp", text: "Apply cement-Bondit-151 paste on the back of new tile." },
           { icon: "/products/detail/2024-03-layer_1-57.webp", text: "Press the new tile on old flooring." },
           { icon: "/products/detail/2024-03-layer_1-58.webp", text: "Use the new flooring after 48 to 72 hours." },
@@ -836,7 +836,7 @@ export const productDetails: readonly ProductDetail[] = [
         heading: "Buildon Bondit Plaster Bond+",
         kind: "icon_grid",
         background: null,
-        intro: "Buildon Bondit Plaster Bond+ is a mixture of Polymer-Cement composite andcan be used for multiple purposes",
+        intro: "Buildon Bondit Plaster Bond+ is a mixture of Polymer-Cement composite and can be used for multiple purposes",
         items: [
           { icon: "/products/detail/2024-03-layer_1-17.webp", text: "Waterproof Coating" },
           { icon: "/products/detail/2024-03-layer_1-18.webp", text: "Bonding of Gypsum/Cement" },

@@ -488,13 +488,17 @@ export default async function ProductDetailPage({
 
                 {product.approvals.length > 0 && (
                   <div className="mt-8">
-                    <h3 className="font-display text-lg leading-snug font-semibold">Approved by</h3>
+                    <h3 className="text-center font-display text-lg leading-snug font-semibold md:text-left">
+                      Approved by
+                    </h3>
                     {/* Spread evenly across the column with a rule between
                         each, as the reference sets them — large enough that
                         the marks themselves are legible. */}
                     {/* Four products show three marks; the other five show a
-                        single IGBC mark, which keeps the same height and sits
-                        at the start of the row rather than stretching. */}
+                        single IGBC mark. On phones, where the copy stacks
+                        under the photo, that lone mark is centred and drawn
+                        large — at the row height it read as a stray thumbnail.
+                        From md up it returns to the row height, at the start. */}
                     <ul className="mt-5 flex items-center divide-x divide-ink-900/60">
                       {product.approvals.map((approval) => (
                         <li
@@ -502,7 +506,7 @@ export default async function ProductDetailPage({
                           className={
                             product.approvals.length > 1
                               ? "flex flex-1 justify-center px-3 sm:px-6"
-                              : "flex"
+                              : "flex w-full justify-center md:w-auto md:justify-start"
                           }
                         >
                           <Image
@@ -510,7 +514,11 @@ export default async function ProductDetailPage({
                             alt=""
                             width={200}
                             height={140}
-                            className="h-16 w-auto max-w-full object-contain sm:h-24 lg:h-28"
+                            className={`w-auto max-w-full object-contain ${
+                              product.approvals.length > 1
+                                ? "h-16 sm:h-24 lg:h-28"
+                                : "h-44 sm:h-52 md:h-24 lg:h-28"
+                            }`}
                           />
                         </li>
                       ))}
@@ -545,7 +553,7 @@ export default async function ProductDetailPage({
                   <section id="enquiry" className="section-y scroll-mt-28 border-t border-line bg-surface">
             <div className="container-page">
               <Reveal className="overflow-hidden rounded-2xl bg-white shadow-card">
-                <div className="grid lg:grid-cols-2">
+                <div className="grid md:grid-cols-2">
                   <div className="p-6 sm:p-8 lg:p-10">
                     <h2 className="font-display text-2xl leading-snug font-semibold">
                       {contact.formTitle}
@@ -553,12 +561,16 @@ export default async function ProductDetailPage({
                     <EnquiryForm idPrefix={`${product.slug}-`} className="mt-6" />
                   </div>
   
-                  <div className="relative order-first min-h-[16rem] lg:order-last lg:min-h-0">
+                  {/* The photograph is square. Below desktop its box takes that
+                      shape, so nothing is cropped — full width on phones,
+                      beside the form on tablets. Only at lg does it stretch to
+                      the form's height and crop, as the reference does. */}
+                  <div className="relative order-first aspect-square overflow-hidden md:order-last md:my-6 md:mr-6 md:self-center md:rounded-xl lg:m-0 lg:aspect-auto lg:self-stretch lg:rounded-none">
                     <Image
                       src="/projects/plastering.webp"
                       alt="A plasterer smoothing a ceiling with a trowel"
                       fill
-                      sizes="(min-width: 1024px) 34rem, 100vw"
+                      sizes="(min-width: 1024px) 34rem, (min-width: 768px) 50vw, 100vw"
                       loading="lazy"
                       className="object-cover"
                     />
