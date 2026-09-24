@@ -62,7 +62,7 @@ export const hero = {
   primaryCta: { label: "KNOW MORE", href: "/about-us" },
   videoCta: {
     label: "PLAY VIDEO",
-    href: "",
+    href: "https://youtu.be/ffdFtDPtqBs?si=6p0oz656hwd9G_hx",
   },
   /** The looping banner behind the hero copy. */
   video: "/brand/banner-vid.mp4",
@@ -107,58 +107,72 @@ export const whyUs = {
  * Every product Buildon lists. The home page carousel shows the first six; the
  * /products page shows all nine, so the copy lives here once.
  */
+/**
+ * The nine products, in the reference's own order. `slug` is the URL segment of
+ * the detail page — it matches buildon.co.in's, including its "verimiculite"
+ * misspelling, so existing links and search results keep working.
+ */
 export const productCatalogue = [
   {
     name: "Gypsum Plaster One Coat",
-    href: "",
+    slug: "gypsum-plaster-one-coat",
+    href: "/products/gypsum-plaster-one-coat",
     body: "The distinguished advantage of the Buildon Gypsum Plaster-one coat is that it is made out of the highest grade of……",
     image: "/products/one-coat.webp",
   },
   {
     name: "Imported Gypsum Plaster",
-    href: "",
+    slug: "imported-gypsum-plaster",
+    href: "/products/imported-gypsum-plaster",
     body: "Our BUILDON Gypsum Plaster is produced from the light powder-density rock sourced from the purest mines.",
     image: "/products/imported.webp",
   },
   {
     name: "Gypsum Master Plaster",
-    href: "",
+    slug: "gypsum-master-plaster",
+    href: "/products/gypsum-master-plaster",
     body: "BUILDON Gypsum Master Plaster is produced from the light powder-density rock sourced from the purest mines.",
     image: "/products/master.webp",
   },
   {
     name: "Gypsum Plaster Perlite One-Coat Super 200",
-    href: "",
+    slug: "gypsum-plaster-perlite-one-coat-super-200",
+    href: "/products/gypsum-plaster-perlite-one-coat-super-200",
     body: "Buildon perlite plaster a gypsum plaster with special additives and light weight aggregates. The aggregates contain …",
     image: "/products/perlite.webp",
   },
   {
     name: "Gypsum Plaster Vermiculite",
-    href: "",
+    slug: "gypsum-plaster-verimiculite",
+    href: "/products/gypsum-plaster-verimiculite",
     body: "Buildon Vermiculite Plaster a gypsum hemihydrates plaster with special additives and lightweight aggregates.",
     image: "/products/vermiculite.webp",
   },
   {
     name: "Classic Gypsum Plaster",
-    href: "",
+    slug: "classic-gypsum-plaster",
+    href: "/products/classic-gypsum-plaster",
     body: "Buildon Classic Gypsum Plaster is produced from the light powder-density rock sourced from the purest mines…",
     image: "/products/classic.webp",
   },
   {
     name: "Buildon P-20 Ready Mix Plaster",
-    href: "",
+    slug: "buildon-p-20-ready-mix-plaster",
+    href: "/products/buildon-p-20-ready-mix-plaster",
     body: "Buildon P-20 is a Premixed sand cement plaster. It is specially formulated for exterior and interior plastering work to …",
     image: "/products/p-20-ready-mix.webp",
   },
   {
     name: "Bondit-151",
-    href: "",
+    slug: "bondit-151",
+    href: "/products/bondit-151",
     body: "BONDIT-151 is high-performance bonding agent for Gypsum on concrete blocks/RCC surfaces.",
     image: "/products/bondit-151.webp",
   },
   {
     name: "Bondit Plaster Bond+",
-    href: "",
+    slug: "bondit-plaster-bond-plus",
+    href: "/products/bondit-plaster-bond-plus",
     body: "Buildon Bondit Plaster BOND+ is high-performance bonding agent for gypsum and sand cement….",
     image: "/products/bondit-plaster-bond-plus.webp",
   },
@@ -216,12 +230,12 @@ export const projects = {
   title: "Projects Where Our Products Are Used",
   intro:
     "Here are the finest projects in which our gypsum products are being used to ensure the best quality in construction.",
-  cta: { label: "VIEW MORE", href: "" },
+  cta: { label: "VIEW MORE", href: "/projects" },
 } as const;
 
 export const testimonials = {
   title: "What Clients say ?",
-  cta: { label: "Read More >", href: "" },
+  cta: { label: "Read More >", href: "/testimonials" },
   /**
    * The clip the reference plays beside these quotes. Hot-linked from
    * buildon.co.in (16 MB) rather than committed — drop the files in /public and
@@ -326,21 +340,21 @@ export const footerLinks = {
   about: [
     { label: "Who We Are?", href: "/contact-us" },
     { label: "Our Branches", href: "/contact-us" },
-    { label: "Privacy Policy", href: "" },
-    { label: "User Agreement", href: "" },
-    { label: "Download Catalogue", href: "" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
+    { label: "User Agreement", href: "/user-agreement" },
+    { label: "Download Catalogue", href: "/faq" },
   ],
   quick: [
     { label: "Home", href: "/" },
     { label: "Our Projects", href: "/projects" },
     { label: "Our Products", href: "/products" },
-    { label: "Careers", href: "" },
-    { label: "Customer Reviews", href: "" },
+    { label: "Careers", href: "/career" },
+    { label: "Customer Reviews", href: "/testimonials" },
   ],
   support: [
     { label: "Contact Us", href: "/contact-us" },
-    { label: "FAQs", href: "" },
-    { label: "Partner With Us", href: "" },
+    { label: "FAQs", href: "faq" },
+    { label: "Partner With Us", href: "faq" },
   ],
 } as const;
 
@@ -1253,3 +1267,103 @@ export const blogPage = {
     },
   ],
 } as const;
+
+/**
+ * /testimonials. Copied verbatim from https://buildon.co.in/testimonials/: two
+ * video testimonials with their captions, then five client letters, each a
+ * photograph, the letter's text and the client's name.
+ *
+ * The first clip is the one the home page already plays, so it reuses that
+ * entry. Videos stay hot-linked for the same reason given there.
+ */
+export const testimonialsPage = {
+  title: "Testimonials",
+  banner: {
+    /* The reference's titlebar artwork is the same file as the FAQ banner */
+    image: "/faq/banner.webp",
+    headingLines: ["Testimonials"],
+    subheadingLines: ["Have questions?", "Find your answers here."],
+  },
+  videos: [
+    {
+      src: testimonials.video.src,
+      poster: testimonials.video.poster,
+      label: "Play the testimonial from Mohammad Ashfaq Khan",
+      quote:
+        "Namaste, Today we are sitting with Mohammad Ashfaq khan & he is working in the Gypsum industry since past 22 years. He usually uses One coat Gypsum plaster & is happy with the plaster quality.",
+    },
+    {
+      src: "https://www.buildon.co.in/wp-content/uploads/2024/03/buildon.mp4",
+      poster: "/testimonials/video-poster-kagal.webp",
+      label: "Play the testimonial from a Buildon client in Kagal",
+      quote:
+        "Namaste, we have used Buildon company Gypsum in 2013 at our house in Kagal, Maharashtra and response till date is superb, and no cracks have appeared on the wall till now, been 10 years we are using this material & flakes have not been seen till now, used on traditional red bricks and we have done sand cement plaster from outer side of walls properly and have experienced no leakages till date. No cracks have been seen",
+    },
+  ],
+  letters: [
+    {
+      author: "MS Group (Pune)",
+      image: "/testimonials/ms-group-pune.webp",
+      quote:
+        "This is to certify that “Buildon Plasters Pvt Ltd” is our approved vendor for supply of Gypsum Plaster 1 coat in our projects . We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
+    },
+    {
+      author: "Contractor Shamim Khan (Bangalore)",
+      image: "/testimonials/shamim-khan-bangalore.webp",
+      quote:
+        "This is to certify that “Buildon Plasters Pvt Ltd” is our approved vendor for supply of Gypsum Plaster 1 coat in our projects . We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
+    },
+    {
+      author: "Jayvin Vora Construction company (Chembur, Mumbai)",
+      image: "/testimonials/jayvin-vora-chembur.webp",
+      quote:
+        "This is to certify that “Buildon Plasters Pvt Ltd” is our approved vendor for supply of Gypsum Plaster 1 coat in our projects . We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
+    },
+    {
+      author: "Sudhanshu Infrastructures Pvt Ltd (Bhandup, Mumbai)",
+      image: "/testimonials/sudhanshu-bhandup.webp",
+      quote:
+        "This is to certify that “Buildon Plasters Pvt Ltd” is our approved vendor for supply of Gypsum Plaster 1 coat in our projects . We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
+    },
+    {
+      author: "Rachcon Infraprojects Pvt Ltd (Malad, Mumbai)",
+      image: "/testimonials/rachcon-malad.webp",
+      quote:
+        "This is to certify that “Buildon Plasters Pvt Ltd” is our approved vendor for supply of Gypsum Plaster 1 coat in our projects . We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
+    },
+  ],
+} as const;
+
+/**
+ * PLACEHOLDER COPY. buildon.co.in's /privacy-policy/ and /user-agreement/ carry
+ * no policy at all — each is the same "long established fact" Lorem Ipsum
+ * paragraph five times over. That is mirrored here so the pages and their
+ * footer links exist, but it is not a legal document: replace `sections` with
+ * the company's real text before launch. Each section takes an optional
+ * heading and any number of paragraphs.
+ */
+const loremParagraph =
+  "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using ‘Content here, content here’, making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for ‘lorem ipsum’ will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).";
+
+type LegalSection = { readonly heading?: string; readonly paragraphs: readonly string[] };
+
+export type LegalPageContent = {
+  readonly title: string;
+  readonly path: string;
+  readonly banner: { readonly image: string; readonly headingLines: readonly string[] };
+  readonly sections: readonly LegalSection[];
+};
+
+export const privacyPage: LegalPageContent = {
+  title: "Privacy Policy",
+  path: "/privacy-policy",
+  banner: { image: "/faq/banner.webp", headingLines: ["Privacy Policy"] },
+  sections: [{ paragraphs: Array(5).fill(loremParagraph) }],
+};
+
+export const userAgreementPage: LegalPageContent = {
+  title: "User Agreement",
+  path: "/user-agreement",
+  banner: { image: "/faq/banner.webp", headingLines: ["User Agreement"] },
+  sections: [{ paragraphs: Array(5).fill(loremParagraph) }],
+};

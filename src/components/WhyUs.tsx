@@ -3,12 +3,23 @@ import { featureIcons } from "./icons";
 import SectionHeading from "./SectionHeading";
 import Reveal from "./Reveal";
 
-export default function WhyUs() {
+/**
+ * `city` swaps the second heading line, which is the only thing the reference's
+ * city landing pages change here: "The leader of Gypsum plaster in Bhubaneswar"
+ * in place of the national line. Everything else on those pages is this
+ * section verbatim.
+ */
+export default function WhyUs({ city }: { city?: string } = {}) {
+  const titleLines = city
+    ? [whyUs.titleLines[0], `The leader of Gypsum plaster in ${city}`]
+    : whyUs.titleLines;
+
+
   return (
     <section id="why-us" className="section-y scroll-mt-28">
       <div className="container-page">
         <Reveal>
-          <SectionHeading title={whyUs.titleLines} intro={whyUs.intro} />
+          <SectionHeading title={titleLines} intro={whyUs.intro} />
         </Reveal>
 
         <ul className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-14 lg:grid-cols-4">

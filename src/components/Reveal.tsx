@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 
 const elements = {
+  aside: motion.aside,
   div: motion.div,
   li: motion.li,
   ul: motion.ul,
@@ -13,7 +14,8 @@ type Props = {
   children: ReactNode;
   /**
    * Which element to render. Cards live in lists, so they must animate as
-   * <li> — a wrapping <div> would break the list for screen readers.
+   * <li> — a wrapping <div> would break the list for screen readers, and a
+   * complementary rail must stay an <aside> for the same reason.
    */
   as?: keyof typeof elements;
   /** Applied to the element itself — this replaces a wrapper, it does not add one. */
