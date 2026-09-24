@@ -60,15 +60,33 @@ export async function generateMetadata({
 }
 
 /**
- * The three developments after this one in the listing, wrapping round at the
- * end so the row is always full however far down the grid the project sits.
+ * Three other developments to close the page with.
+ *
+ * Walking the listing from this project and taking the next three would mostly
+ * turn up projects whose pages are not transcribed yet, which land as dead
+ * cards. So the ones that HAVE pages come first — every card in the row is then
+ * a real link — and the listing tops the row up in order only if there are
+ * fewer than three of those. That second branch disappears on its own as the
+ * remaining projects are added.
  */
 function otherProjects(name: string) {
   const items = projectsPage.items;
-  const index = items.findIndex((project) => project.name === name);
-  if (index < 0) return items.slice(0, 3);
+  const index = Math.max(
+    0,
+    items.findIndex((project) => project.name === name),
+  );
 
-  return Array.from({ length: 3 }, (_, step) => items[(index + step + 1) % items.length]);
+  /* From this project forward, wrapping, so consecutive pages do not all show
+     the same three. */
+  const rotated = items.map((_, step) => items[(index + step + 1) % items.length]);
+
+  const picked = rotated.filter((project) => projectHref(project.name));
+  for (const project of rotated) {
+    if (picked.length >= 3) break;
+    if (!picked.includes(project)) picked.push(project);
+  }
+
+  return picked.slice(0, 3);
 }
 
 export default async function ProjectPage({
@@ -149,15 +167,26 @@ export default async function ProjectPage({
                 </Reveal>
 
                 <Reveal delay={0.06}>
-                  {/* Capped at the reference's own render width. Uncapped it
-                      fills the 3/4 column, which on a wide screen pushes the
-                      copy it illustrates off the bottom of the screen. */}
-                  <div className="relative mt-6 aspect-[750/569] max-w-[47rem] overflow-hidden rounded-2xl bg-surface shadow-card">
+                  {/* Capped well under the 3/4 column's width: uncapped it
+                      filled the column and pushed the copy it illustrates off
+                      the bottom of the screen. A picture whose original is
+                      narrower than the cap stops at its own width instead of
+                      being stretched to it — three of the reference's are
+                      300px files with nothing larger upstream. */}
+                  <div
+                    className="relative mt-6 aspect-[750/569] max-w-[34rem] overflow-hidden rounded-2xl bg-surface shadow-card"
+                    style={{
+                      ...(project.imageWidth ? { maxWidth: `${project.imageWidth}px` } : {}),
+                      ...(project.imageWidth && project.imageHeight
+                        ? { aspectRatio: `${project.imageWidth} / ${project.imageHeight}` }
+                        : {}),
+                    }}
+                  >
                     <Image
                       src={project.image}
                       alt={`${project.name} — built with Buildon gypsum plaster`}
                       fill
-                      sizes="(min-width: 1024px) 47rem, 92vw"
+                      sizes={`(min-width: 1024px) ${project.imageWidth ?? 544}px, 92vw`}
                       priority
                       className="object-cover"
                     />
