@@ -2,8 +2,12 @@ import Image from "next/image";
 
 type Props = {
   image: string;
-  /** One line per rendered row, as the reference breaks these headings. */
-  headingLines: readonly string[];
+  /**
+   * One line per rendered row, as the reference breaks these headings. Omit it
+   * where the page sets its own <h1> straight under the banner — a blog post
+   * does — so the title is not printed twice and the page keeps one heading.
+   */
+  headingLines?: readonly string[];
   subheadingLines?: readonly string[];
   /**
    * The lighter line the product banners set ABOVE their title — "A coat of
@@ -96,13 +100,15 @@ export default function PageBanner({
             </p>
           )}
 
-          <h1 className="font-display text-[clamp(1.75rem,2vw+1rem,2.5rem)] leading-[1.25] font-medium tracking-wide text-white uppercase">
-            {headingLines.map((line) => (
-              <span key={line} className="block">
-                {line}
-              </span>
-            ))}
-          </h1>
+          {headingLines && headingLines.length > 0 && (
+            <h1 className="font-display text-[clamp(1.75rem,2vw+1rem,2.5rem)] leading-[1.25] font-medium tracking-wide text-white uppercase">
+              {headingLines.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </h1>
+          )}
         </div>
 
         {subheadingLines && (

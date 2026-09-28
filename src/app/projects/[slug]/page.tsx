@@ -121,7 +121,10 @@ export default async function ProjectPage({
               {/* Posts — the reference's left rail. Sticky on desktop so it
                   stays put down a long project page; in normal flow under the
                   copy on anything narrower. */}
-              <Reveal as="aside" className="order-last lg:order-first">
+              {/* Plain, not a Reveal: the rail is above the fold and can run
+                  taller than the viewport, where Reveal's 15% threshold leaves
+                  it faded out until well down the page. */}
+              <aside className="order-last lg:order-first">
                 <div className="lg:sticky lg:top-28">
                   <h2 className="font-display text-xl font-semibold text-ink-900">
                     {projectPostsWidget.title}
@@ -155,7 +158,7 @@ export default async function ProjectPage({
                     {projectPostsWidget.viewMore.label}
                   </CtaLink>
                 </div>
-              </Reveal>
+              </aside>
 
               {/* The project itself, in the reference's order: heading, then
                   the photograph, then the copy. */}
