@@ -8,7 +8,26 @@ import CtaLink from "./CtaLink";
 import SectionHeading from "./SectionHeading";
 import Reveal from "./Reveal";
 
-export default function Products() {
+/**
+ * `city` swaps the heading and the first line of the intro, as the reference's
+ * city landing pages do — lower-case "gypsum plaster" in the heading is theirs,
+ * not a slip.
+ */
+export default function Products({
+  city,
+  phrase,
+}: {
+  city?: string;
+  phrase?: string;
+} = {}) {
+  const suffix = phrase ?? (city ? `in ${city}` : null);
+  const title = suffix ? `Get Introduced To The Best gypsum plaster ${suffix}` : products.title;
+  /* Only a city changes the intro line; the national page keeps "Being
+     India’s largest", which is what the reference does. */
+  const intro = city
+    ? [`Being ${city}’s largest and leading manufacturer & importer of`, products.intro[1]]
+    : products.intro;
+
   const { trackRef, index, atStart, atEnd, goTo } = useSnapCarousel<HTMLUListElement>();
 
   return (
@@ -18,7 +37,7 @@ export default function Products() {
     >
       <div className="container-page">
         <Reveal>
-          <SectionHeading title={products.title} intro={products.intro} align="center" />
+          <SectionHeading title={title} intro={intro} align="center" />
         </Reveal>
 
         <div className="mt-10 sm:mt-12 lg:mt-14">

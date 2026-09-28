@@ -14,7 +14,11 @@ import SectionHeading from "./SectionHeading";
  * eleven wrap six-then-five and justify-center centres the short row; below sm
  * each takes half, so they pair up with the eleventh centred on its own.
  */
-export default function Clients() {
+export default function Clients({ city }: { city?: string } = {}) {
+  /* The city pages say "a leader of Gypsum products in <city>" here. */
+  const intro = city ? clients.intro.replace("in India", `in ${city}`) : clients.intro;
+
+
   return (
     <section
       id="clients"
@@ -22,7 +26,7 @@ export default function Clients() {
     >
       <div className="container-page">
         <Reveal>
-          <SectionHeading title={clients.title} intro={clients.intro} align="center" />
+          <SectionHeading title={clients.title} intro={intro} align="center" />
         </Reveal>
 
         <ul className="mx-auto mt-8 flex max-w-[56rem] flex-wrap justify-center gap-y-8 sm:mt-10 sm:gap-y-10">

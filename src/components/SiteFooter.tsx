@@ -3,7 +3,14 @@ import { footerHeadings, footerLinks, newsletter, site, social } from "@/lib/con
 import { socialIcons } from "./icons";
 import NewsletterForm from "./NewsletterForm";
 
-const columns = [
+/* Typed wide on purpose: with every href in content.ts filled, the literal
+   types would make the greyed-out fallback below unreachable to TypeScript. */
+type FooterColumn = {
+  heading: string;
+  links: readonly { readonly label: string; readonly href: string }[];
+};
+
+const columns: FooterColumn[] = [
   { heading: footerHeadings.about, links: footerLinks.about },
   { heading: footerHeadings.quick, links: footerLinks.quick },
   { heading: footerHeadings.support, links: footerLinks.support },

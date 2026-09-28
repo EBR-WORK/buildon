@@ -190,3 +190,61 @@
     padding-block: 7rem;
   }
 }
+
+/*
+ * The FAQ accordion's open/close.
+ *
+ * <details> normally snaps between states, because a closed one hides its
+ * content outright rather than sizing it. ::details-content addresses that
+ * hidden box, so the height can be transitioned; `interpolate-size` is what
+ * makes `auto` an animatable value, and `allow-discrete` holds the content
+ * visible through the closing run instead of cutting it at frame one.
+ *
+ * Progressive: a browser that does not know ::details-content ignores the whole
+ * block and the panel opens instantly, exactly as it did before. No script
+ * either way, so the answers stay in the page for find-in-page and crawlers.
+ */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+@layer components {
+  .faq-panel::details-content {
+    block-size: 0;
+    overflow: hidden;
+    /* The reference theme's own easing, as used by the Posts rail. */
+    transition:
+      block-size 320ms cubic-bezier(0.645, 0.045, 0.355, 1),
+      content-visibility 320ms allow-discrete;
+  }
+
+  .faq-panel[open]::details-content {
+    block-size: auto;
+  }
+
+  /* The answer trails the panel slightly, so it reads as being revealed by
+     the opening rather than stretched along with it. It is selected straight
+     off the panel rather than through ::details-content, because a descendant
+     combinator is not allowed after a pseudo-element. */
+  .faq-panel .faq-answer {
+    opacity: 0;
+    translate: 0 -0.25rem;
+    transition:
+      opacity 200ms ease,
+      translate 200ms ease;
+  }
+
+  .faq-panel[open] .faq-answer {
+    opacity: 1;
+    translate: none;
+    transition-delay: 110ms;
+  }
+
+  /* Anyone who has asked for less motion gets the instant toggle back. */
+  @media (prefers-reduced-motion: reduce) {
+    .faq-panel::details-content,
+    .faq-panel .faq-answer {
+      transition: none;
+    }
+  }
+}

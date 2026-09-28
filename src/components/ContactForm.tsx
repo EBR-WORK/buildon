@@ -12,21 +12,21 @@ import Reveal from "./Reveal";
 export default function ContactForm() {
   return (
     <section id="enquiry" className="scroll-mt-28 border-t border-line bg-surface">
-      <div className="grid lg:grid-cols-2">
-        <div className="section-y">
+      {/* At lg the row fills the screen: one viewport tall whenever the form
+          fits, which is what trims the old 7rem band of whitespace. A minimum
+          rather than a fixed height, so a short laptop window grows the section
+          and scrolls the page normally instead of clipping the submit button or
+          giving the column a scrollbar of its own. */}
+      <div className="grid lg:min-h-svh lg:grid-cols-2">
+        <div className="section-y lg:flex lg:items-center lg:py-10">
           {/* The padding lives on this block, not the column, so it matches
               container-page's own 1.25/1.75rem at every width.
 
-              The 40rem cap and the ml-auto that pulls the block to the inner
-              edge are lg-only, and must stay that way. At lg the column is half
-              the container, so a 40rem block pushed right has its content edge
-              at exactly (50% - 40rem + padding) — the value container-page
-              resolves to, which is what lines this up with every other section.
-              Below lg there is no second column to line up against: the same
-              two utilities just park a 40rem block against the right edge of a
-              full-width viewport, which is what left tablets with the form
-              shoved into the right two-thirds. Stacked, it runs full width. */}
-          <Reveal className="w-full px-5 sm:px-7 lg:ml-auto lg:max-w-[40rem] lg:pr-12 lg:pl-8">
+              The 40rem cap and the mx-auto that centres it are lg-only. At lg
+              the block sits in the middle of its half of the row, beside the
+              photograph; below lg there is no second column to sit beside, so
+              it simply runs full width. */}
+          <Reveal className="w-full px-5 sm:px-7 lg:mx-auto lg:max-w-[40rem] lg:px-10">
             <SectionHeading title={contact.formTitle} />
             <EnquiryForm className="mt-8 sm:mt-10" />
           </Reveal>
@@ -36,8 +36,11 @@ export default function ContactForm() {
             own block instead of running into the banner that follows. Only at
             lg, beside the form, does it bleed to the edge.
             The source is a square 800x800 crop, so at lg the panel is held
-            square and centred. Stretching it to the form's full height scaled
-            the subject up and sliced the sides off. */}
+            square and centred in the row rather than stretched to its full
+            height: a half-column that tall crops the sides off the subject.
+            The row is one screen, the square is the column's width, so it sits
+            inside that with a shallow band of the section's own grey above and
+            below. */}
         <Reveal className="relative mx-5 mb-16 aspect-4/3 overflow-hidden rounded-2xl sm:mx-7 sm:mb-20 lg:mx-0 lg:mb-0 lg:aspect-square lg:min-h-0 lg:self-center lg:rounded-none">
           <Image
             src="/projects/plastering.webp"
