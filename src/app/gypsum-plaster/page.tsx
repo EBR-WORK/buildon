@@ -8,7 +8,9 @@ import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { PlusIcon } from "@/components/icons";
-import { productCatalogue, site } from "@/lib/content";
+import BlogCards from "@/components/BlogCards";
+import { blogPage, productCatalogue, products, site } from "@/lib/content";
+import { getBlogPost } from "@/lib/blogDetails";
 import { gypsumPlasterPage as page } from "@/lib/gypsumPlasterPage";
 
 /**
@@ -35,6 +37,15 @@ export const metadata: Metadata = {
 };
 
 export default function GypsumPlasterPage() {
+  /* The three posts by the titles the reference names, looked up in the
+     listing so their cards carry the same image and excerpt as everywhere
+     else. */
+  const latest = page.latest.slugs
+    .map((slug) => getBlogPost(slug))
+    .filter((post) => post !== undefined)
+    .map((post) => blogPage.items.find((item) => item.title === post.title))
+    .filter((item) => item !== undefined);
+
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -117,11 +128,26 @@ export default function GypsumPlasterPage() {
           </div>
         </section>
 
+        {/* "Send Us Message" sits here on the reference — between the
+            applications and the comparison — not at the foot of the page. */}
+        <ContactForm />
+
         {/* Comparison table */}
         <section className="section-y border-t border-line bg-surface">
           <div className="container-page max-w-4xl">
             <Reveal>
-              <SectionHeading title={page.comparison.heading} align="center" />
+              {/* The reference makes this heading a link to the article on the
+                  same subject, so it is one here too. */}
+              <div className="mx-auto max-w-2xl text-center">
+                <h2 className="text-[clamp(1.6rem,2.2vw+0.65rem,2.2rem)] leading-[1.15] font-semibold">
+                  <Link
+                    href={page.comparison.href}
+                    className="text-brand-500 underline underline-offset-4 transition hover:text-brand-600"
+                  >
+                    {page.comparison.heading}
+                  </Link>
+                </h2>
+              </div>
             </Reveal>
 
             <Reveal delay={0.06}>
@@ -200,9 +226,19 @@ export default function GypsumPlasterPage() {
                       <h3 className="text-xl leading-snug font-semibold transition-colors group-hover:text-brand-500">
                         {product.name}
                       </h3>
-                      <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500">
+                      <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">
                         {product.body}
                       </p>
+                      {/* Display only: the card itself is the link, so this
+                          adds no second tab stop and screen readers hear the
+                          product's name rather than "Read More". Same as the
+                          /products grid. */}
+                      <span
+                        aria-hidden
+                        className="mt-4 inline-flex items-center self-start text-sm font-semibold text-brand-500 transition group-hover:text-brand-600 sm:mt-5"
+                      >
+                        {products.readMore}
+                      </span>
                     </div>
                   </Link>
                 </Reveal>
@@ -305,7 +341,41 @@ export default function GypsumPlasterPage() {
           </div>
         </section>
 
-        <ContactForm />
+        {/* Closing call to action */}
+        <section className="section-y border-t border-line">
+          <div className="container-page">
+            <Reveal>
+              <div className="mx-auto max-w-3xl text-center">
+                <h2 className="text-[clamp(1.6rem,2.2vw+0.65rem,2.2rem)] leading-[1.15] font-semibold text-ink-900">
+                  {page.cta.heading}
+                </h2>
+                <p className="mt-4 text-[15px] leading-relaxed text-ink-500 sm:text-base">
+                  {page.cta.body}
+                </p>
+                <Link
+                  href={page.cta.href}
+                  className="mt-7 inline-flex items-center rounded-full bg-brand-500 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-600 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+                >
+                  {page.cta.label}
+                </Link>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Our Latest Updates — the three posts the reference closes with,
+            rendered from the blog listing rather than a second copy of it. */}
+        <section className="section-y border-t border-line bg-surface">
+          <div className="container-page">
+            <Reveal>
+              <SectionHeading title={page.latest.heading} align="center" />
+            </Reveal>
+
+            <div className="mt-8 sm:mt-10">
+              <BlogCards items={latest} />
+            </div>
+          </div>
+        </section>
       </main>
 
       <SiteFooter />

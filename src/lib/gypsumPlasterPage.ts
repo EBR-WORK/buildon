@@ -85,9 +85,16 @@ export const gypsumPlasterPage = {
     },
   ] as const satisfies readonly GypsumSection[],
 
-  /** "Advantages of Gypsum Plaster Over Traditional Plaster" */
+  /**
+   * "Advantages of Gypsum Plaster Over Traditional Plaster".
+   *
+   * The reference makes this whole heading a link to the article of the same
+   * subject — an authored <h2><a>, not a generated one — so it carries an href
+   * here too.
+   */
   comparison: {
     heading: "Advantages of Gypsum Plaster Over Traditional Plaster",
+    href: "/blog/how-is-gypsum-plaster-one-coat-better-compared-to-traditional-plaster-methods",
     columns: ["Feature", "Gypsum Plaster", "Cement-Sand Plaster"],
     rows: [
       ["Drying Time", "24-48 Hours", "21-28 Days"],
@@ -160,6 +167,24 @@ export const gypsumPlasterPage = {
     ],
     outro:
       "Buildon delivers top-notch quality plastering materials that provide strength and exceptional performance.",
+  },
+
+  /** The closing call to action, between the FAQs and the latest posts. */
+  cta: {
+    heading: "Get the Best Gypsum Plastering Services from Buildon Today!",
+    body: "Upgrade your walls with Buildon Gypsum Plaster – the ultimate choice for durability, smoothness, and efficiency. Contact us today for bulk orders, inquiries, or expert advice.",
+    label: "Contact us",
+    href: "/contact-us",
+  },
+
+  /** "Our Latest Updates" — the three posts the reference closes with. */
+  latest: {
+    heading: "Our Latest Updates",
+    slugs: [
+      "why-use-gypsum-for-repairing-interior-plaster-walls",
+      "how-to-create-wall-with-plaster-and-materials",
+      "what-is-decorative-plaster-how-it-works",
+    ],
   },
 
   faqs: {

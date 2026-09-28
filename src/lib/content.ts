@@ -1282,6 +1282,13 @@ export const blogPage = {
         "Gypsum plaster is the go-to material for every builder! Why? Because they come with so much ease and feasibility, they are a better option than other traditional plasters like cement plastering. However, there is a difference in gypsum quality depending on where it is sourced. Today, within this blog, we …",
       image: "/blog/indian-vs-imported-gypsum-plaster.webp",
     },
+    {
+      title: "How is gypsum plaster one coat better compared to traditional plaster methods?",
+      href: "",
+      excerpt:
+        "When it comes to plastering, gypsum plaster is revolutionising the way it is made. From its convenience to easy application, gypsum plaster one coat is preferred because of its exceptional overall performance. There is always a hitting debate going on between gypsum plaster vs cement plaster. However, gypsum plaster always …",
+      image: "/blog/gypsum-plaster-one-coat-vs-traditional.webp",
+    },
   ],
 } as const;
 
