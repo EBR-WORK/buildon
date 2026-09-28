@@ -31,9 +31,19 @@ export type BlogRun = {
   readonly href?: string;
 };
 
+/**
+ * A phrase inside a heading that should carry a link.
+ *
+ * The reference never links a heading, but some of them name an article this
+ * site now has — "Comparison: Gypsum Plaster vs. Cement Plaster" over a section
+ * that summarises a full post — and leaving that unlinked wastes the most
+ * obvious signpost on the page. `text` must appear in the heading verbatim.
+ */
+export type BlogHeadingLink = { readonly text: string; readonly href: string };
+
 export type BlogBlock =
-  | { readonly kind: "h2"; readonly text: string }
-  | { readonly kind: "h3"; readonly text: string }
+  | { readonly kind: "h2"; readonly text: string; readonly link?: BlogHeadingLink }
+  | { readonly kind: "h3"; readonly text: string; readonly link?: BlogHeadingLink }
   | { readonly kind: "p"; readonly runs: readonly BlogRun[] }
   /** A bulleted list; each item is a paragraph's worth of runs. */
   | { readonly kind: "ul"; readonly items: readonly (readonly BlogRun[])[] }
@@ -5344,7 +5354,14 @@ export const blogPosts: readonly BlogPost[] = [
           ],
         ],
       },
-      { kind: "h2", text: "Comparison: Gypsum Plaster vs. Cement Plaster" },
+      {
+        kind: "h2",
+        text: "Comparison: Gypsum Plaster vs. Cement Plaster",
+        link: {
+          text: "Gypsum Plaster vs. Cement Plaster",
+          href: "/blog/gypsum-plaster-vs-cement-plaster-which-one-is-better",
+        },
+      },
       { kind: "h3", text: "1. Strength and Durability" },
       { kind: "p", runs: [{ text: "While cement plaster is known for its high strength, gypsum plaster is more crack-resistant and lightweight." }] },
       { kind: "h3", text: "2. Cost-Effectiveness" },
@@ -7066,6 +7083,193 @@ export const blogPosts: readonly BlogPost[] = [
         ],
       },
       { kind: "p", runs: [{ text: "Firstly prepare the surface by applying a bonding agent to get rid of cracks and pores. After that, create the mixture of plaster by adding the water. By using the necessary equipment, apply a layer of plaster on the wall." }] },
+    ],
+  },
+  {
+    slug: "gypsum-plaster-vs-cement-plaster-which-one-is-better",
+    title: "Gypsum Plaster vs Cement Plaster: Which one is better?",
+    description:
+      "Compare gypsum plaster vs cement plaster to find out which is better. Discover the key differences, pros, and cons for your construction needs.",
+    image: "/blog/gypsum-plaster-vs-cement-plaster.webp",
+    published: "2024-10-05",
+    modified: "2025-05-27",
+    author: "Rajesh Singh",
+    body: [
+      {
+        kind: "p",
+        runs: [
+          { text: "The invention of plaster is a boon to human civilization. Serving its significance since ages, plastering has evolved with time and technology. From shielding the walls to maintaining a smooth finish, plaster saves the wall from climatic or external conditions. In this guide, we will discuss the advantages, significance, and characteristics of two types of plaster, gypsum plastering and cement plastering, to understand which one is better. While both are unique, " },
+          { text: "gypsum manufacturers and suppliers", href: "https://buildon.co.in/" },
+          { text: " have an edge to introduce new features and that’s why they are different from traditional cement plaster. " },
+        ],
+      },
+      { kind: "h2", text: "What is plastering?" },
+      { kind: "p", runs: [{ text: "Plastering is a technique of applying a thin coat of material to the wall to protect it from external factors like wind, dust, or rain. Plasters are usually a mixture of chemicals, lime, sand, or water. The reason why plastering is essential is because: " }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Ensures longevity of the masonry work as it becomes a layer to protect construction materials from temperature fluctuations, weather, etc. " }],
+          [{ text: "Provides smooth surface, eliminating uneven and imperfect surfaces which makes wall easy to paint. " }],
+          [{ text: "Shields the wall and ceiling from environmental factors like downpour, heat, dust or wind." }],
+          [{ text: "Plastering can avoid the growth of mildew or spores if done using waterproof techniques. " }],
+          [{ text: "Gives a sleek and smooth look to walls making it look aesthetically appealing. " }],
+        ],
+      },
+      { kind: "image", src: "/blog/buildon-master-brochure-final-11-pdf-2-724x1024.webp", alt: "Gypsum Plaster v/s Cement Plaster", width: 724, height: 1024 },
+      { kind: "p", runs: [{ text: "Now, diving deeper to understand the distinction between gypsum plastering and cement plastering." }] },
+      { kind: "h2", text: "What is cement plastering?" },
+      { kind: "p", runs: [{ text: "Cement plaster is a mixture of sand, water and cement. Applying a double coat of cement plaster makes a wall solid and durable—the proportion of mixture in cement plaster depends on where the plaster is applied. The combination of cement plaster is also known as cement stucco. " }] },
+      { kind: "h3", text: "Advantages of cement plaster" },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Versatile ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "One of the primary benefits of cement plaster is that it is ideal for indoors and outdoors. When outdoors, it can help protect the exterior from harsh weather conditions. When indoors, cement plaster can be helpful in maintaining the finishing of the wall. " }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Durability ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "Cement is considered one of the most durable construction materials, which strengthens any part it is added to. Due to weather resistance, it can stay intact for decades without any harm to the wall." }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Good bonding  properties ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "Cement plaster is easy to set and has good bonding properties that can stabilize the mortar work. Also, the bonding is not affected by fluctuations in temperature, which allows for faster setting times. " }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Fire resistant ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "Cement is not easy to catch fire. Thus, it is fire-resistant and ideal for use on the interior and exterior walls. It offers almost four hours of fire resistance and has low thermal conductivity, thus not transferring heat energy easily. " }] },
+      { kind: "h3", text: "Disadvantages of cement plaster" },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Time-consuming ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "Cement plaster mixture needs a lot of water work to create a perfect mixture. This increases the work and makes the overall project expensive. " }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Lead to cracks", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "The curing period of cement plaster requires sprinkling water. If not done. The plaster will not gain strength and will start developing cracks. " }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Impermeable to water ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "Cement plaster is not permeable to water, which makes it a bad choice for washrooms and bathrooms. Without proper ventilation in such areas, it can lead to the breeding of mold spores or mildew. " }] },
+      { kind: "h2", text: "What is gypsum plaster?" },
+      { kind: "p", runs: [{ text: "Gypsum plaster is the mixture created by adding water to the readymade powdered form of the POP. It is also known as Plaster of Paris (POP). It is white in colour, which adds spark to the wall. Gypsum plaster is heated at different temperatures to create various types of plaster. " }] },
+      { kind: "h3", text: "Advantages of gypsum plaster" },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Easily available ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "Since gypsum is factory-made, it is easily available in stores. Also, the mixture of gypsum is easy to make, which saves time and is convenient. Whereas, cement plaster is difficult to make as materials like sand are not readily available. " }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Lightweight", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "Gypsum is a very lightweight material. This means that the mixture of gypsum is light which does not add unnecessary weight to construction. Thus, they are likely to maintain their shape even in cases of natural calamities. " }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Dries up easily ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "The setting time of gypsum plaster is quicker as compared to cement plaster. It dries up within 3 days, quicker than cement plaster, which takes 21 days. Thus, painting jobs also become easier to start, saving time and resources. " }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "No post curing ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "After applying gypsum plaster, it requires little attention and care. Unlike cement plaster, which requires water curing, it increases the usage of water and also manpower. " }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Smooth finishing ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "The finish of the gypsum plaster looks smooth even after a single coat. They are good even on bumpy and uneven walls, giving it an even look. Also, gypsum is easy to apply and doesn’t require a lot of work to set." }] },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Sustainable", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "Gypsum plaster receives all the praise it gets as it is sustainable in nature. It doesn’t leave a residue behind, reducing the waste and making it a good choice to make. " }] },
+      { kind: "h2", text: "So, which one is better?" },
+      { kind: "p", runs: [{ text: "When it comes to plaster, there is no one-size-fits-all solution. Each plaster is better for different walls. The idealness of plaster also depends on cost, time, availability of resources and purposes. For interiors and ceilings, gypsum plaster is a better option. However, when talking about the exterior wall, cement plastering is relatively better since it is durable. " }] },
+      { kind: "h3", text: "To sum up," },
+      {
+        kind: "p",
+        runs: [
+          { text: "Whatever plastering options you go with, it’s important to consider various factors. Weather, availability of natural resources and purpose are a few factors that affect the choice of plaster. If planning to go with gypsum plaster, make sure to connect with a better plaster provider that can provide it at cost-effective prices. To buy gypsum plaster, click at an affordable cost, click" },
+          { text: " here.", href: "https://buildon.co.in/contact-us/" },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "indian-gypsum-plaster-vs-imported-gypsum-plaster",
+    title: "Indian Gypsum plaster vs Imported Gypsum plaster",
+    description:
+      "Compare Indian vs. imported gypsum plaster for quality, cost, and durability. Discover which plaster best suits your project needs with our in-depth guide.",
+    image: "/blog/indian-vs-imported-gypsum-plaster.webp",
+    published: "2024-10-28",
+    modified: "2025-05-27",
+    author: "Rajesh Singh",
+    body: [
+      {
+        kind: "p",
+        runs: [
+          { text: "Gypsum plaster is the go-to material for every builder! Why? Because they come with so much ease and feasibility, they are a better option than other traditional plasters like cement plastering. However, there is a difference in gypsum quality depending on where it is sourced. Today, within this blog, we will be discussing one such debate about Indian gypsum plaster vs. imported gypsum plaster. While" },
+          { text: " gypsum manufacturers and suppliers", href: "https://buildon.co.in" },
+          { text: " have various options to provide and differences to be debated, this blog discusses everything down the lane when it comes to Indian gypsum plaster vs Imported gypsum plaster. " },
+        ],
+      },
+      { kind: "h2", text: "Difference between Indian gypsum plaster vs Imported gypsum plaster" },
+      {
+        kind: "ul",
+        items: [
+          [{ text: "Sourcing ", bold: true }],
+        ],
+      },
+      { kind: "p", runs: [{ text: "As the name speaks for itself, Indian gypsum plaster is sourced from the Indian area, especially Rajasthan region. Rajasthan has majority of reserves because of tertiary areas present at Jodhpur, Nagaur, Bikaner, and Barmer. On the other hand, Imported gypsum plaster is sourced from Iran, Oman, Egypt, which has main centers of deposits around the world. " }] },
+      { kind: "p", runs: [{ text: "    2. Appearance ", bold: true }] },
+      { kind: "p", runs: [{ text: "Indian gypsum plaster looks yellow whereas the appearance of imported gypsum plaster is pure white in colour. India gypsum plaster has a whiteness of 70% & above whereas Imported gypsum plaster has a whiteness of 90% & above." }] },
+      { kind: "p", runs: [{ text: "   3. Purity ", bold: true }] },
+      { kind: "p", runs: [{ text: "The difference in the appearance of gypsum plaster is due to its purity level. Locally sourced, gypsum plaster  has a purity of around 70-73%. This level of purity is ideal enough to conduct construction work; however, they fall short when compared to imported gypsum plaster. They have a purity level of above 90%, which makes them a finer form ideal for construction. " }] },
+      { kind: "p", runs: [{ text: "  4.  Setting time", bold: true }] },
+      { kind: "p", runs: [{ text: "Indian gypsum plaster takes longer when it comes to setting time. This factor  increases the construction time. However, imported gypsum plaster dries quickly. They have less setting time which speeds up the construction process. As long as an easy application is concerned, it can be helped up using retarder. Retarder is a material that helps in extending the setting time of plaster. Thus, using Buildon gypsum plaster retarder will also help in modifying the setting time according to the needs." }] },
+      { kind: "p", runs: [{ text: "5. Availability ", bold: true }] },
+      { kind: "p", runs: [{ text: "There are many gypsum plaster manufacturers and suppliers who sell locally sourced Indian gypsum plaster at affordable prices. The availability of imported gypsum plaster can be found with suppliers dealing in it & e-commerce stores. A good gypsum plaster manufacturer or suppliers will also help in reducing the logistic and supply charges coming with imported gypsum plaster." }] },
+      { kind: "h2", text: "To sum up," },
+      {
+        kind: "p",
+        runs: [
+          { text: "This blog throws light on the advantages and disadvantages of each kind of plaster. Now, which works best for your project depends on your budget, needs, and other specifications. Whatever you are looking for, at Buildon, we, as a gypsum manufacturer and supplier, have everything for you. Be it premium Buildon imported gypsum plaster or bonding agents for gypsum,we  are home to your every kind of need. Wish to buy?" },
+          { text: " Contact us", href: "https://buildon.co.in/contact-us/" },
+          { text: " now and get the best-priced quote." },
+        ],
+      },
     ],
   },
 ];

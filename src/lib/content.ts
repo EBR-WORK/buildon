@@ -1043,7 +1043,10 @@ export const careerPage = {
  * words — which is why every one of them trails off mid-sentence into an
  * ellipsis. Copied as-is.
  *
- * No post pages exist here yet, so the cards deliberately carry no link.
+ * The last two entries are not on the reference's own /blog listing — it
+ * publishes them but never lists them, so they are reachable there only from a
+ * link inside another article. They are listed here because a page nothing
+ * points to is a page nobody finds.
  */
 export const blogPage = {
   title: "Blog",
@@ -1264,6 +1267,20 @@ export const blogPage = {
       excerpt:
         "Gypsum plaster is becoming a well-known material in today’s time. From homeowners to builders, gypsum plaster in India is gaining recognition because of its fantastic features making it a good investment. Gone were the days when people used to apply traditional plastering on the internal walls, like cement plaster. With time, it has been …",
       image: "/blog/1.webp",
+    },
+    {
+      title: "Gypsum Plaster vs Cement Plaster: Which one is better?",
+      href: "",
+      excerpt:
+        "The invention of plaster is a boon to human civilization. Serving its significance since ages, plastering has evolved with time and technology. From shielding the walls to maintaining a smooth finish, plaster saves the wall from climatic or external conditions. In this guide, we will discuss the advantages, significance, and …",
+      image: "/blog/gypsum-plaster-vs-cement-plaster.webp",
+    },
+    {
+      title: "Indian Gypsum plaster vs Imported Gypsum plaster",
+      href: "",
+      excerpt:
+        "Gypsum plaster is the go-to material for every builder! Why? Because they come with so much ease and feasibility, they are a better option than other traditional plasters like cement plastering. However, there is a difference in gypsum quality depending on where it is sourced. Today, within this blog, we …",
+      image: "/blog/indian-vs-imported-gypsum-plaster.webp",
     },
   ],
 } as const;

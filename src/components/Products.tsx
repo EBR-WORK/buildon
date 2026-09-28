@@ -13,10 +13,17 @@ import Reveal from "./Reveal";
  * city landing pages do — lower-case "gypsum plaster" in the heading is theirs,
  * not a slip.
  */
-export default function Products({ city }: { city?: string } = {}) {
-  const title = city
-    ? `Get Introduced To The Best gypsum plaster in ${city}`
-    : products.title;
+export default function Products({
+  city,
+  phrase,
+}: {
+  city?: string;
+  phrase?: string;
+} = {}) {
+  const suffix = phrase ?? (city ? `in ${city}` : null);
+  const title = suffix ? `Get Introduced To The Best gypsum plaster ${suffix}` : products.title;
+  /* Only a city changes the intro line; the national page keeps "Being
+     India’s largest", which is what the reference does. */
   const intro = city
     ? [`Being ${city}’s largest and leading manufacturer & importer of`, products.intro[1]]
     : products.intro;

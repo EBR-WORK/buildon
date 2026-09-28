@@ -9,9 +9,12 @@ import Reveal from "./Reveal";
  * in place of the national line. Everything else on those pages is this
  * section verbatim.
  */
-export default function WhyUs({ city }: { city?: string } = {}) {
-  const titleLines = city
-    ? [whyUs.titleLines[0], `The leader of Gypsum plaster in ${city}`]
+export default function WhyUs({ city, phrase }: { city?: string; phrase?: string } = {}) {
+  /* `phrase` is the general form — "manufacturer and supplier in India" — and
+     `city` the shorthand the city pages use for "in <city>". */
+  const suffix = phrase ?? (city ? `in ${city}` : null);
+  const titleLines = suffix
+    ? [whyUs.titleLines[0], `The leader of Gypsum plaster ${suffix}`]
     : whyUs.titleLines;
 
 

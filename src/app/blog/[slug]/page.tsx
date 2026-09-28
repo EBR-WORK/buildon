@@ -76,6 +76,9 @@ const REFERENCE_PAGES: Record<string, string> = {
   clientele: "/clientele",
   faq: "/faq",
   blog: "/blog",
+  "gypsum-plaster": "/gypsum-plaster",
+  "gypsum-plaster-manufacturer-and-supplier-in-india":
+    "/gypsum-plaster-manufacturer-and-supplier-in-india",
 };
 
 function runHref(href: string | undefined) {
@@ -160,13 +163,36 @@ function renderRun(run: BlogRun, key: number) {
   return <span key={key}>{run.text}</span>;
 }
 
+/**
+ * A heading, with one phrase inside it linked where the data says so. The
+ * phrase is matched verbatim, and a heading with no link renders as plain text.
+ */
+function headingContent(text: string, link?: { text: string; href: string }) {
+  if (!link) return text;
+
+  const at = text.indexOf(link.text);
+  if (at < 0) return text;
+
+  return (
+    <>
+      {text.slice(0, at)}
+      {/* The same blue as an inline link in the body copy, so a link reads as
+          a link wherever it sits. */}
+      <Link href={link.href} className={LINK_CLASS}>
+        {link.text}
+      </Link>
+      {text.slice(at + link.text.length)}
+    </>
+  );
+}
+
 function renderBlock(block: BlogBlock, i: number) {
   switch (block.kind) {
     case "h2":
       return (
         <Reveal key={`${i}-${block.text}`} y={12}>
           <h2 className="mt-10 font-display text-[clamp(1.35rem,1.4vw+0.9rem,1.75rem)] leading-snug font-semibold text-ink-900 sm:mt-12">
-            {block.text}
+            {headingContent(block.text, block.link)}
           </h2>
         </Reveal>
       );
@@ -175,12 +201,16 @@ function renderBlock(block: BlogBlock, i: number) {
       return (
         <Reveal key={`${i}-${block.text}`} y={12}>
           <h3 className="mt-7 font-display text-xl leading-snug font-semibold text-ink-900 sm:mt-8">
-            {block.text}
+            {headingContent(block.text, block.link)}
           </h3>
         </Reveal>
       );
 
     case "image":
+      /* Capped at the file's own width so it is never upscaled and never goes
+         soft, and never narrower than that either — these are charts and
+         diagrams, and one shrunk to fit is one nobody can read. Portrait
+         images are centred, since they do not fill the column. */
       return (
         <Reveal key={`${i}-${block.src}`}>
           <Image
@@ -189,7 +219,8 @@ function renderBlock(block: BlogBlock, i: number) {
             width={block.width}
             height={block.height}
             loading="lazy"
-            className="mt-8 h-auto w-full rounded-2xl bg-surface sm:mt-10"
+            className="mt-8 mx-auto h-auto w-full rounded-2xl bg-surface sm:mt-10"
+            style={{ maxWidth: `${block.width}px` }}
           />
         </Reveal>
       );
