@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import About from "@/components/About";
 import Clients from "@/components/Clients";
 import ContactDetails from "@/components/ContactDetails";
@@ -10,34 +9,25 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import Testimonials from "@/components/Testimonials";
 import WhyUs from "@/components/WhyUs";
-import { cityPages, getCityPage } from "@/lib/cityPages";
+import { getCityPage } from "@/lib/cityPages";
 import { site } from "@/lib/content";
 
 /**
- * /<city-page> — the reference's local landing pages, at its own root-level
- * URLs, which is why this segment sits at the top of the app rather than under
- * a folder. Only the slugs in cityPages.ts are built, and dynamicParams is off,
- * so every other single-segment path still falls through to not-found.
+ * One city landing page: the home page with the city's name in three headings
+ * and no enquiry form — the reference's own section order.
  *
- * The page is the home page with the city's name in three headings and no
- * enquiry form — the reference's own section order, kept in one place here so
- * a change to any section reaches every city at once. It deliberately does not
- * use PageBanner: these pages open on the same hero slider the home page does.
+ * Each city has its own route folder rather than sharing a dynamic `[city]`
+ * segment at the app root. A root-level dynamic segment catches EVERY unknown
+ * single-segment path, and with `output: export` that makes an unmatched URL a
+ * build-time error instead of a 404 — so /wrongsomething returned a 500 in
+ * development rather than the not-found page. Concrete routes leave unknown
+ * paths unclaimed, which is what lets them 404 properly.
+ *
+ * Everything else lives here, so a change to any section reaches every city.
  */
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return cityPages.map((page) => ({ cityPage: page.slug }));
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ cityPage: string }>;
-}): Promise<Metadata> {
-  const { cityPage } = await params;
-  const page = getCityPage(cityPage);
+export function cityMetadata(slug: string): Metadata {
+  const page = getCityPage(slug);
   if (!page) return {};
 
   const title = `Gypsum Plaster in ${page.city}`;
@@ -56,14 +46,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function CityPage({
-  params,
-}: {
-  params: Promise<{ cityPage: string }>;
-}) {
-  const { cityPage } = await params;
-  const page = getCityPage(cityPage);
-  if (!page) notFound();
+export default function CityLanding({ slug }: { slug: string }) {
+  const page = getCityPage(slug);
+  if (!page) return null;
 
   const { city } = page;
 
