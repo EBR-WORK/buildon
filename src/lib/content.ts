@@ -569,9 +569,17 @@ export const faqPage = {
       title: "Bonding Agents (Bondit 151 & Plaster Bond+)",
       items: [
         {
-          question: "How to use Buildon Bonding agents in all plastering ?",
+          question: "How to use Buildon Bonding agents in Gypsum wall plastering ?",
+          /* Four numbered steps on the reference, run together as one
+             paragraph. Kept as steps here: a procedure reads as a list. */
+          steps: [
+            "Ensure all the surfaces are clean from any contaminants that may hinder adhesion, including any loose or flaking material.",
+            "Ensure that the wall is dry.",
+            "Thoroughly stir bonding agents before use.",
+            "Do not dilute, simply apply a single coat using a brush roller and leave to dry (Bondit 151 for 40 mins & Plaster Bond + for 24 hrs before wall plastering).",
+          ],
           answer:
-            "Step 1 – Ensure all the surfaces are clean from any contaminants that may hinder adhesion, including any loose or flaking material. Step 2 – Ensure that the wall is dry Step 3 – Thoroughly stir bonding agents before use. Step 4 – Do not dilute, simply apply a single coat using a brush roller and leave to dry (Bondit 151 for 40 mins & Plaster Bond + for 24 hrs before wall plastering)",
+            "Ensure all the surfaces are clean from any contaminants that may hinder adhesion, including any loose or flaking material. Ensure that the wall is dry. Thoroughly stir bonding agents before use. Do not dilute, simply apply a single coat using a brush roller and leave to dry (Bondit 151 for 40 mins & Plaster Bond + for 24 hrs before wall plastering).",
         },
         {
           question: "Are Buildon bonding agents alternative to hacking ?",

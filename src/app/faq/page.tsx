@@ -92,9 +92,25 @@ export default function FaqPage() {
                           className="mt-0.5 size-5 shrink-0 text-brand-500 transition duration-300 group-hover:text-accent-500 group-open:rotate-45"
                         />
                       </summary>
-                      <p className="faq-answer px-5 pb-5 text-[15px] leading-relaxed text-ink-500 sm:px-6 sm:pb-6">
-                        {item.answer}
-                      </p>
+                      {/* A procedure is set as numbered steps; everything else
+                          is a paragraph. `answer` carries the same words either
+                          way, so the FAQ schema above stays one string. */}
+                      {"steps" in item && item.steps ? (
+                        <ol className="faq-answer space-y-2 px-5 pb-5 text-[15px] leading-relaxed text-ink-500 sm:px-6 sm:pb-6">
+                          {item.steps.map((step, n) => (
+                            <li key={step} className="flex gap-3">
+                              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-50 text-xs font-semibold text-brand-600">
+                                {n + 1}
+                              </span>
+                              <span>{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <p className="faq-answer px-5 pb-5 text-[15px] leading-relaxed text-ink-500 sm:px-6 sm:pb-6">
+                          {item.answer}
+                        </p>
+                      )}
                     </details>
                   </Reveal>
                 ))}
