@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { contact, nav, site } from "@/lib/content";
+import { nav, site } from "@/lib/content";
 import { CloseIcon, MenuIcon } from "./icons";
 
 export default function SiteHeader() {
@@ -188,17 +188,15 @@ export default function SiteHeader() {
                 ))}
               </ul>
             </nav>
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              <a
-                href="#contact"
-                onClick={() => setOpen(false)}
-                className="rounded-full bg-brand-500 px-5 py-3 text-center font-display font-medium tracking-wide text-white"
-              >
-                {contact.title}
-              </a>
+            {/* Only "Call Us" here: the menu above already has a Contact Us
+                item, and a second button of the same name under it read as two
+                different destinations. The phone number is the one action the
+                list does not already offer — so it takes the filled treatment
+                the Contact button had, as the drawer's single call to action. */}
+            <div className="mt-5">
               <a
                 href={site.primaryPhoneHref}
-                className="rounded-full border border-line px-5 py-3 text-center font-display font-medium tracking-wide text-ink-900"
+                className="block rounded-full bg-brand-500 px-5 py-3 text-center font-display font-medium tracking-wide text-white transition hover:bg-brand-600"
               >
                 {site.callUs}
               </a>
