@@ -338,7 +338,7 @@ export const footerHeadings = {
 
 export const footerLinks = {
   about: [
-    { label: "Who We Are?", href: "/contact-us" },
+    { label: "Who We Are?", href: "/about-us" },
     { label: "Our Branches", href: "/contact-us" },
     { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "User Agreement", href: "/user-agreement" },
@@ -353,8 +353,8 @@ export const footerLinks = {
   ],
   support: [
     { label: "Contact Us", href: "/contact-us" },
-    { label: "FAQs", href: "faq" },
-    { label: "Partner With Us", href: "faq" },
+    { label: "FAQs", href: "/faq" },
+    { label: "Partner With Us", href: "/contact-us" },
   ],
 } as const;
 
