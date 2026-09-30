@@ -81,7 +81,7 @@ export const applicationFields = {
     options: ["Fresher", "1 year", "2 years", "3 years", "4 years", "5 years", "Other"],
   },
   ctc: {
-    label: "Current CTC ( Lakhs per Annum )",
+    label: "Current CTC (Lakhs per Annum)",
     options: [
       "2.5 lacs",
       "5.0 lacs",

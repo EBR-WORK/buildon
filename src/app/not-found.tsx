@@ -39,7 +39,7 @@ export default function NotFound() {
       <SiteHeader />
 
       <main id="main">
-        <PageBanner image={blogPage.banner.image} />
+        {/* <PageBanner image={blogPage.banner.image} /> */}
 
         <section className="section-y">
           <div className="container-page max-w-3xl text-center">

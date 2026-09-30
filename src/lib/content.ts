@@ -536,7 +536,7 @@ export const faqPage = {
         {
           question: "What is the coverage of Gypsum Plaster per bag?",
           answer:
-            "20 – 25 Sq. ft. Initial Setting Time: 15 – 20 minutes. Coverage @ thickness of 10 mm. : 20 – 25 Sq. ft./Bag of 25 Kg.",
+            "20 – 25 Sq. ft. Initial Setting Time: 15 – 20 minutes. Coverage @ thickness of 10 mm: 20 – 25 Sq. ft./Bag of 25 Kg.",
         },
         {
           question: "Why is Gypsum Plaster used?",
@@ -569,7 +569,7 @@ export const faqPage = {
       title: "Bonding Agents (Bondit 151 & Plaster Bond+)",
       items: [
         {
-          question: "How to use Buildon Bonding agents in Gypsum wall plastering ?",
+          question: "How to use Buildon Bonding agents in Gypsum wall plastering?",
           /* Four numbered steps on the reference, run together as one
              paragraph. Kept as steps here: a procedure reads as a list. */
           steps: [

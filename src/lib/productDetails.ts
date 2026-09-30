@@ -273,7 +273,7 @@ export const productDetails: readonly ProductDetail[] = [
           { icon: "/products/detail/2019-02-application-6-2.webp", text: "Avoid mixing more powder that can be used within 15 minutes." },
           { icon: "/products/detail/2019-02-application-7-2.webp", text: "Do not temper or mix fresh material once a mix has started to set." },
           { icon: "/products/detail/2019-02-application-8-1.webp", text: "After taking the required amount of plaster, always fold the open end, to protect the plaster from moisture." },
-          { icon: "/products/detail/2019-02-group-1000004064.webp", text: "Setting time cannot be altered by diluting the mixture with water. For a longer setting time,the BUILDON retarder should be added." },
+          { icon: "/products/detail/2019-02-group-1000004064.webp", text: "Setting time cannot be altered by diluting the mixture with water. For a longer setting time, the BUILDON retarder should be added." },
         ],
       },
       {
@@ -381,7 +381,7 @@ export const productDetails: readonly ProductDetail[] = [
           { icon: "/products/detail/2019-02-application-6-2.webp", text: "Avoid mixing more powder that can be used within 15 minutes." },
           { icon: "/products/detail/2019-02-application-7-2.webp", text: "Do not temper or mix fresh material once a mix has started to set." },
           { icon: "/products/detail/2019-02-application-8-1.webp", text: "After taking the required amount of plaster, always fold the open end, to protect the plaster from moisture." },
-          { icon: "/products/detail/2019-02-group-1000004064.webp", text: "Setting time cannot be altered by diluting the mixture with water. For a longer setting time,the BUILDON retarder should be added." },
+          { icon: "/products/detail/2019-02-group-1000004064.webp", text: "Setting time cannot be altered by diluting the mixture with water. For a longer setting time, the BUILDON retarder should be added." },
         ],
       },
       {
