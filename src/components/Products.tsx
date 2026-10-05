@@ -94,38 +94,75 @@ export default function Products({
                 delay={Math.min(i, 2) * 0.08}
                 className="flex w-full shrink-0 snap-start pr-4 sm:w-1/2 sm:pr-6 lg:w-1/3"
               >
-                {/* No hover lift here, unlike the grid pages: inside a track
-                    that clips, a card rising 4px loses its top border. */}
-                <article className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:shadow-card">
-                  <div className="relative aspect-4/3 overflow-hidden bg-white">
-                    <Image
-                      src={product.image}
-                      alt={`${product.name} — Buildon packaging`}
-                      fill
-                      sizes="(min-width: 1024px) 24rem, (min-width: 640px) 45vw, 92vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
+                {/* The reference's own card, read off its stylesheet rather
+                    than guessed at:
 
-                  <div className="flex flex-1 flex-col p-5 sm:p-6">
-                    <h3 className="text-xl leading-snug font-semibold transition-colors group-hover:text-brand-500 sm:text-2xl">
+                      .business_box::before      #2E2E2E at 0.1 over the photo
+                      :hover ::before            the brand colour at 0.8
+                      .business_box_content      top: 60%, height: 100%,
+                                                 justify-content: space-between
+                      :hover .business_box_content   top: 0
+                      transition                 0.5s ease-in-out all
+
+                    So the panel is never hidden and nothing fades: it sits
+                    low, showing only its head, and slides up to reveal the
+                    body. The wash is always there too — it only changes colour
+                    and deepens. */}
+                <article className="group relative aspect-4/5 w-full overflow-hidden rounded-2xl">
+                  <Image
+                    src={product.image}
+                    alt={`${product.name} — Buildon packaging`}
+                    fill
+                    sizes="(min-width: 1024px) 24rem, (min-width: 640px) 45vw, 92vw"
+                    className="object-cover"
+                  />
+
+                  {/* The wash: a tenth of near-black at rest, four fifths of
+                      the brand colour on hover. */}
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 bg-ink-900/10 transition-colors duration-500 ease-in-out group-hover:bg-brand-500/80"
+                  />
+
+                  {/* The reference's photographs are dark enough to carry white
+                      type under a 10% wash. These are not: every one is a white
+                      bag on a pale background, so the resting name was white on
+                      white. A gradient across the lower half fixes that, and
+                      fades out on hover once the brand wash takes over. */}
+                  <div
+                    aria-hidden
+                    className="absolute inset-x-0 bottom-0 h-3/5 bg-linear-to-t from-ink-900/80 via-ink-900/45 to-transparent transition-opacity duration-500 ease-in-out group-hover:opacity-0"
+                  />
+
+                  <div className="absolute inset-x-0 top-[58%] flex h-full flex-col justify-between p-6 transition-[top] duration-500 ease-in-out group-hover:top-0 sm:p-7">
+                    {/* drop-shadow as well as the gradient: the longest names
+                        wrap to three lines and the top one can reach past the
+                        gradient's start. */}
+                    <h3 className="font-display text-xl leading-snug font-semibold text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.45)] sm:text-2xl">
                       {product.name}
                     </h3>
-                    <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">
-                      {product.body}
-                    </p>
-                    {/* A mouse press would move focus here, and the browser
-                        scrolls to reveal a newly focused element when its card
-                        sits partly below the fold. Cancelling the press's
-                        default keeps focus where it is; the click still fires,
-                        and keyboard focus is untouched. */}
-                    <CtaLink
-                      href={product.href}
-                      onMouseDown={(event) => event.preventDefault()}
-                      className="mt-4 inline-flex cursor-pointer items-center gap-1.5 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:mt-5"
-                    >
-                      {products.readMore}
-                    </CtaLink>
+
+                    <div className="pb-14">
+                      {/* Clamped to five lines, as the reference clamps its
+                          own, so a long description cannot push the link out
+                          of the card. */}
+                      <p className="text-[15px] leading-relaxed text-white/90 line-clamp-5">
+                        {product.body}
+                      </p>
+
+                      {/* A mouse press would move focus here, and the browser
+                          scrolls to reveal a newly focused element when its
+                          card sits partly below the fold. Cancelling the
+                          press's default keeps focus where it is; the click
+                          still fires, and keyboard focus is untouched. */}
+                      <CtaLink
+                        href={product.href}
+                        onMouseDown={(event) => event.preventDefault()}
+                        className="mt-4 inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold text-white transition hover:gap-2.5"
+                      >
+                        {products.readMore}
+                      </CtaLink>
+                    </div>
                   </div>
                 </article>
               </Reveal>
