@@ -322,8 +322,6 @@ export const social = [
     href: "https://www.youtube.com/@lifewaygypsum_buildcon6030",
     icon: "youtube",
   },
-  // The reference links its X icon to "#" — no account wired up yet
-  { label: "X", href: "#", icon: "x" },
   { label: "Facebook", href: "https://www.facebook.com/BuildonIndia/", icon: "facebook" },
   { label: "Instagram", href: "https://www.instagram.com/buildon_india/", icon: "instagram" },
   { label: "LinkedIn", href: "https://www.linkedin.com/company/buildon-india/", icon: "linkedin" },
