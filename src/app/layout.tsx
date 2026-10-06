@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import BackToTop from "@/components/BackToTop";
-import QuotePanel from "@/components/QuotePanel";
+import SiteChrome from "@/components/SiteChrome";
 import ScrollToTop from "@/components/ScrollToTop";
 import { site } from "@/lib/content";
 import "./globals.css";
@@ -76,8 +75,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </noscript>
         <ScrollToTop />
         {children}
-        <BackToTop />
-        <QuotePanel />
+        {/* Public-site furniture only — SiteChrome hides it under /admin. */}
+        <SiteChrome />
         <script
           type="application/ld+json"
           // Static, locally-authored object — no user input reaches this string.

@@ -170,6 +170,47 @@ export function PlusIcon(props: IconProps) {
   );
 }
 
+/** Stacked photographs — the media gallery. */
+export function ImagesIcon(props: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.8} {...props}>
+      <rect x="3" y="7" width="14" height="12" rx="2" />
+      <path d="M7 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2" />
+      <circle cx="7.5" cy="11.5" r="1.2" />
+      <path d="m3.5 17 4-4 3.5 3.5 2.5-2 3.5 3.5" />
+    </svg>
+  );
+}
+
+/** A waste basket — delete. Stroked like the rest, not filled: it sits beside
+    Edit in the admin rows and should read as one of a set, not as an alarm. */
+export function TrashIcon(props: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.8} {...props}>
+      <path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3" />
+    </svg>
+  );
+}
+
+/** A pencil — edit. */
+export function PencilIcon(props: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.8} {...props}>
+      <path d="M4 20h4L19 9a2.5 2.5 0 0 0-3.5-3.5L4.5 16.5 4 20Z" />
+    </svg>
+  );
+}
+
+/** An exclamation in a circle — the confirmation toast's mark. */
+export function AlertIcon(props: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.8} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5v5.5M12 16.2v.3" />
+    </svg>
+  );
+}
+
 /** Four corner arrows pointing out — enters fullscreen. */
 export function ExpandIcon(props: IconProps) {
   return (

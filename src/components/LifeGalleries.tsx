@@ -168,18 +168,18 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
                 className="max-h-[72svh] w-auto object-contain"
               />
 
+              {/* Close sits on the image, top right, where a lightbox is
+                  closed on every other site. Fullscreen moved down to the bar
+                  with the counter: it is the rarer action, and having the two
+                  stacked in one corner made shutting the viewer a guess. */}
               <button
                 suppressHydrationWarning
                 type="button"
-                onClick={toggleFullscreen}
-                aria-label={isFullscreen ? "Leave fullscreen" : "View fullscreen"}
+                onClick={close}
+                aria-label="Close"
                 className={`absolute top-3 right-3 ${roundButton}`}
               >
-                {isFullscreen ? (
-                  <CollapseIcon className="size-5" />
-                ) : (
-                  <ExpandIcon className="size-5" />
-                )}
+                <CloseIcon className="size-5" />
               </button>
 
               <button
@@ -241,7 +241,7 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
               </div>
             </div>
 
-            {/* Counter and close */}
+            {/* Counter and fullscreen */}
             <div className="relative z-10 flex shrink-0 items-center justify-between gap-4 bg-white px-4 py-3">
               <p className="text-sm font-medium text-ink-500 tabular-nums">
                 {openAt + 1}/{flat.length}
@@ -249,11 +249,15 @@ export default function LifeGalleries({ galleries }: { galleries: readonly Galle
               <button
                 suppressHydrationWarning
                 type="button"
-                onClick={close}
-                aria-label="Close"
-                className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full text-ink-700 transition hover:bg-signal-500 hover:text-white"
+                onClick={toggleFullscreen}
+                aria-label={isFullscreen ? "Leave fullscreen" : "View fullscreen"}
+                className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full text-ink-700 transition hover:bg-surface hover:text-ink-900"
               >
-                <CloseIcon className="size-5" />
+                {isFullscreen ? (
+                  <CollapseIcon className="size-5" />
+                ) : (
+                  <ExpandIcon className="size-5" />
+                )}
               </button>
             </div>
           </div>

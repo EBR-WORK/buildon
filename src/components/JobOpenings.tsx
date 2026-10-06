@@ -3,14 +3,17 @@
 import { useMemo, useState } from "react";
 import CtaLink from "@/components/CtaLink";
 import Reveal from "@/components/Reveal";
-import { careerPage } from "@/lib/content";
-import { jobHref } from "@/lib/careerDetails";
+import { publishedCareer, publishedJobHref } from "@/lib/cms/published";
 import { ArrowIcon, ChevronDownIcon, PinIcon, ShieldIcon } from "./icons";
 
 const ALL = "All Job Location";
 
 /**
  * The openings list, filtered by location.
+ *
+ * Reads content/career.json through publishedCareer, so a role added in the
+ * admin panel appears here after the next build — the listing is no longer a
+ * second copy of the job data kept in content.ts.
  *
  * The reference does this with a select posting to WordPress, which reloads the
  * page for a list of three. There is no server here, and no need for one: the
@@ -27,14 +30,14 @@ export default function JobOpenings() {
   /* Built from the openings themselves rather than a fixed list, so a new city
      appears in the filter as soon as a job in it is added. */
   const locations = useMemo(
-    () => [ALL, ...Array.from(new Set(careerPage.openings.items.map((job) => job.location)))],
+    () => [ALL, ...Array.from(new Set(publishedCareer.jobs.map((job) => job.location)))],
     [],
   );
 
   const items =
     location === ALL
-      ? careerPage.openings.items
-      : careerPage.openings.items.filter((job) => job.location === location);
+      ? publishedCareer.jobs
+      : publishedCareer.jobs.filter((job) => job.location === location);
 
   return (
     <>
@@ -83,7 +86,7 @@ export default function JobOpenings() {
 
       <ul className="mt-6 space-y-4 sm:mt-8">
         {items.map((job, i) => (
-          <Reveal as="li" key={`${job.title}-${job.location}`} delay={i * 0.08}>
+          <Reveal as="li" key={job.slug} delay={i * 0.08}>
             <article className="group flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 transition hover:border-brand-200 hover:shadow-card sm:flex-row sm:items-center sm:justify-between sm:p-7">
               <div className="min-w-0">
                 <h3 className="font-display text-xl leading-snug font-semibold transition-colors group-hover:text-brand-500 sm:text-2xl">
@@ -92,7 +95,7 @@ export default function JobOpenings() {
                 <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-[15px] text-ink-500">
                   <span className="inline-flex items-center gap-2">
                     <ShieldIcon className="size-4 shrink-0 text-brand-500" />
-                    {job.experience}
+                    {job.type}
                   </span>
                   <span className="inline-flex items-center gap-2">
                     <PinIcon className="size-4 shrink-0 text-brand-500" />
@@ -102,10 +105,10 @@ export default function JobOpenings() {
               </div>
 
               <CtaLink
-                href={job.href || jobHref(job.title, job.location)}
+                href={publishedJobHref(job.title, job.location)}
                 className="inline-flex shrink-0 cursor-pointer items-center gap-2 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:self-auto"
               >
-                {careerPage.openings.more}
+                {publishedCareer.moreLabel}
                 <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
               </CtaLink>
             </article>

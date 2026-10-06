@@ -7,10 +7,14 @@ import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { careerPage, site } from "@/lib/content";
-import { getJobOpening, jobOpenings } from "@/lib/careerDetails";
+import { getPublishedJob, publishedCareer } from "@/lib/cms/published";
 
 /**
  * /career/<slug> — one template for every opening.
+ *
+ * Both the routes it builds and the copy it renders come from
+ * content/career.json via publishedCareer, so an opening added in the admin
+ * panel gets a page on the next build.
  *
  * The reference publishes these under /careers/<slug>/ from its job-board
  * plugin: three specification terms, a description where one was written, and
@@ -18,7 +22,7 @@ import { getJobOpening, jobOpenings } from "@/lib/careerDetails";
  */
 
 export function generateStaticParams() {
-  return jobOpenings.map((job) => ({ slug: job.slug }));
+  return publishedCareer.jobs.map((job) => ({ slug: job.slug }));
 }
 
 export async function generateMetadata({
@@ -27,7 +31,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const job = getJobOpening(slug);
+  const job = getPublishedJob(slug);
   if (!job) return {};
 
   const description = `${job.title} — ${job.type}, ${job.location}. Apply to join Buildon Plasters.`;
@@ -46,10 +50,10 @@ export async function generateMetadata({
 
 export default async function JobPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const job = getJobOpening(slug);
+  const job = getPublishedJob(slug);
   if (!job) notFound();
 
-  const others = jobOpenings.filter((opening) => opening.slug !== job.slug);
+  const others = publishedCareer.jobs.filter((opening) => opening.slug !== job.slug);
 
   const jobJsonLd = {
     "@context": "https://schema.org",
@@ -73,7 +77,7 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
         {/* "Career Openings" rides the bar as the eyebrow, not headingLines:
             the eyebrow renders a <p> at the same size, so the bar reads as a
             heading while the job title below stays the page's only <h1>. */}
-        <PageBanner image={careerPage.banner.image} eyebrow={careerPage.openings.title} />
+        <PageBanner image={careerPage.banner.image} eyebrow={publishedCareer.openingsTitle} />
 
         <section className="section-y">
           <div className="container-page">

@@ -24,6 +24,8 @@
   --color-brand-900: #182333;
 
   /* Signal red from the logo mark — the reference's "KNOW MORE" button */
+  --color-signal-50: #fdf0f1;  /* the delete confirmation's icon well */
+  --color-signal-200: #f3c3c6; /* its card border — a tint, not an alarm */
   --color-signal-300: #f19aa0; /* readable error text on the dark footer */
   --color-signal-500: #c1141f;
   --color-signal-600: #a41019;

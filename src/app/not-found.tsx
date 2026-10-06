@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
 import SearchBox from "@/components/SearchBox";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { blogPage, site } from "@/lib/content";
+import { site } from "@/lib/content";
 
 /**
  * The 404 page.

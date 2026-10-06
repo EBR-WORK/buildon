@@ -7,6 +7,7 @@ import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { careerPage, site } from "@/lib/content";
+import { publishedCareer } from "@/lib/cms/published";
 
 const description = `${careerPage.banner.headingLines.join(" ")} ${careerPage.openings.items
   .map((job) => `${job.title}, ${job.location}`)
@@ -48,7 +49,7 @@ export default function CareerPage() {
         <section className="section-y">
           <div className="container-page">
             <Reveal>
-              <SectionHeading title={careerPage.openings.title} align="center" />
+              <SectionHeading title={publishedCareer.openingsTitle} align="center" />
             </Reveal>
 
             {/* The list and its location filter — a client component, since
