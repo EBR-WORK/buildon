@@ -201,6 +201,14 @@ export type FaqItemEntry = {
    * and the accordion renders a single paragraph.
    */
   answer: string;
+  /**
+   * A procedure, rendered as a numbered list instead of the paragraph.
+   *
+   * `answer` still carries the same words run together, because the FAQ
+   * structured data has to be one string either way — so a search engine and a
+   * reader get the same content, formatted for each.
+   */
+  steps?: string[];
 };
 
 export type FaqGroupEntry = {
@@ -342,6 +350,7 @@ export const defaults: SiteContent = {
         id: newId(),
         question: item.question,
         answer: item.answer,
+        ...("steps" in item && item.steps ? { steps: [...item.steps] } : {}),
       })),
     })),
   },

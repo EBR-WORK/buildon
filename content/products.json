@@ -1,0 +1,114 @@
+{
+  "intro": "Explore our range of products.",
+  "items": [
+    {
+      "id": "gypsum-plaster-one-coat",
+      "name": "Gypsum Plaster One Coat",
+      "slug": "gypsum-plaster-one-coat",
+      "image": "/products/one-coat.webp",
+      "intro": [
+        {
+          "text": "BUILDON Gypsum Plaster 1 Coat is produced from the light powder-density rock sourced from the purest mines. The advantage of our Gypsum is that it is the highest grade, pure white in colour, and 40% harder than any other Gypsum Plaster available in the Indian market. This Gypsum plaster can be applied easily and directly on all surfaces without the need for sand/cement/ plaster on the walls. The coverage in a 25Kg bag is 20 Sq. Ft. with a thickness of 12mm. The Fineness of 200 Mesh and purity over 90% ensure the best atomic bond and an absolute mirror finish."
+        }
+      ],
+      "cardBody": "The distinguished advantage of the Buildon Gypsum Plaster-one coat is that it is made out of the highest grade of……"
+    },
+    {
+      "id": "imported-gypsum-plaster",
+      "name": "Imported Gypsum Plaster",
+      "slug": "imported-gypsum-plaster",
+      "image": "/products/imported.webp",
+      "intro": [
+        {
+          "text": "BUILDON Gypsum Plaster is produced from the light powder-density rock sourced from the purest mines. The advantage of our Gypsum is that it is the highest grade, pure white in colour, and 40% harder than any other Gypsum Plaster available in the Indian market. This Gypsum plaster can be applied easily and directly on all surfaces without the need for sand/cement/ plaster on the walls. The coverage in a 25Kg bag is 20 Sq. Ft. with a thickness of 12mm. The Fineness of 200 Mesh and purity over 85% ensure the best atomic bond and an absolute mirror finish."
+        }
+      ],
+      "cardBody": "Our BUILDON Gypsum Plaster is produced from the light powder-density rock sourced from the purest mines."
+    },
+    {
+      "id": "gypsum-master-plaster",
+      "name": "Gypsum Master Plaster",
+      "slug": "gypsum-master-plaster",
+      "image": "/products/master.webp",
+      "intro": [
+        {
+          "text": "BUILDON Gypsum Master Plaster is produced from the light powder-density rock sourced from the purest mines. The advantage of our Gypsum is that it is the highest grade, pure white in colour, and 40% harder than any other Gypsum Plaster available in the Indian market. This Gypsum plaster can be applied easily and directly on all surfaces without the need for sand/cement/ plaster on the walls. The coverage in a 20Kg bag is 16 Sq. Ft. with a thickness of 12mm. The Fineness of 150 Mesh and purity over 85% ensure the best atomic bond and an absolute mirror finish."
+        }
+      ],
+      "cardBody": "BUILDON Gypsum Master Plaster is produced from the light powder-density rock sourced from the purest mines."
+    },
+    {
+      "id": "gypsum-plaster-perlite-one-coat-super-200",
+      "name": "Gypsum Plaster Perlite One-Coat Super 200",
+      "slug": "gypsum-plaster-perlite-one-coat-super-200",
+      "image": "/products/perlite.webp",
+      "intro": [
+        {
+          "text": "Buildon Gypsum Plaster Perlite One Coat Super 200 is produced from the light powder-density rock sourced from the purest mines. The advantage of our Gypsum is that it is the highest grade, pure white in colour, and 40% harder than any other Gypsum Plaster available in the Indian market. This Gypsum plaster can be applied easily and directly on all surfaces without the need for sand/ cement/plaster on the walls. The coverage in a 25 kg bag is 24 sq. ft. with a thickness of 12mm. The Fineness of 200 Mesh and purity over 92% ensure the best atomic bond and an absolute mirror finish."
+        }
+      ],
+      "cardBody": "Buildon perlite plaster a gypsum plaster with special additives and light weight aggregates. The aggregates contain …"
+    },
+    {
+      "id": "gypsum-plaster-verimiculite",
+      "name": "Gypsum Plaster Vermiculite",
+      "slug": "gypsum-plaster-verimiculite",
+      "image": "/products/vermiculite.webp",
+      "intro": [
+        {
+          "text": "BUILDON Gypsum Plaster Verimiculite is produced from the light powder-density rock sourced from the purest mines. The advantage of our Gypsum is that it is the highest grade, brownish white in colour, and 40% harder than any other Gypsum Plaster available in the Indian market. This Gypsum plaster can be applied easily and directly on all surfaces without the need for sand/cement/ plaster on the walls. The coverage in a 25Kg bag is 24 Sq. Ft. with a thickness of 12mm. The Fineness of 200 Mesh and purity over 90% ensure the best atomic bond and an absolute mirror finish."
+        }
+      ],
+      "cardBody": "Buildon Vermiculite Plaster a gypsum hemihydrates plaster with special additives and lightweight aggregates."
+    },
+    {
+      "id": "classic-gypsum-plaster",
+      "name": "Classic Gypsum Plaster",
+      "slug": "classic-gypsum-plaster",
+      "image": "/products/classic.webp",
+      "intro": [
+        {
+          "text": "Buildon Classic Gypsum Plaster is produced from the light powder-density rock sourced from the purest mines. The advantage of our Gypsum is that it is the highest grade, white in colour, and 40% harder than any other Gypsum Plaster available in the Indian market. This Gypsum plaster can be applied easily and directly on all surfaces without the need for sand/cement/ plaster on the walls."
+        }
+      ],
+      "cardBody": "Buildon Classic Gypsum Plaster is produced from the light powder-density rock sourced from the purest mines…"
+    },
+    {
+      "id": "buildon-p-20-ready-mix-plaster",
+      "name": "Buildon P-20 Ready Mix Plaster",
+      "slug": "buildon-p-20-ready-mix-plaster",
+      "image": "/products/p-20-ready-mix.webp",
+      "intro": [
+        {
+          "text": "Buildon P-20 is crafted for both exterior and interior plastering, this specialized formula offers a robust, smooth base coat with superior shrinkage control. Its rich additives and precisely graded fillers ensure a seamless, strongly adherent, and highly workable mixture when combined with water. Easily applicable, Buildon P-20 Cementitious Dry Ready Mix Plaster can be administered by hand or spray machines."
+        }
+      ],
+      "cardBody": "Buildon P-20 is a Premixed sand cement plaster. It is specially formulated for exterior and interior plastering work to …"
+    },
+    {
+      "id": "bondit-151",
+      "name": "Bondit-151",
+      "slug": "bondit-151",
+      "image": "/products/bondit-151.webp",
+      "intro": [
+        {
+          "text": "BONDIT is a high-performance bonding agent for Gypsum on concrete blocks/RCC surfaces. Further, it has waterproofing properties, and hence it prevents leakages from the cracks in the plaster."
+        }
+      ],
+      "cardBody": "BONDIT-151 is high-performance bonding agent for Gypsum on concrete blocks/RCC surfaces."
+    },
+    {
+      "id": "bondit-plaster-bond-plus",
+      "name": "Bondit Plaster Bond+",
+      "slug": "bondit-plaster-bond-plus",
+      "image": "/products/bondit-plaster-bond-plus.webp",
+      "intro": [
+        {
+          "text": "Buildon Bondit Plaster Bond+, is a high-performance bonding agent for gypsum on concrete blocks/RCC surfaces. Further, it has waterproofing properties, and hence it prevents leakages from the cracks in the plaster."
+        }
+      ],
+      "cardBody": "Buildon Bondit Plaster BOND+ is high-performance bonding agent for gypsum and sand cement…."
+    }
+  ],
+  "heading": "Finest quality Gypsum products in India."
+}

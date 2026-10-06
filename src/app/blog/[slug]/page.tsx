@@ -11,11 +11,12 @@ import { blogPage, productCatalogue, site } from "@/lib/content";
 import {
   blogAuthors,
   blogHref,
-  blogPosts,
-  getBlogPost,
   type BlogBlock,
   type BlogRun,
 } from "@/lib/blogDetails";
+/* Posts come from the published file, so an edit in the admin panel reaches
+   the article after the next pull and build. */
+import { getPublishedPost, publishedPosts } from "@/lib/cms/published";
 
 /**
  * /blog/<slug> — one template for every post.
@@ -33,7 +34,7 @@ import {
  */
 
 export function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+  return publishedPosts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
@@ -42,7 +43,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = getPublishedPost(slug);
   if (!post) return {};
 
   return {
@@ -95,7 +96,7 @@ function runHref(href: string | undefined) {
      site uses, so those carry straight over. */
   if (productCatalogue.some((product) => product.href === `/${path}`)) return `/${path}`;
 
-  const post = blogPosts.find((entry) => entry.slug === path);
+  const post = publishedPosts.find((entry) => entry.slug === path);
   return post ? `/blog/${post.slug}` : undefined;
 }
 
@@ -253,7 +254,7 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = getPublishedPost(slug);
   if (!post) notFound();
 
   const others = railPosts(post.title);

@@ -100,9 +100,35 @@ for (const table of TABLES) {
   missing += 1;
 }
 
+/* --- the Edge Function ----------------------------------------------------
+   Creating a login needs the service role key, which cannot be in a browser,
+   so the panel calls this instead. Without it the Team screen can still
+   invite; it just cannot create an account outright. */
+let functionReady = false;
+try {
+  const response = await fetch(`${url}/functions/v1/create-admin`, {
+    method: "POST",
+    headers: { apikey: key, "Content-Type": "application/json" },
+    body: "{}",
+    signal: AbortSignal.timeout(10_000),
+  });
+  /* 401 is the healthy answer to a call with no user token: the function is
+     there and refused us. 404 means it was never deployed. */
+  functionReady = response.status !== 404;
+  console.log(
+    `  create-admin  ${functionReady ? `deployed (${response.status} to an unauthenticated call)` : "NOT DEPLOYED"}`,
+  );
+} catch {
+  console.log("  create-admin  could not be reached");
+}
+
 console.log();
-console.log(
-  missing === 0
-    ? "OK  connected, schema present."
-    : `Connected, but ${missing} table(s) still to create.`,
-);
+if (missing > 0) {
+  console.log(`Connected, but ${missing} table(s) still to create.`);
+} else if (!functionReady) {
+  console.log("OK  connected, schema present.");
+  console.log("    Accounts cannot be created from the panel until create-admin is");
+  console.log("    deployed. Inviting works either way.");
+} else {
+  console.log("OK  connected, schema present, functions deployed.");
+}

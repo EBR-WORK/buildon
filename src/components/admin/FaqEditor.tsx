@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { repository } from "@/lib/cms/repository";
+import { ConflictError, repository } from "@/lib/cms/repository";
 import { cloneDefaults, newId, type SiteContent } from "@/lib/cms/schema";
 import { ChevronDownIcon, PlusIcon, TrashIcon } from "@/components/icons";
 import EntryRow from "./EntryRow";
-import { TextAreaField, TextField } from "./Fields";
+import { RepeatableList, TextAreaField, TextField } from "./Fields";
 import SaveBar, { type Status } from "./SaveBar";
 import { useToast } from "./Toast";
 
@@ -63,10 +63,17 @@ export default function FaqEditor() {
       setDirty(false);
       setStatus("saved");
       setError("");
-      notify("Saved", "The draft is stored in this browser.");
+      notify("Saved", `Stored in ${repository.destination}.`);
     } catch (e) {
       setStatus("error");
-      setError(e instanceof Error ? e.message : "Could not save.");
+      const message = e instanceof Error ? e.message : "Could not save.";
+      setError(message);
+      /* A conflict is not a failed save, it is a refused one, and the editor
+         has to decide what to do — so it gets a toast rather than only a line
+         in the bar they may have scrolled past. */
+      if (e instanceof ConflictError) {
+        notify("Not saved", message, "danger");
+      }
     }
   }
 
@@ -273,6 +280,7 @@ export default function FaqEditor() {
                             />
                             <TextAreaField
                               label="Answer"
+                              hint="Shown as a paragraph, and used for the page's structured data."
                               rows={4}
                               value={item.answer}
                               onChange={(next) =>
@@ -282,6 +290,47 @@ export default function FaqEditor() {
                                 )
                               }
                             />
+
+                            {/* Optional, and rare: one answer on the site is a
+                                procedure. When steps are present the page
+                                renders them numbered instead of the paragraph
+                                — but the answer above still has to carry the
+                                same words, because the FAQ structured data is
+                                one string either way. */}
+                            <details
+                              className="rounded-xl border border-line bg-surface px-4 py-3"
+                              open={Boolean(item.steps?.length)}
+                            >
+                              <summary className="cursor-pointer text-sm font-semibold text-ink-900">
+                                Show this answer as numbered steps
+                              </summary>
+
+                              <div className="mt-4">
+                                <RepeatableList
+                                  label="Steps"
+                                  hint="One per row. Leave empty to show the answer as a paragraph."
+                                  items={item.steps ?? []}
+                                  min={0}
+                                  addLabel="Add step"
+                                  blank={() => ""}
+                                  onChange={(next) =>
+                                    edit((d) => {
+                                      const target = d.faq.groups[groupIndex].items[itemIndex];
+                                      if (next.length === 0) delete target.steps;
+                                      else target.steps = next;
+                                    })
+                                  }
+                                  render={(step, update) => (
+                                    <TextAreaField
+                                      label="Step"
+                                      rows={2}
+                                      value={step}
+                                      onChange={update}
+                                    />
+                                  )}
+                                />
+                              </div>
+                            </details>
                           </div>
                         </li>
                       ))}

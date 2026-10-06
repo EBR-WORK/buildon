@@ -6,15 +6,18 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { PlusIcon } from "@/components/icons";
 import { faqPage, site } from "@/lib/content";
+/* Questions come from the published file; the banner stays in content.ts,
+   which is page furniture rather than content an editor changes. */
+import { publishedFaq } from "@/lib/cms/published";
 
 export const metadata: Metadata = {
-  title: faqPage.title,
+  title: publishedFaq.title,
   description: faqPage.banner.subheadingLines.join(" "),
   alternates: { canonical: "/faq" },
   openGraph: {
     type: "website",
     url: `${site.url}/faq/`,
-    title: `${faqPage.title} | ${site.name}`,
+    title: `${publishedFaq.title} | ${site.name}`,
     description: faqPage.banner.subheadingLines.join(" "),
   },
 };
@@ -31,7 +34,7 @@ export default function FaqPage() {
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqPage.groups.flatMap((group) =>
+    mainEntity: publishedFaq.groups.flatMap((group) =>
       group.items.map((item) => ({
         "@type": "Question",
         name: item.question,
@@ -52,7 +55,7 @@ export default function FaqPage() {
           subheadingLines={faqPage.banner.subheadingLines}
         />
 
-        {faqPage.groups.map((group, groupIndex) => (
+        {publishedFaq.groups.map((group, groupIndex) => (
           <section
             key={group.title}
             className={`section-y ${groupIndex > 0 ? "border-t border-line" : ""} ${

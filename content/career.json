@@ -1,13 +1,11 @@
 {
-  "openingsTitle": "Career Openings",
-  "moreLabel": "More Details",
   "jobs": [
     {
       "id": "business-development-manager",
       "slug": "business-development-manager",
+      "type": "5 years Experience",
       "title": "Business Development Manager",
       "category": "Business Development Manager",
-      "type": "5 years Experience",
       "location": "Hyderabad",
       "responsibilities": [
         "Will be responsible for generating the Sales of the company product portfolio in an assigned territory",
@@ -23,20 +21,22 @@
     {
       "id": "sales-associate-bangalore",
       "slug": "sales-associate-bangalore",
+      "type": "2 years Experience",
       "title": "Sales Associate",
       "category": "Sales Associate",
-      "type": "2 years Experience",
       "location": "Bangalore",
       "responsibilities": []
     },
     {
       "id": "sales-associate-kolkata",
       "slug": "sales-associate-kolkata",
+      "type": "2 years Experience",
       "title": "Sales Associate",
       "category": "Sales Associate",
-      "type": "2 years Experience",
       "location": "Kolkata",
       "responsibilities": []
     }
-  ]
+  ],
+  "moreLabel": "More Details",
+  "openingsTitle": "Career Openings"
 }

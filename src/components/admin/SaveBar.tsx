@@ -1,5 +1,7 @@
 "use client";
 
+import { repository } from "@/lib/cms/repository";
+
 export type Status = "loading" | "idle" | "saving" | "saved" | "error";
 
 /**
@@ -31,7 +33,7 @@ export default function SaveBar({
       <div className="mx-auto flex max-w-[90rem] flex-wrap items-center justify-end gap-3 px-6 py-4 sm:px-10 lg:pl-[17rem]">
         <p aria-live="polite" className="mr-auto text-sm text-ink-500">
           {status === "saving" && "Saving…"}
-          {status === "saved" && !dirty && "Saved to this browser."}
+          {status === "saved" && !dirty && `Saved to ${repository.destination}.`}
           {status === "error" && <span className="text-signal-500">{error}</span>}
           {status === "idle" && dirty && "Unsaved changes."}
           {status === "idle" && !dirty && "No changes yet."}

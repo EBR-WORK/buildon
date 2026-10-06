@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import { repository } from "@/lib/cms/repository";
+import { ConflictError, repository } from "@/lib/cms/repository";
 import {
   cloneDefaults,
   isShippedProduct,
@@ -77,10 +77,17 @@ export default function ProductsEditor() {
       setDirty(false);
       setStatus("saved");
       setError("");
-      notify("Saved", "The draft is stored in this browser.");
+      notify("Saved", `Stored in ${repository.destination}.`);
     } catch (e) {
       setStatus("error");
-      setError(e instanceof Error ? e.message : "Could not save.");
+      const message = e instanceof Error ? e.message : "Could not save.";
+      setError(message);
+      /* A conflict is not a failed save, it is a refused one, and the editor
+         has to decide what to do — so it gets a toast rather than only a line
+         in the bar they may have scrolled past. */
+      if (e instanceof ConflictError) {
+        notify("Not saved", message, "danger");
+      }
     }
   }
 

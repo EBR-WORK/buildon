@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/media-manifest.mjs && next build",
+    "build": "node scripts/db-pull.mjs --soft && node scripts/media-manifest.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "media": "node scripts/media-manifest.mjs",
     "db:check": "node scripts/db-check.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
-    "db:push": "node scripts/db-push.mjs"
+    "db:push": "node scripts/db-push.mjs",
+    "db:admin": "node scripts/db-admin.mjs",
+    "db:pull": "node scripts/db-pull.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
