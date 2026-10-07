@@ -6,11 +6,14 @@ import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { projectsPage, site } from "@/lib/content";
-import { projectHref } from "@/lib/projectDetails";
+/* The cards come from the published file, so a project added in the admin
+   panel appears here after the next pull. The banner stays in content.ts:
+   it is page furniture, not content an editor changes. */
+import { publishedProjectHref, publishedProjects } from "@/lib/cms/published";
 
 // Built from the page's own banner copy plus the development names, now that
 // there is no standing intro paragraph to lift.
-const description = `${projectsPage.banner.headingLines.join(" ")} ${projectsPage.items.length} developments including ${projectsPage.items
+const description = `${projectsPage.banner.headingLines.join(" ")} ${publishedProjects.items.length} developments including ${publishedProjects.items
   .slice(0, 4)
   .map((project) => project.name)
   .join(", ")}.`;
@@ -46,14 +49,14 @@ export default function ProjectsPage() {
         <section className="section-y">
           <div className="container-page">
             <ul className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-              {projectsPage.items.map((project, i) => {
+              {publishedProjects.items.map((project, i) => {
                 /* content.ts leaves every href empty; a project links out once
                    its page is transcribed in projectDetails.ts. Where it has
                    one the whole card is the link, as the product cards are —
                    one target per project, and one link named after it rather
                    than twenty-odd identical "Read More"s. The rest stay plain
                    cards with an inert label. */
-                const href = project.href || projectHref(project.name);
+                const href = publishedProjectHref(project.name);
 
                 const body = (
                   <>
@@ -77,7 +80,7 @@ export default function ProjectsPage() {
                           gets this by truncating server-side, which is why its
                           excerpts stop mid-sentence. */}
                       <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500 line-clamp-5">
-                        {project.body}
+                        {project.cardBody}
                       </p>
                       {/* Display only where the card itself is the link, so it
                           adds no second tab stop and screen readers hear the
@@ -86,7 +89,7 @@ export default function ProjectsPage() {
                         aria-hidden
                         className="mt-4 inline-flex items-center self-start text-sm font-semibold text-brand-500 transition group-hover:text-brand-600 sm:mt-5"
                       >
-                        {projectsPage.readMore}
+                        {publishedProjects.readMore}
                       </span>
                     </div>
                   </>

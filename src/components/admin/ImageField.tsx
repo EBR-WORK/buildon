@@ -4,7 +4,10 @@ import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
 import { mediaLibrary } from "@/lib/cms/media";
 import { ImagesIcon, PlusIcon } from "@/components/icons";
+import { canUpload, replaceUpload, uploadImage } from "@/lib/cms/storage";
+import { TARGET_BYTES as IMAGE_TARGET } from "@/lib/cms/image";
 import {
+  describeSaving,
   downloadImage,
   formatBytes,
   MAX_STORED_BYTES,
@@ -44,6 +47,12 @@ export default function ImageField({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [uploaded, setUploaded] = useState<PreparedImage | null>(null);
+  /* What the last upload did to the file, shown once and cleared on the
+     next change — an editor should see 9 MB become 280 KB. */
+  const [saving, setSaving] = useState("");
+  /* Chosen but not yet sent, because it is big enough that the editor should
+     see what will happen to it first. */
+  const [oversized, setOversized] = useState<File | null>(null);
 
   const choices = useMemo(() => {
     const scoped = folder
@@ -54,14 +63,53 @@ export default function ImageField({
   }, [folder, filter]);
 
   const isUpload = value.startsWith("data:");
-  const missing = Boolean(value) && !isUpload && !value.startsWith("http") && !mediaLibrary.includes(value);
+  /* An uploaded file is an absolute URL and lives in the bucket, not in the
+   manifest, so only a local path that the manifest does not know is missing. */
+  const missing =
+    Boolean(value) && !isUpload && !value.startsWith("http") && !mediaLibrary.includes(value);
 
-  async function handleFile(file: File | undefined) {
+  /**
+   * Convert, then send it somewhere real.
+   *
+   * With storage connected the file goes to the bucket and what is stored is
+   * its URL. Without it, the old behaviour stands: the image is held in the
+   * draft as a data URL and offered back as a file to commit into public/ —
+   * which is the only thing that works with no server and no bucket.
+   */
+  async function handleFile(file: File | undefined, confirmed = false) {
     if (!file) return;
+
+    /* Over the budget is over the budget. An editor asked to be told whether
+       the file they picked is usable, so the line is the budget itself rather
+       than a multiple of it that quietly lets middling files through. */
+    if (!confirmed && canUpload() && file.size > IMAGE_TARGET) {
+      setOversized(file);
+      setError("");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+
     setBusy(true);
     setError("");
 
     try {
+      if (canUpload()) {
+        const previous = value;
+        const result = await uploadImage(file, folder ?? "uploads");
+        setUploaded(null);
+        setOversized(null);
+        setSaving(
+          result.prepared.originalBytes <= IMAGE_TARGET
+            ? `Uploaded ${formatBytes(result.prepared.bytes)} - already a good size`
+            : describeSaving(result.prepared),
+        );
+        onChange(result.url);
+        /* Only once the new file is stored: a failure above leaves the old
+           image in place rather than the field pointing at nothing. */
+        await replaceUpload(previous, result.url);
+        return;
+      }
+
       const prepared = await prepareImage(file);
 
       if (prepared.bytes > MAX_STORED_BYTES) {
@@ -72,6 +120,7 @@ export default function ImageField({
       }
 
       setUploaded(prepared);
+      setSaving(describeSaving(prepared));
       onChange(prepared.dataUrl);
     } catch (e) {
       setError(e instanceof Error ? e.message : "That image could not be read.");
@@ -135,9 +184,13 @@ export default function ImageField({
                 <button
                   type="button"
                   onClick={() => {
+                    const previous = value;
                     onChange("");
                     setUploaded(null);
                     setError("");
+                    setSaving("");
+                    setOversized(null);
+                    void replaceUpload(previous, "");
                   }}
                   className="cursor-pointer px-2 text-sm font-semibold text-ink-500 transition hover:text-signal-500"
                 >
@@ -151,6 +204,43 @@ export default function ImageField({
             </p>
 
             {error && <p className="mt-1.5 text-sm text-signal-500">{error}</p>}
+
+            {/* Big enough to be worth a word before it is sent. The numbers
+                come first: "9.4 MB, and a page shows nine of these" is the
+                reason, and the button is only the answer to it. */}
+            {oversized && !busy && (
+              <div className="mt-3 rounded-xl border border-signal-200 bg-signal-50 p-4">
+                <p className="text-sm font-semibold text-ink-900">
+                  {formatBytes(oversized.size)} is too large for the site.
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-ink-500">
+                  Pages here show up to nine images at once, so each one needs to be
+                  about {formatBytes(IMAGE_TARGET)}. Compressing resizes it to 1600px
+                  and converts it to webp in the browser; only the smaller file is
+                  uploaded, and the original is never stored.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void handleFile(oversized, true)}
+                    className="cursor-pointer rounded-full bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600"
+                  >
+                    Compress and upload
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOversized(null)}
+                    className="cursor-pointer rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-ink-900 transition hover:border-brand-200"
+                  >
+                    Choose a different file
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {saving && !error && (
+              <p className="mt-1.5 text-sm font-medium text-brand-600">Compressed: {saving}</p>
+            )}
 
             {missing && (
               <p className="mt-1.5 text-sm text-signal-500">

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { PencilIcon, TrashIcon } from "@/components/icons";
+import { CheckIcon, PencilIcon, TrashIcon } from "@/components/icons";
 
 /**
  * One collapsible row in a list of entries — a product, a project, an opening,
@@ -26,6 +26,8 @@ export default function EntryRow({
   onToggle,
   onDelete,
   deleteLabel,
+  live,
+  onToggleLive,
   children,
 }: {
   title: string;
@@ -39,8 +41,12 @@ export default function EntryRow({
   onDelete: () => void;
   /** Spoken label — "Delete opening". The icon carries no text. */
   deleteLabel: string;
+  /** Whether this entry reaches the site. Omit where nothing can be drafted. */
+  live?: boolean;
+  onToggleLive?: () => void;
   children: ReactNode;
 }) {
+  const draft = live === false;
   return (
     <li className="overflow-hidden rounded-2xl border border-line">
       <div
@@ -63,12 +69,41 @@ export default function EntryRow({
               <span className="block truncate text-sm text-ink-500">
                 {subtitle}
                 {badge}
+                {draft && (
+                  <span className="ml-2 rounded-full bg-surface px-2 py-0.5 text-xs font-semibold text-ink-500">
+                    Draft
+                  </span>
+                )}
               </span>
             )}
           </span>
         </button>
 
         <div className="flex shrink-0 items-center gap-1">
+          {/* Reads as a state, not a command: it says what the entry IS, and
+              clicking changes it. A button labelled "Publish" next to one
+              already live is the commonest way to make this confusing. */}
+          {onToggleLive && (
+            <button
+              type="button"
+              onClick={onToggleLive}
+              aria-pressed={!draft}
+              title={
+                draft
+                  ? "Draft — not on the site. Click to publish."
+                  : "Live on the site. Click to make it a draft."
+              }
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                draft
+                  ? "border-line text-ink-500 hover:border-brand-200 hover:text-brand-500"
+                  : "border-brand-200 bg-brand-50 text-brand-600 hover:bg-brand-100"
+              }`}
+            >
+              {!draft && <CheckIcon className="size-3.5" />}
+              {draft ? "Draft" : "Live"}
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onToggle}

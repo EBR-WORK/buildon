@@ -17,6 +17,7 @@ import EntryRow from "./EntryRow";
 import { Field, TextAreaField, TextField } from "./Fields";
 import ImageField from "./ImageField";
 import SaveBar, { type Status } from "./SaveBar";
+import { describeProblems, validatePosts } from "@/lib/cms/validate";
 import { useToast } from "./Toast";
 
 /**
@@ -68,6 +69,17 @@ export default function BlogEditor() {
 
   async function save() {
     if (!content) return;
+
+    /* Checked here too, not only in the disabled button: a stale render or
+       a keyboard submit must not get past it. */
+    const blocking = validatePosts(content);
+    if (blocking.length > 0) {
+      setStatus("error");
+      setError(describeProblems(blocking));
+      notify("Not saved", describeProblems(blocking), "danger");
+      return;
+    }
+
     setStatus("saving");
     try {
       await repository.save(content);
@@ -119,6 +131,9 @@ export default function BlogEditor() {
     edit((d) =>
       void d.blog.items.unshift({
         id,
+        /* New work starts as a draft: incomplete entries should not reach
+           the site by being forgotten. */
+        live: false,
         slug: "new-post-" + Date.now().toString(36),
         title: "",
         description: "",
@@ -173,6 +188,10 @@ export default function BlogEditor() {
         post.slug.toLowerCase().includes(needle),
     );
   }, [content, query]);
+
+  /* Recomputed on every render rather than on save: an editor should see
+     a problem while they can still fix it, not after pressing Save. */
+  const problems = content ? validatePosts(content) : [];
 
   if (!content) {
     return (
@@ -252,11 +271,16 @@ export default function BlogEditor() {
                     }
                     isOpen={open === post.id}
                     onToggle={() => setOpen(open === post.id ? null : post.id)}
+                    live={post.live}
+                    onToggleLive={() =>
+                      edit((d) => void (d.blog.items[index].live = !d.blog.items[index].live))
+                    }
                     onDelete={() => void removePost(post.slug, post.title)}
                     deleteLabel={`Delete ${post.title || "this post"}`}
                   >
                     <TextField
                       label="Title"
+                      required
                       value={post.title}
                       onChange={(next) =>
                         edit((d) => {
@@ -363,6 +387,7 @@ export default function BlogEditor() {
         status={status}
         dirty={dirty}
         error={error}
+        problems={problems}
         onSave={save}
         onReset={reset}
         onExport={exportJson}

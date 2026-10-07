@@ -7,6 +7,7 @@ import { ChevronDownIcon, PlusIcon, TrashIcon } from "@/components/icons";
 import EntryRow from "./EntryRow";
 import { RepeatableList, TextAreaField, TextField } from "./Fields";
 import SaveBar, { type Status } from "./SaveBar";
+import { describeProblems, validateFaq } from "@/lib/cms/validate";
 import { useToast } from "./Toast";
 
 /**
@@ -57,6 +58,17 @@ export default function FaqEditor() {
 
   async function save() {
     if (!content) return;
+
+    /* Checked here too, not only in the disabled button: a stale render or
+       a keyboard submit must not get past it. */
+    const blocking = validateFaq(content);
+    if (blocking.length > 0) {
+      setStatus("error");
+      setError(describeProblems(blocking));
+      notify("Not saved", describeProblems(blocking), "danger");
+      return;
+    }
+
     setStatus("saving");
     try {
       await repository.save(content);
@@ -104,7 +116,7 @@ export default function FaqEditor() {
 
   function addGroup() {
     const id = newId();
-    edit((d) => void d.faq.groups.push({ id, title: "", items: [] }));
+    edit((d) => void d.faq.groups.push({ id, live: false, title: "", items: [] }));
     setOpen(id);
   }
 
@@ -140,6 +152,10 @@ export default function FaqEditor() {
     );
     notify("Deleted", "The question is gone from the draft.");
   }
+
+  /* Recomputed on every render rather than on save: an editor should see
+     a problem while they can still fix it, not after pressing Save. */
+  const problems = content ? validateFaq(content) : [];
 
   if (!content) {
     return (
@@ -179,6 +195,7 @@ export default function FaqEditor() {
           <div className="mb-6">
             <TextField
               label="Page heading"
+              required
               value={faq.title}
               onChange={(next) => edit((d) => void (d.faq.title = next))}
             />
@@ -192,11 +209,16 @@ export default function FaqEditor() {
                 subtitle={`${group.items.length} ${group.items.length === 1 ? "question" : "questions"}`}
                 isOpen={open === group.id}
                 onToggle={() => setOpen(open === group.id ? null : group.id)}
+                live={group.live}
+                onToggleLive={() =>
+                  edit((d) => void (d.faq.groups[groupIndex].live = !d.faq.groups[groupIndex].live))
+                }
                 onDelete={() => void removeGroup(group.id, group.title, group.items.length)}
                 deleteLabel={`Delete the ${group.title || "untitled"} section`}
               >
                 <TextField
                   label="Section heading"
+                  required
                   value={group.title}
                   onChange={(next) => edit((d) => void (d.faq.groups[groupIndex].title = next))}
                 />
@@ -269,6 +291,7 @@ export default function FaqEditor() {
                           <div className="space-y-4">
                             <TextField
                               label="Question"
+                              required
                               value={item.question}
                               onChange={(next) =>
                                 edit(
@@ -280,6 +303,7 @@ export default function FaqEditor() {
                             />
                             <TextAreaField
                               label="Answer"
+                              required
                               hint="Shown as a paragraph, and used for the page's structured data."
                               rows={4}
                               value={item.answer}
@@ -343,6 +367,7 @@ export default function FaqEditor() {
                       edit((d) =>
                         void d.faq.groups[groupIndex].items.push({
                           id: newId(),
+                          live: false,
                           question: "",
                           answer: "",
                         }),
@@ -373,6 +398,7 @@ export default function FaqEditor() {
         status={status}
         dirty={dirty}
         error={error}
+        problems={problems}
         onSave={save}
         onReset={reset}
         onExport={exportJson}

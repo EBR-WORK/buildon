@@ -18,6 +18,7 @@ import { describeUsage, projectUsage } from "@/lib/cms/usage";
 import RichTextField from "./RichTextField";
 import EntryRow from "./EntryRow";
 import SaveBar, { type Status } from "./SaveBar";
+import { describeProblems, validateProjects } from "@/lib/cms/validate";
 import { useToast } from "./Toast";
 
 /**
@@ -67,6 +68,17 @@ export default function ProjectsEditor() {
 
   async function save() {
     if (!content) return;
+
+    /* Checked here too, not only in the disabled button: a stale render or
+       a keyboard submit must not get past it. */
+    const blocking = validateProjects(content);
+    if (blocking.length > 0) {
+      setStatus("error");
+      setError(describeProblems(blocking));
+      notify("Not saved", describeProblems(blocking), "danger");
+      return;
+    }
+
     setStatus("saving");
     try {
       await repository.save(content);
@@ -118,6 +130,9 @@ export default function ProjectsEditor() {
     edit((d) =>
       void d.projects.items.push({
         id,
+        /* New work starts as a draft: incomplete entries should not reach
+           the site by being forgotten. */
+        live: false,
         slug,
         name: "",
         title: "",
@@ -150,6 +165,10 @@ export default function ProjectsEditor() {
     setOpen(null);
     notify("Deleted", `“${name || slug}” is gone from the draft.`);
   }
+
+  /* Recomputed on every render rather than on save: an editor should see
+     a problem while they can still fix it, not after pressing Save. */
+  const problems = content ? validateProjects(content) : [];
 
   if (!content) {
     return (
@@ -223,11 +242,16 @@ export default function ProjectsEditor() {
                   }
                   isOpen={isOpen}
                   onToggle={() => setOpen(isOpen ? null : project.id)}
+                  live={project.live}
+                  onToggleLive={() =>
+                    edit((d) => void (d.projects.items[i].live = !d.projects.items[i].live))
+                  }
                   onDelete={() => void removeProject(project.slug, project.name)}
                   deleteLabel={`Delete ${project.name || "this project"}`}
                 >
                   <TextField
                         label="Name"
+                        required
                         hint="As the card shows it — this is also how the page is found."
                         value={project.name}
                         onChange={(next) =>
@@ -268,6 +292,7 @@ export default function ProjectsEditor() {
 
                       <TextField
                         label="Page heading"
+                        required
                         hint="The heading on the project's own page. Often the same as the name, but the site writes some with a hyphen where the card uses a dash."
                         value={project.title}
                         onChange={(next) => edit((d) => void (d.projects.items[i].title = next))}
@@ -275,6 +300,7 @@ export default function ProjectsEditor() {
 
                       <TextAreaField
                         label="Card summary"
+                        required
                         hint="The excerpt under the name on the projects grid."
                         rows={3}
                         value={project.cardBody}
@@ -323,6 +349,7 @@ export default function ProjectsEditor() {
         status={status}
         dirty={dirty}
         error={error}
+        problems={problems}
         onSave={save}
         onReset={reset}
         onExport={exportJson}

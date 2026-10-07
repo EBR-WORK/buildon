@@ -8,9 +8,14 @@ import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { projectsPage, site } from "@/lib/content";
+import {
+  getPublishedProject,
+  publishedProjects,
+  runsToText,
+} from "@/lib/cms/published";
+import { RichRuns } from "@/components/RichText";
 import CtaLink from "@/components/CtaLink";
 import {
-  getProjectDetail,
   projectDetails,
   projectHref,
   projectPostsWidget,
@@ -31,8 +36,39 @@ import {
  * ahead of it.
  */
 
+/**
+ * One project, however it was authored.
+ *
+ * A project created in the admin panel has no entry in projectDetails.ts and
+ * never will, so the page cannot be built from that module alone — doing so
+ * generated a route and then answered it with a 404.
+ *
+ * The published file is therefore the source for everything it holds, and the
+ * shipped module supplies only what it does not: the natural dimensions of the
+ * older photographs, several of which are 300px originals that go soft if the
+ * layout stretches them to fill its box.
+ */
+function resolveProject(slug: string) {
+  const published = getPublishedProject(slug);
+  if (!published) return null;
+
+  const shipped = projectDetails.find((entry) => entry.slug === slug);
+
+  return {
+    slug,
+    name: published.name,
+    title: published.title,
+    image: published.image || shipped?.image || "",
+    imageWidth: shipped?.imageWidth,
+    imageHeight: shipped?.imageHeight,
+    paragraphs: published.paragraphs,
+  };
+}
+
 export function generateStaticParams() {
-  return projectDetails.map((project) => ({ slug: project.slug }));
+  return publishedProjects.items
+    .filter((project) => project.hasPage)
+    .map((project) => ({ slug: project.slug }));
 }
 
 export async function generateMetadata({
@@ -41,10 +77,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectDetail(slug);
+  const project = resolveProject(slug);
   if (!project) return {};
 
-  const description = project.paragraphs[0].slice(0, 155);
+  /* Flattened to plain text: a description is not markup, and a <strong> in it
+     would be shown literally by a search engine. */
+  const description = runsToText(project.paragraphs[0] ?? []).slice(0, 155);
   return {
     title: project.name,
     description,
@@ -70,7 +108,7 @@ export async function generateMetadata({
  * remaining projects are added.
  */
 function otherProjects(name: string) {
-  const items = projectsPage.items;
+  const items = publishedProjects.items;
   const index = Math.max(
     0,
     items.findIndex((project) => project.name === name),
@@ -80,7 +118,7 @@ function otherProjects(name: string) {
      the same three. */
   const rotated = items.map((_, step) => items[(index + step + 1) % items.length]);
 
-  const picked = rotated.filter((project) => projectHref(project.name));
+  const picked = rotated.filter((project) => project.hasPage);
   for (const project of rotated) {
     if (picked.length >= 3) break;
     if (!picked.includes(project)) picked.push(project);
@@ -95,7 +133,7 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = getProjectDetail(slug);
+  const project = resolveProject(slug);
   if (!project) notFound();
 
   const related = otherProjects(project.name);
@@ -198,8 +236,10 @@ export default async function ProjectPage({
 
                 <Reveal delay={0.12}>
                   <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-ink-500 sm:text-base">
-                    {project.paragraphs.map((paragraph) => (
-                      <p key={paragraph}>{paragraph}</p>
+                    {project.paragraphs.map((runs, index) => (
+                      <p key={index}>
+                        <RichRuns runs={runs} />
+                      </p>
                     ))}
                   </div>
                 </Reveal>
@@ -241,7 +281,7 @@ export default async function ProjectPage({
                         {item.name}
                       </h3>
                       <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500 line-clamp-4">
-                        {item.body}
+                        {item.cardBody}
                       </p>
                       {/* Display only: the card itself is the link, so this is
                           the reference's affordance without a second tab stop

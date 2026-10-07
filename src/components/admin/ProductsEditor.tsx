@@ -17,6 +17,7 @@ import { describeUsage, productUsage } from "@/lib/cms/usage";
 import RichTextField from "./RichTextField";
 import EntryRow from "./EntryRow";
 import SaveBar, { type Status } from "./SaveBar";
+import { describeProblems, validateProducts } from "@/lib/cms/validate";
 import { useToast } from "./Toast";
 
 /**
@@ -71,6 +72,17 @@ export default function ProductsEditor() {
 
   async function save() {
     if (!content) return;
+
+    /* Checked here too, not only in the disabled button: a stale render or
+       a keyboard submit must not get past it. */
+    const blocking = validateProducts(content);
+    if (blocking.length > 0) {
+      setStatus("error");
+      setError(describeProblems(blocking));
+      notify("Not saved", describeProblems(blocking), "danger");
+      return;
+    }
+
     setStatus("saving");
     try {
       await repository.save(content);
@@ -116,7 +128,17 @@ export default function ProductsEditor() {
     /* A placeholder address until the name supplies one. */
     const slug = "new-product-" + Date.now().toString(36);
     edit((d) =>
-      void d.products.items.push({ id, slug, name: "", cardBody: "", image: "", intro: [] }),
+      void d.products.items.push({
+        id,
+        /* New work starts as a draft: incomplete entries should not reach
+           the site by being forgotten. */
+        live: false,
+        slug,
+        name: "",
+        cardBody: "",
+        image: "",
+        intro: [],
+      }),
     );
     setOpen(id);
   }
@@ -160,6 +182,10 @@ export default function ProductsEditor() {
     URL.revokeObjectURL(url);
   }
 
+  /* Recomputed on every render rather than on save: an editor should see
+     a problem while they can still fix it, not after pressing Save. */
+  const problems = content ? validateProducts(content) : [];
+
   if (!content) {
     return (
       <div className="p-6 sm:p-10">
@@ -196,12 +222,14 @@ export default function ProductsEditor() {
           <div className="space-y-5">
             <TextField
               label="Heading"
+              required
               value={products.heading}
               onChange={(next) => edit((d) => void (d.products.heading = next))}
             />
             <TextAreaField
               label="Intro"
               rows={2}
+              required
               value={products.intro}
               onChange={(next) => edit((d) => void (d.products.intro = next))}
             />
@@ -258,11 +286,16 @@ export default function ProductsEditor() {
                   }
                   isOpen={isOpen}
                   onToggle={() => setOpen(isOpen ? null : product.id)}
+                  live={product.live}
+                  onToggleLive={() =>
+                    edit((d) => void (d.products.items[i].live = !d.products.items[i].live))
+                  }
                   onDelete={() => void removeProduct(product.slug, product.name)}
                   deleteLabel={`Delete ${product.name || "this product"}`}
                 >
                   <TextField
                         label="Name"
+                        required
                         hint="Shown on the card, the page heading and in search."
                         value={product.name}
                         onChange={(next) =>
@@ -306,6 +339,7 @@ export default function ProductsEditor() {
 
                       <TextAreaField
                         label="Card summary"
+                        required
                         hint="The line under the name on the products grid."
                         rows={2}
                         value={product.cardBody}
@@ -364,6 +398,7 @@ export default function ProductsEditor() {
         status={status}
         dirty={dirty}
         error={error}
+        problems={problems}
         onSave={save}
         onReset={reset}
         onExport={exportJson}

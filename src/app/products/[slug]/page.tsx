@@ -8,7 +8,9 @@ import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { contact, productCatalogue, products, site } from "@/lib/content";
+import { contact, products, site } from "@/lib/content";
+import { getPublishedProduct, publishedProducts, runsToText } from "@/lib/cms/published";
+import { RichRuns } from "@/components/RichText";
 import {
   getProductDetail,
   productDetails,
@@ -30,8 +32,22 @@ import {
  * process, more products.
  */
 
+/**
+ * Routes come from the published file, not productDetails.ts.
+ *
+ * A product set back to draft has to stop having a page, and a page built from
+ * the shipped module would outlive the card that linked to it — a URL still
+ * answering after the editor took it down.
+ *
+ * The intersection matters: a product needs a published row to be live AND a
+ * detail entry to have a body, since the specification tables are not editable
+ * yet. A product created in the panel therefore gets a card but no page until
+ * its sections are written here.
+ */
 export function generateStaticParams() {
-  return productDetails.map((product) => ({ slug: product.slug }));
+  return productDetails
+    .filter((product) => getPublishedProduct(product.slug))
+    .map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({
@@ -43,7 +59,13 @@ export async function generateMetadata({
   const product = getProductDetail(slug);
   if (!product) return {};
 
-  const description = product.intro.slice(0, 155);
+  /* The published intro where the panel has one, the shipped prose otherwise.
+     Runs are flattened: a description is plain text, and a <strong> in it would
+     be shown as markup by a search engine. */
+  const published = getPublishedProduct(slug);
+  const introText =
+    published && published.intro.length > 0 ? runsToText(published.intro) : product.intro;
+  const description = introText.slice(0, 155);
   return {
     title: product.name,
     description,
@@ -67,12 +89,13 @@ export async function generateMetadata({
  */
 function otherProducts(slug: string, related: readonly string[]) {
   const picked = related
-    .map((other) => productCatalogue.find((product) => product.slug === other))
+    .map((other) => publishedProducts.items.find((product) => product.slug === other))
     .filter((product) => product !== undefined);
 
-  const index = productCatalogue.findIndex((product) => product.slug === slug);
+  const index = publishedProducts.items.findIndex((product) => product.slug === slug);
   for (let step = 1; picked.length < 3; step += 1) {
-    const candidate = productCatalogue[(index + step) % productCatalogue.length];
+    const candidate =
+      publishedProducts.items[(index + step) % publishedProducts.items.length];
     if (candidate.slug !== slug && !picked.includes(candidate)) picked.push(candidate);
   }
 
@@ -365,7 +388,15 @@ export default async function ProductDetailPage({
 }) {
   const { slug } = await params;
   const product = getProductDetail(slug);
-  if (!product) notFound();
+  /* Drafted products are absent from the published file, so this covers both
+     "no such product" and "not live yet". */
+  if (!product || !getPublishedProduct(slug)) notFound();
+
+  /* The opening paragraph is the one part of this page the panel can edit; the
+     specification tables and application steps below still come from
+     productDetails.ts. Empty means nothing was written, not that it was
+     cleared, so the shipped paragraph stands. */
+  const publishedIntro = getPublishedProduct(slug)?.intro ?? [];
 
   const related = otherProducts(product.slug, product.related);
   // The reference puts the specification table before the application process
@@ -485,7 +516,16 @@ export default async function ProductDetailPage({
 
               <Reveal delay={0.08}>
                 <h2 className="sr-only">{product.name}</h2>
-                <p className="text-base leading-relaxed text-ink-500">{product.intro}</p>
+                {/* Rendered from runs so bold and links written in the panel
+                    survive. With no runs stored it falls back to the shipped
+                    paragraph, which is plain text and renders identically. */}
+                <p className="text-base leading-relaxed text-ink-500">
+                  {publishedIntro.length > 0 ? (
+                    <RichRuns runs={publishedIntro} />
+                  ) : (
+                    product.intro
+                  )}
+                </p>
 
                 {product.approvals.length > 0 && (
                   /* Four products show three landscape marks, the other five a
@@ -752,7 +792,7 @@ export default async function ProductDetailPage({
                         {item.name}
                       </h3>
                       <p className="mt-2.5 flex-1 text-[15px] leading-relaxed text-ink-500">
-                        {item.body}
+                        {item.cardBody}
                       </p>
                       {/* Display only: the card itself is the link, so this is
                           the reference's affordance without a second tab stop

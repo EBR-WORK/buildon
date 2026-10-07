@@ -22,6 +22,34 @@ const nextConfig: NextConfig = {
      * layout behaviour of next/image all still work.
      */
     unoptimized: true,
+
+    /**
+     * Images uploaded through the admin panel live in Supabase Storage, so
+     * next/image sees an absolute URL rather than a path in public/. It
+     * validates the host even with the optimizer off, and refuses anything not
+     * listed here — so without this an uploaded photograph throws instead of
+     * rendering.
+     *
+     * The host is read from the same variable the client uses, so a different
+     * Supabase project needs no change here.
+     */
+    remotePatterns: (() => {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!url) return [];
+      try {
+        return [
+          {
+            protocol: "https" as const,
+            hostname: new URL(url).hostname,
+            pathname: "/storage/v1/object/public/**",
+          },
+        ];
+      } catch {
+        /* A malformed URL is a configuration problem, not a reason to fail the
+           build: uploads simply will not render until it is fixed. */
+        return [];
+      }
+    })(),
   },
 
   /**

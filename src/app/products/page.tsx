@@ -5,17 +5,20 @@ import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { productCatalogue, products, productsPage, site } from "@/lib/content";
+import { products, productsPage, site } from "@/lib/content";
+/* The grid and its heading come from the published file, so an edit in the
+   admin panel reaches this page after the next pull. */
+import { publishedProducts } from "@/lib/cms/published";
 
 export const metadata: Metadata = {
   title: productsPage.title,
-  description: `${productsPage.heading} ${productsPage.intro}`,
+  description: `${publishedProducts.heading} ${publishedProducts.intro}`,
   alternates: { canonical: "/products" },
   openGraph: {
     type: "website",
     url: `${site.url}/products/`,
     title: `${productsPage.title} | ${site.name}`,
-    description: productsPage.heading,
+    description: publishedProducts.heading,
   },
 };
 
@@ -36,14 +39,14 @@ export default function ProductsPage() {
           <div className="container-page">
             <Reveal>
               <SectionHeading
-                title={productsPage.heading}
-                intro={productsPage.intro}
+                title={publishedProducts.heading}
+                intro={publishedProducts.intro}
                 align="center"
               />
             </Reveal>
 
             <ul className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:mt-14 lg:grid-cols-3">
-              {productCatalogue.map((product, i) => (
+              {publishedProducts.items.map((product, i) => (
                 <Reveal
                   as="li"
                   key={product.name}
@@ -73,7 +76,7 @@ export default function ProductsPage() {
                         {product.name}
                       </h2>
                       <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-500 sm:mt-2.5">
-                        {product.body}
+                        {product.cardBody}
                       </p>
                       {/* Display only: the card itself is the link, so this is
                           the reference's affordance without a second tab stop

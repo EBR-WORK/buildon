@@ -2,7 +2,7 @@
 
 import { useId, type ReactNode } from "react";
 import { internalRoutes } from "@/lib/cms/schema";
-import { ChevronDownIcon, PlusIcon, TrashIcon } from "@/components/icons";
+import { CheckIcon, ChevronDownIcon, PlusIcon, TrashIcon } from "@/components/icons";
 import { useToast } from "./Toast";
 
 /**
@@ -20,17 +20,34 @@ const FIELD =
 export function Field({
   label,
   hint,
+  required,
+  error,
   children,
 }: {
   label: string;
   hint?: string;
+  /** Marks the label. The save bar is what actually refuses the save. */
+  required?: boolean;
+  /** Shown in place of the hint, so a problem is never pushed off screen. */
+  error?: string;
   children: ReactNode;
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-semibold text-ink-900">{label}</span>
+      <span className="mb-1.5 block text-sm font-semibold text-ink-900">
+        {label}
+        {required && (
+          /* A word, not an asterisk: an asterisk needs a legend somewhere, and
+             a form with one legend and thirty asterisks explains nothing. */
+          <span className="ml-2 text-xs font-medium text-ink-400">required</span>
+        )}
+      </span>
       {children}
-      {hint && <span className="mt-1.5 block text-sm text-ink-500">{hint}</span>}
+      {error ? (
+        <span className="mt-1.5 block text-sm font-medium text-signal-500">{error}</span>
+      ) : (
+        hint && <span className="mt-1.5 block text-sm text-ink-500">{hint}</span>
+      )}
     </label>
   );
 }
@@ -42,6 +59,7 @@ export function TextField({
   onChange,
   placeholder,
   maxLength,
+  required,
 }: {
   label: string;
   hint?: string;
@@ -49,9 +67,15 @@ export function TextField({
   onChange: (next: string) => void;
   placeholder?: string;
   maxLength?: number;
+  required?: boolean;
 }) {
+  /* Only once something has been typed and then cleared, or on a field that
+     arrived empty — either way the message appears where the field is, not
+     only in the bar at the bottom of a long form. */
+  const error = required && !value.trim() ? "This cannot be empty." : undefined;
+
   return (
-    <Field label={label} hint={hint}>
+    <Field label={label} hint={hint} required={required} error={error}>
       <input
         type="text"
         value={value}
@@ -70,15 +94,19 @@ export function TextAreaField({
   value,
   onChange,
   rows = 3,
+  required,
 }: {
   label: string;
   hint?: string;
   value: string;
   onChange: (next: string) => void;
   rows?: number;
+  required?: boolean;
 }) {
+  const error = required && !value.trim() ? "This cannot be empty." : undefined;
+
   return (
-    <Field label={label} hint={hint}>
+    <Field label={label} hint={hint} required={required} error={error}>
       <textarea
         value={value}
         rows={rows}
@@ -172,6 +200,8 @@ export function RepeatableList<T>({
   min = 1,
   max,
   addLabel = "Add",
+  liveOf,
+  onToggleLive,
 }: {
   label: string;
   hint?: string;
@@ -183,8 +213,13 @@ export function RepeatableList<T>({
   min?: number;
   max?: number;
   addLabel?: string;
+  /** Supply both to give each row a draft toggle. Omit where nothing drafts. */
+  liveOf?: (item: T) => boolean;
+  onToggleLive?: (index: number) => void;
 }) {
   const { confirm } = useToast();
+
+  const atMax = max !== undefined && items.length >= max;
 
   /* Even a one-line entry is confirmed. The control sits next to Move up and
      Move down, which are harmless, and a misfire there is otherwise silent. */
@@ -224,6 +259,29 @@ export function RepeatableList<T>({
               </span>
 
               <div className="flex items-center gap-1">
+                {/* Same control as a list row's, in miniature: it names the
+                    state and clicking changes it. */}
+                {liveOf && onToggleLive && (
+                  <button
+                    type="button"
+                    onClick={() => onToggleLive(i)}
+                    aria-pressed={liveOf(item)}
+                    title={
+                      liveOf(item)
+                        ? "Shown on the site. Click to make it a draft."
+                        : "Draft — not shown. Click to publish."
+                    }
+                    className={`mr-1 inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition ${
+                      liveOf(item)
+                        ? "border-brand-200 bg-brand-50 text-brand-600 hover:bg-brand-100"
+                        : "border-line text-ink-500 hover:border-brand-200 hover:text-brand-500"
+                    }`}
+                  >
+                    {liveOf(item) && <CheckIcon className="size-3" />}
+                    {liveOf(item) ? "Live" : "Draft"}
+                  </button>
+                )}
+
                 <IconButton label="Move up" disabled={i === 0} onClick={() => move(i, i - 1)}>
                   <ChevronDownIcon className="size-4 rotate-180" />
                 </IconButton>
@@ -250,15 +308,25 @@ export function RepeatableList<T>({
         ))}
       </ul>
 
-      <button
-        type="button"
-        disabled={max !== undefined && items.length >= max}
-        onClick={() => onChange([...items, blank()])}
-        className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-full border border-line bg-white px-5 py-2.5 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        <PlusIcon className="size-4" />
-        {addLabel}
-      </button>
+      {/* A greyed button with no reason is a dead end, so the limit says itself
+          rather than leaving the editor clicking at nothing. */}
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          disabled={atMax}
+          onClick={() => onChange([...items, blank()])}
+          className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-line bg-white px-5 py-2.5 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <PlusIcon className="size-4" />
+          {addLabel}
+        </button>
+
+        {atMax && (
+          <p className="text-sm text-ink-500">
+            {max} is the most this section shows.
+          </p>
+        )}
+      </div>
     </section>
   );
 }

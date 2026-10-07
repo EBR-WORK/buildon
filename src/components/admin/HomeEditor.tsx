@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ConflictError, repository } from "@/lib/cms/repository";
-import { cloneDefaults, type SiteContent } from "@/lib/cms/schema";
+import { cloneDefaults, newId, type SiteContent } from "@/lib/cms/schema";
 import { CtaField, RepeatableList, TextAreaField, TextField } from "./Fields";
 import ImageField from "./ImageField";
 import SaveBar, { type Status } from "./SaveBar";
+import { describeProblems, validateHome } from "@/lib/cms/validate";
 import VideoField from "./VideoField";
 import { useToast } from "./Toast";
 
@@ -56,6 +57,17 @@ export default function HomeEditor() {
 
   async function save() {
     if (!content) return;
+
+    /* Checked here too, not only in the disabled button: a stale render or
+       a keyboard submit must not get past it. */
+    const blocking = validateHome(content);
+    if (blocking.length > 0) {
+      setStatus("error");
+      setError(describeProblems(blocking));
+      notify("Not saved", describeProblems(blocking), "danger");
+      return;
+    }
+
     setStatus("saving");
     try {
       await repository.save(content);
@@ -100,6 +112,10 @@ export default function HomeEditor() {
     URL.revokeObjectURL(url);
   }
 
+  /* Recomputed on every render rather than on save: an editor should see
+     a problem while they can still fix it, not after pressing Save. */
+  const problems = content ? validateHome(content) : [];
+
   if (!content) {
     return (
       <div className="p-6 sm:p-10">
@@ -140,10 +156,12 @@ export default function HomeEditor() {
 
               <RepeatableList
                 label="Headline"
-                hint="One line per row. The second line is shown in light blue. Three lines is the most the layout holds."
+                hint="Two lines. The second is shown in light blue — the split is the design, not a wrap."
                 items={hero.titleLines}
                 min={1}
-                max={3}
+                /* Two, because Hero renders titleLines[0] and [1] and nothing else:
+                   a third line was accepted here and then silently dropped. */
+                max={2}
                 addLabel="Add line"
                 blank={() => ""}
                 onChange={(next) => edit((d) => void (d.home.hero.titleLines = next))}
@@ -193,6 +211,7 @@ export default function HomeEditor() {
             <div className="grid gap-5 sm:grid-cols-2">
               <TextField
                 label="Section heading"
+                required
                 value={testimonials.title}
                 onChange={(next) => edit((d) => void (d.home.testimonials.title = next))}
               />
@@ -231,7 +250,15 @@ export default function HomeEditor() {
               items={testimonials.items}
               min={1}
               addLabel="Add testimonial"
-              blank={() => ({ quote: "", author: "" })}
+              blank={() => ({ id: newId(), live: false, quote: "", author: "" })}
+              liveOf={(item) => item.live !== false}
+              onToggleLive={(index) =>
+                edit(
+                  (d) =>
+                    void (d.home.testimonials.items[index].live =
+                      d.home.testimonials.items[index].live === false),
+                )
+              }
               onChange={(next) => edit((d) => void (d.home.testimonials.items = next))}
               render={(item, update) => (
                 <div className="space-y-4">
@@ -258,6 +285,7 @@ export default function HomeEditor() {
         status={status}
         dirty={dirty}
         error={error}
+        problems={problems}
         onSave={save}
         onReset={reset}
         onExport={exportJson}

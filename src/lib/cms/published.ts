@@ -18,17 +18,38 @@
 
 import blogJson from "@/../content/blog.json";
 import homeJson from "@/../content/home.json";
+import productsJson from "@/../content/products.json";
+import projectsJson from "@/../content/projects.json";
 import careerJson from "@/../content/career.json";
 import faqJson from "@/../content/faq.json";
 import { applicationFields, jobOpenings as fallbackJobs } from "@/lib/careerDetails";
 import { blogPosts as fallbackPosts, type BlogPost } from "@/lib/blogDetails";
-import { careerPage, faqPage, hero, testimonials } from "@/lib/content";
+import { projectDetails } from "@/lib/projectDetails";
+import type { RichRun } from "@/lib/cms/schema";
+import {
+  careerPage,
+  faqPage,
+  hero,
+  productCatalogue,
+  productsPage,
+  projectsPage,
+  testimonials,
+} from "@/lib/content";
 
 const text = (value: unknown, fallback: string) =>
   typeof value === "string" && value.trim() ? value : fallback;
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
+
+/**
+ * Whether a row reaches the site.
+ *
+ * Only an explicit `false` holds it back. A row written before the flag existed
+ * has no `live` key at all, and treating that as a draft would empty the site
+ * the moment this shipped.
+ */
+const isLive = (row: Record<string, unknown>) => row.live !== false;
 
 /* -------------------------------------------------------------------- home */
 
@@ -85,7 +106,7 @@ const testimonialsFile = (
 function readQuotes(value: unknown) {
   if (!Array.isArray(value)) return null;
   const items = value.flatMap((row) => {
-    if (!isObject(row)) return [];
+    if (!isObject(row) || !isLive(row)) return [];
     const quote = typeof row.quote === "string" ? row.quote.trim() : "";
     const author = typeof row.author === "string" ? row.author.trim() : "";
     /* An unattributed quote is the one thing this carousel cannot show: the
@@ -112,6 +133,190 @@ export const publishedTestimonials = {
   })),
 } as const;
 
+/* ---------------------------------------------------------------- products */
+
+export type PublishedProduct = {
+  readonly slug: string;
+  readonly name: string;
+  /** The card's one-line summary on the grid. */
+  readonly cardBody: string;
+  readonly image: string;
+  /** Always /products/<slug>; derived, never stored, so the two cannot drift. */
+  readonly href: string;
+  /** The opening paragraph of the product's own page. */
+  readonly intro: readonly RichRun[];
+};
+
+/**
+ * Runs, kept only where there is something to render.
+ *
+ * Shared by products and the blog: an empty run would render an empty <span>
+ * and, where the text is a link, an empty clickable target.
+ */
+function readRuns(value: unknown): RichRun[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((run) => {
+    if (!isObject(run) || typeof run.text !== "string" || !run.text) return [];
+    return [
+      {
+        text: run.text,
+        ...(run.bold === true ? { bold: true as const } : {}),
+        ...(typeof run.href === "string" && run.href ? { href: run.href } : {}),
+      },
+    ];
+  });
+}
+
+/** Runs as plain text, for a meta description or an alt attribute. */
+export function runsToText(runs: readonly RichRun[]) {
+  return runs.map((run) => run.text).join("");
+}
+
+function readProducts(value: unknown): PublishedProduct[] | null {
+  if (!Array.isArray(value)) return null;
+
+  const items = value.flatMap((row): PublishedProduct[] => {
+    if (!isObject(row)) return [];
+
+    if (!isLive(row)) return [];
+
+    const slug = typeof row.slug === "string" ? row.slug.trim() : "";
+    const name = typeof row.name === "string" ? row.name.trim() : "";
+    /* Without both there is no card to draw and no page to link it to. */
+    if (!slug || !name) return [];
+
+    const image = typeof row.image === "string" ? row.image.trim() : "";
+
+    return [
+      {
+        slug,
+        name,
+        cardBody: text(row.cardBody, ""),
+        /* A data URL here would be an upload that never reached public/: it
+           would 404 once built and carry megabytes into every page that shows
+           the grid. */
+        image: image.startsWith("data:") ? "" : image,
+        href: `/products/${slug}`,
+        intro: readRuns(row.intro),
+      },
+    ];
+  });
+
+  return items.length > 0 ? items : null;
+}
+
+const productsFile = (isObject(productsJson) ? productsJson : {}) as Record<string, unknown>;
+
+export const publishedProducts = {
+  heading: text(productsFile.heading, productsPage.heading),
+  intro: text(productsFile.intro, productsPage.intro),
+  /* The order here is the order of the grid, and of the previous/next links on
+     a product page, so it is the editor's to arrange. */
+  items:
+    readProducts(productsFile.items) ??
+    productCatalogue.map((product) => ({
+      slug: product.slug,
+      name: product.name,
+      cardBody: product.body,
+      image: product.image,
+      href: product.href,
+      intro: [] as readonly RichRun[],
+    })),
+} as const;
+
+export function getPublishedProduct(slug: string) {
+  return publishedProducts.items.find((product) => product.slug === slug);
+}
+
+/* ---------------------------------------------------------------- projects */
+
+export type PublishedProject = {
+  readonly slug: string;
+  /** As the listing card writes it — en dashes and all. */
+  readonly name: string;
+  /** The heading on the project's own page, which often differs from `name`. */
+  readonly title: string;
+  readonly cardBody: string;
+  readonly image: string;
+  /** Body copy, one entry per paragraph. */
+  readonly paragraphs: readonly (readonly RichRun[])[];
+  /**
+   * Whether this project has a page.
+   *
+   * A card only links where there is somewhere to go. The reference lists
+   * developments it never wrote a page for, and a card linking to a 404 is
+   * worse than a card that does not link.
+   */
+  readonly hasPage: boolean;
+};
+
+function readProjects(value: unknown): PublishedProject[] | null {
+  if (!Array.isArray(value)) return null;
+
+  const items = value.flatMap((row): PublishedProject[] => {
+    if (!isObject(row)) return [];
+
+    if (!isLive(row)) return [];
+
+    const name = typeof row.name === "string" ? row.name.trim() : "";
+    const slug = typeof row.slug === "string" ? row.slug.trim() : "";
+    /* The name is the card; without it there is nothing to show. */
+    if (!name) return [];
+
+    const image = typeof row.image === "string" ? row.image.trim() : "";
+    const paragraphs = Array.isArray(row.paragraphs)
+      ? row.paragraphs.map(readRuns).filter((runs) => runs.length > 0)
+      : [];
+
+    return [
+      {
+        slug,
+        name,
+        title: text(row.title, name),
+        cardBody: text(row.cardBody, ""),
+        image: image.startsWith("data:") ? "" : image,
+        paragraphs,
+        /* A page is built for any project with an address and something to say
+           on it — which is also the condition generateStaticParams uses, so a
+           card can never link somewhere that was not built. */
+        hasPage: Boolean(slug) && paragraphs.length > 0,
+      },
+    ];
+  });
+
+  return items.length > 0 ? items : null;
+}
+
+const projectsFile = (isObject(projectsJson) ? projectsJson : {}) as Record<string, unknown>;
+
+export const publishedProjects = {
+  readMore: text(projectsFile.readMore, projectsPage.readMore),
+  items:
+    readProjects(projectsFile.items) ??
+    projectsPage.items.map((item) => {
+      const detail = projectDetails.find((entry) => entry.name === item.name);
+      return {
+        slug: detail?.slug ?? "",
+        name: item.name,
+        title: detail?.title ?? item.name,
+        cardBody: item.body,
+        image: item.image,
+        paragraphs: detail ? detail.paragraphs.map((line) => [{ text: line }]) : [],
+        hasPage: Boolean(detail),
+      };
+    }),
+} as const;
+
+export function getPublishedProject(slug: string) {
+  return publishedProjects.items.find((project) => project.slug === slug && project.hasPage);
+}
+
+/** The card's link, empty while a project has no page. */
+export function publishedProjectHref(name: string) {
+  const project = publishedProjects.items.find((entry) => entry.name === name);
+  return project?.hasPage ? `/projects/${project.slug}` : "";
+}
+
 /* ------------------------------------------------------------------ career */
 
 export type PublishedJob = {
@@ -135,6 +340,8 @@ function readJobs(value: unknown): PublishedJob[] | null {
 
   const jobs = value.flatMap((row): PublishedJob[] => {
     if (!isObject(row)) return [];
+
+    if (!isLive(row)) return [];
 
     const slug = typeof row.slug === "string" ? row.slug.trim() : "";
     const title = typeof row.title === "string" ? row.title.trim() : "";
@@ -208,13 +415,15 @@ function readFaqGroups(value: unknown): PublishedFaqGroup[] | null {
 
   const groups = value.flatMap((row): PublishedFaqGroup[] => {
     if (!isObject(row)) return [];
+    if (!isLive(row)) return [];
+
     const title = typeof row.title === "string" ? row.title.trim() : "";
     if (!title || !Array.isArray(row.items)) return [];
 
     /* A question with no answer is worse than no question: the accordion opens
        on nothing, and the FAQ structured data would carry an empty entry. */
     const items = row.items.flatMap((item) => {
-      if (!isObject(item)) return [];
+      if (!isObject(item) || !isLive(item)) return [];
       const question = typeof item.question === "string" ? item.question.trim() : "";
       const answer = typeof item.answer === "string" ? item.answer.trim() : "";
       if (!question || !answer) return [];
@@ -266,6 +475,8 @@ function readPosts(value: unknown): BlogPost[] | null {
   const posts = value.flatMap((row): BlogPost[] => {
     if (!isObject(row)) return [];
 
+    if (!isLive(row)) return [];
+
     const slug = typeof row.slug === "string" ? row.slug.trim() : "";
     const title = typeof row.title === "string" ? row.title.trim() : "";
     if (!slug || !title) return [];
@@ -287,20 +498,6 @@ function readPosts(value: unknown): BlogPost[] | null {
   });
 
   return posts.length > 0 ? posts : null;
-}
-
-function readRuns(value: unknown) {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((run) => {
-    if (!isObject(run) || typeof run.text !== "string") return [];
-    return [
-      {
-        text: run.text,
-        ...(run.bold === true ? { bold: true as const } : {}),
-        ...(typeof run.href === "string" && run.href ? { href: run.href } : {}),
-      },
-    ];
-  });
 }
 
 function readBlock(value: unknown): BlogPost["body"][number][] {

@@ -23,30 +23,44 @@
     },
     "items": [
       {
+        "id": "testimonial-0",
+        "live": true,
         "quote": "\"Namaste, we have used Buildon Gypsum in 2013 at our house in Kagal, Maharashtra and response till date is superb, and no cracks have appeared on the wall till now, been 10 years we are using this material & flakes have not been seen till now, used on traditional red bricks and we have done sand cement plaster from outer side of walls properly and have experienced no leakages till date. No cracks have been seen\"",
         "author": "Kagal, Kolhapur client of Buildon since 2013"
       },
       {
+        "id": "testimonial-1",
+        "live": true,
         "quote": "This is to certify that \"Buildon Plasters Pvt Ltd'' is our approved vendor for supply of Gypsum Plaster 1 coat in our projects. We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
         "author": "MS Group (Pune)"
       },
       {
+        "id": "testimonial-2",
+        "live": true,
         "quote": "This is to certify that \"Buildon Plasters Pvt Ltd'' is our approved vendor for supply of Gypsum Plaster 1 coat in our projects. We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services.",
         "author": "D R Gavhane | Landmarks LLP (Moshi, Pune)"
       },
       {
+        "id": "testimonial-3",
+        "live": true,
         "quote": "This is to certify that \"Buildon Plasters Pvt Ltd'' is our approved vendor for supply of Gypsum Plaster 1 coat in our projects. We have tested their material and have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services",
         "author": "Contractor Shamim Khan (Bangalore)"
       },
       {
+        "id": "testimonial-4",
+        "live": true,
         "quote": "This is to certify that 'Buildon Plasters pvt ltd is our approved vendor for supply of Buildon P-20 Ready Mix Plaster in our projects. We have tested their material & have got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services",
         "author": "Jayvin Vora Construction company (Chembur, Mumbai)"
       },
       {
+        "id": "testimonial-5",
+        "live": true,
         "quote": "This is to certify that \"Buildon Plasters Pvt Ltd is our approved vendor for supply of Buildon P-20 Ready Mix Plaster in our projects. We have tested their material and got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services",
         "author": "Sudhanshu Infrastructures Pvt Ltd (Bhandup, Mumbai)"
       },
       {
+        "id": "testimonial-6",
+        "live": true,
         "quote": "This is to certify that \"Buildon Plasters Pvt Ltd is our approved vendor for supply of Buildon P-20 Ready Mix Plaster in our projects. We have tested their material and got satisfactory results. We are also satisfied with their performance, supplied material quality and after sales services",
         "author": "Rachcon Infraprojects Pvt Ltd (Malad, Mumbai)"
       }

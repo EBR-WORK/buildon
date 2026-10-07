@@ -57,6 +57,10 @@ export type HeroContent = {
 };
 
 export type TestimonialItem = {
+  /** Stable row identity, so a key does not change while the quote is typed. */
+  readonly id: string;
+  /** Whether this quote reaches the carousel. See `live` on ProductEntry. */
+  live: boolean;
   quote: string;
   author: string;
 };
@@ -71,6 +75,18 @@ export type TestimonialsContent = {
 export type ProductEntry = {
   /** Stable row identity — see newId. Never shown, never changes. */
   readonly id: string;
+  /**
+   * Whether this reaches the site.
+   *
+   * Named `live` rather than `published` because a post already has a
+   * `published` date, and two meanings on one word in the same object is a bug
+   * waiting to be written.
+   *
+   * Absent counts as live, which is what makes the flag safe to add: every row
+   * written before it existed stays on the site. New entries are created as
+   * drafts instead, so half-written work cannot escape by being forgotten.
+   */
+  live: boolean;
   /**
    * The page's URL. Editable only until the product ships — `isShippedProduct`
    * decides, and the editor locks the field for anything already live, since
@@ -95,6 +111,18 @@ export type ProductsContent = {
 export type ProjectEntry = {
   /** Stable row identity — see newId. Never shown, never changes. */
   readonly id: string;
+  /**
+   * Whether this reaches the site.
+   *
+   * Named `live` rather than `published` because a post already has a
+   * `published` date, and two meanings on one word in the same object is a bug
+   * waiting to be written.
+   *
+   * Absent counts as live, which is what makes the flag safe to add: every row
+   * written before it existed stays on the site. New entries are created as
+   * drafts instead, so half-written work cannot escape by being forgotten.
+   */
+  live: boolean;
   /** The detail page's URL. Locked once the project is live. */
   slug: string;
   /** As the listing card writes it — en dashes and all. */
@@ -117,6 +145,18 @@ export type ProjectsContent = {
 export type JobEntry = {
   /** Stable row identity — see newId. Never shown, never changes. */
   readonly id: string;
+  /**
+   * Whether this reaches the site.
+   *
+   * Named `live` rather than `published` because a post already has a
+   * `published` date, and two meanings on one word in the same object is a bug
+   * waiting to be written.
+   *
+   * Absent counts as live, which is what makes the flag safe to add: every row
+   * written before it existed stays on the site. New entries are created as
+   * drafts instead, so half-written work cannot escape by being forgotten.
+   */
+  live: boolean;
   /** The job page's URL. Locked once the opening is live. */
   slug: string;
   title: string;
@@ -174,6 +214,18 @@ export type BlogBlockEntry =
 export type BlogEntry = {
   /** Stable row identity — see newId. Never shown, never changes. */
   readonly id: string;
+  /**
+   * Whether this reaches the site.
+   *
+   * Named `live` rather than `published` because a post already has a
+   * `published` date, and two meanings on one word in the same object is a bug
+   * waiting to be written.
+   *
+   * Absent counts as live, which is what makes the flag safe to add: every row
+   * written before it existed stays on the site. New entries are created as
+   * drafts instead, so half-written work cannot escape by being forgotten.
+   */
+  live: boolean;
   /** The post's URL, at the site root. Locked once the post is live. */
   slug: string;
   title: string;
@@ -195,6 +247,18 @@ export type BlogContent = {
 
 export type FaqItemEntry = {
   readonly id: string;
+  /**
+   * Whether this reaches the site.
+   *
+   * Named `live` rather than `published` because a post already has a
+   * `published` date, and two meanings on one word in the same object is a bug
+   * waiting to be written.
+   *
+   * Absent counts as live, which is what makes the flag safe to add: every row
+   * written before it existed stays on the site. New entries are created as
+   * drafts instead, so half-written work cannot escape by being forgotten.
+   */
+  live: boolean;
   question: string;
   /**
    * Plain text, not rich text. The reference sets no links inside an answer,
@@ -213,6 +277,18 @@ export type FaqItemEntry = {
 
 export type FaqGroupEntry = {
   readonly id: string;
+  /**
+   * Whether this reaches the site.
+   *
+   * Named `live` rather than `published` because a post already has a
+   * `published` date, and two meanings on one word in the same object is a bug
+   * waiting to be written.
+   *
+   * Absent counts as live, which is what makes the flag safe to add: every row
+   * written before it existed stays on the site. New entries are created as
+   * drafts instead, so half-written work cannot escape by being forgotten.
+   */
+  live: boolean;
   /** The accordion's section heading — "Gypsum plaster". */
   title: string;
   items: FaqItemEntry[];
@@ -255,7 +331,11 @@ export const defaults: SiteContent = {
       title: testimonials.title,
       cta: { ...testimonials.cta },
       video: { ...testimonials.video },
-      items: testimonials.items.map((item) => ({
+      items: testimonials.items.map((item, index) => ({
+        /* The index, not newId(): defaults are rebuilt on every load, and a
+           random id would make a reset look like six different quotes. */
+        id: `testimonial-${index}`,
+        live: true,
         quote: item.quote,
         author: item.author,
       })),
@@ -269,6 +349,7 @@ export const defaults: SiteContent = {
        intro, rather than being silently dropped. */
     items: productCatalogue.map((product) => ({
       id: product.slug,
+      live: true,
       slug: product.slug,
       name: product.name,
       cardBody: product.body,
@@ -287,6 +368,7 @@ export const defaults: SiteContent = {
       const detail = projectDetails.find((entry) => entry.name === item.name);
       return {
         id: detail?.slug ?? slugify(item.name),
+        live: true,
         slug: detail?.slug ?? slugify(item.name),
         name: item.name,
         title: detail?.title ?? item.name,
@@ -302,6 +384,7 @@ export const defaults: SiteContent = {
        heading's nested `link` is flattened into two fields. */
     items: blogPosts.map((post) => ({
       id: post.slug,
+      live: true,
       slug: post.slug,
       title: post.title,
       description: post.description,
@@ -345,9 +428,11 @@ export const defaults: SiteContent = {
     title: faqPage.title,
     groups: faqPage.groups.map((group) => ({
       id: slugify(group.title),
+      live: true,
       title: group.title,
       items: group.items.map((item) => ({
         id: newId(),
+        live: true,
         question: item.question,
         answer: item.answer,
         ...("steps" in item && item.steps ? { steps: [...item.steps] } : {}),
@@ -365,6 +450,7 @@ export const defaults: SiteContent = {
       );
       return {
         id: detail?.slug ?? slugify(item.title + "-" + item.location),
+        live: true,
         slug: detail?.slug ?? slugify(item.title + "-" + item.location),
         title: item.title,
         category: detail?.category ?? item.title,

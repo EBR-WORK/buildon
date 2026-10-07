@@ -2,6 +2,7 @@
   "items": [
     {
       "id": "aparna-one-hyderabad",
+      "live": true,
       "name": "Aparna One, Hyderabad",
       "slug": "aparna-one-hyderabad",
       "image": "/projects/mask-group-29.webp",
@@ -27,6 +28,7 @@
     },
     {
       "id": "aparna-zenon-hyderabad",
+      "live": true,
       "name": "Aparna Zenon – Hyderabad",
       "slug": "aparna-zenon-hyderabad",
       "image": "/projects/mask-group-3.webp",
@@ -42,6 +44,7 @@
     },
     {
       "id": "brigade-meadows-plumeria-bangalore",
+      "live": true,
       "name": "Brigade Meadows Plumeria – Bangalore",
       "slug": "brigade-meadows-plumeria-bangalore",
       "image": "/projects/mask-group-9-1.webp",
@@ -62,6 +65,7 @@
     },
     {
       "id": "godrej-the-trees-vikhroli-east-mumbai",
+      "live": true,
       "name": "Godrej The Trees – Vikhroli East, Mumbai",
       "slug": "godrej-the-trees-vikhroli-east-mumbai",
       "image": "/projects/mask-group-8-1.webp",
@@ -92,6 +96,7 @@
     },
     {
       "id": "goel-ganga-dham-pune",
+      "live": true,
       "name": "Goel Ganga Dham – Pune",
       "slug": "goel-ganga-dham-pune",
       "image": "/projects/mask-group-1-1.webp",
@@ -107,6 +112,7 @@
     },
     {
       "id": "godrej-infinity-pune",
+      "live": true,
       "name": "Godrej Infinity – Pune",
       "slug": "godrej-infinity-pune",
       "image": "/projects/godrej-infinity-keshav-nagar-pune-1.webp",
@@ -122,6 +128,7 @@
     },
     {
       "id": "kolte-patil-atria-pune",
+      "live": true,
       "name": "Kolte Patil Atria – Pune",
       "slug": "kolte-patil-atria-pune",
       "image": "/projects/mask-group-4.webp",
@@ -142,6 +149,7 @@
     },
     {
       "id": "kalpataru-hills-thane",
+      "live": true,
       "name": "Kalpataru Hills – Thane",
       "slug": "kalpataru-hills-thane",
       "image": "/projects/mask-group-7-1.webp",
@@ -167,6 +175,7 @@
     },
     {
       "id": "lodha-palava",
+      "live": true,
       "name": "Lodha Palava",
       "slug": "lodha-palava",
       "image": "/projects/lodha-palava-1.webp",
@@ -182,6 +191,7 @@
     },
     {
       "id": "lt-realty-presents-raintree-boulevard-bangalore",
+      "live": true,
       "name": "L&T Realty presents Raintree Boulevard – Bangalore",
       "slug": "lt-realty-presents-raintree-boulevard-bangalore",
       "image": "/projects/l-t-raintree-boulevard-banglore.webp",
@@ -197,6 +207,7 @@
     },
     {
       "id": "prestige-city-bangalore-3",
+      "live": true,
       "name": "Prestige City – Bangalore",
       "slug": "prestige-city-bangalore-3",
       "image": "/projects/prestige-city-bangalore.webp",
@@ -222,6 +233,7 @@
     },
     {
       "id": "mahindra-eden-bangalore-3",
+      "live": true,
       "name": "Mahindra Eden – Bangalore",
       "slug": "mahindra-eden-bangalore-3",
       "image": "/projects/mahindra-eden-bangalore.webp",
@@ -237,6 +249,7 @@
     },
     {
       "id": "dlf-green-indore",
+      "live": true,
       "name": "DLF Greenland – Indore",
       "slug": "dlf-green-indore",
       "image": "/projects/dlf-garden-city-indore.webp",
@@ -252,6 +265,7 @@
     },
     {
       "id": "l-t-crescent-bay-parel-mumbai",
+      "live": true,
       "name": "L & T Crescent Bay – Parel, Mumbai",
       "slug": "l-t-crescent-bay-parel-mumbai",
       "image": "/projects/crescent-bay-parel-mumbai.webp",
@@ -267,6 +281,7 @@
     },
     {
       "id": "runwal-greens-mulund-west-mumbai",
+      "live": true,
       "name": "Runwal Greens – Mulund",
       "slug": "runwal-greens-mulund-west-mumbai",
       "image": "/projects/runwal-greens-mulund-mumbai.webp",
@@ -297,6 +312,7 @@
     },
     {
       "id": "prestige-bella-vista-chennai-2",
+      "live": true,
       "name": "Prestige Bella Vista – Chennai",
       "slug": "prestige-bella-vista-chennai-2",
       "image": "/projects/prestige-bella-vista-chennai.webp",
@@ -317,6 +333,7 @@
     },
     {
       "id": "alcove-new-kolkata",
+      "live": true,
       "name": "Alcove New Kolkata",
       "slug": "alcove-new-kolkata",
       "image": "/projects/new-kolkata-sangam.webp",
@@ -332,6 +349,7 @@
     },
     {
       "id": "godrej-seven",
+      "live": true,
       "name": "Godrej Seven",
       "slug": "godrej-seven",
       "image": "/projects/elevate-at-godrej-seven-joka.webp",
@@ -347,6 +365,7 @@
     },
     {
       "id": "primarc-southwinds-project-llp",
+      "live": true,
       "name": "Primarc Southwinds project LLP",
       "slug": "primarc-southwinds-project-llp",
       "image": "/projects/primarc-kolkata.webp",
@@ -362,6 +381,7 @@
     },
     {
       "id": "siddha-sky",
+      "live": true,
       "name": "Siddha Sky",
       "slug": "siddha-sky",
       "image": "/projects/siddha-sky-kolkata.webp",
@@ -377,6 +397,7 @@
     },
     {
       "id": "acc-india-pvt-ltd-88-east",
+      "live": true,
       "name": "ACC INDIA PVT LTD – 88 East",
       "slug": "acc-india-pvt-ltd-88-east",
       "image": "/projects/88-east-kolkata.webp",
@@ -392,6 +413,7 @@
     },
     {
       "id": "natural-city-birati-2",
+      "live": true,
       "name": "Natural City Birati",
       "slug": "natural-city-birati-2",
       "image": "/projects/natural-city-birati.webp",
@@ -407,6 +429,7 @@
     },
     {
       "id": "raga-sarvalom",
+      "live": true,
       "name": "Raga Sarvalom",
       "slug": "raga-sarvalom",
       "image": "/projects/raga-sarvolam-kolkata.webp",
@@ -422,6 +445,7 @@
     },
     {
       "id": "kshetrum-aspire",
+      "live": true,
       "name": "Kshetrum Aspire",
       "slug": "kshetrum-aspire",
       "image": "/projects/kshetrum-aspire-kolkata.webp",

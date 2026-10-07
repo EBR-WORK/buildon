@@ -3,6 +3,7 @@
   "items": [
     {
       "id": "gypsum-plaster-one-coat",
+      "live": true,
       "name": "Gypsum Plaster One Coat",
       "slug": "gypsum-plaster-one-coat",
       "image": "/products/one-coat.webp",
@@ -15,6 +16,7 @@
     },
     {
       "id": "imported-gypsum-plaster",
+      "live": true,
       "name": "Imported Gypsum Plaster",
       "slug": "imported-gypsum-plaster",
       "image": "/products/imported.webp",
@@ -27,6 +29,7 @@
     },
     {
       "id": "gypsum-master-plaster",
+      "live": true,
       "name": "Gypsum Master Plaster",
       "slug": "gypsum-master-plaster",
       "image": "/products/master.webp",
@@ -39,6 +42,7 @@
     },
     {
       "id": "gypsum-plaster-perlite-one-coat-super-200",
+      "live": true,
       "name": "Gypsum Plaster Perlite One-Coat Super 200",
       "slug": "gypsum-plaster-perlite-one-coat-super-200",
       "image": "/products/perlite.webp",
@@ -51,6 +55,7 @@
     },
     {
       "id": "gypsum-plaster-verimiculite",
+      "live": true,
       "name": "Gypsum Plaster Vermiculite",
       "slug": "gypsum-plaster-verimiculite",
       "image": "/products/vermiculite.webp",
@@ -63,6 +68,7 @@
     },
     {
       "id": "classic-gypsum-plaster",
+      "live": true,
       "name": "Classic Gypsum Plaster",
       "slug": "classic-gypsum-plaster",
       "image": "/products/classic.webp",
@@ -75,6 +81,7 @@
     },
     {
       "id": "buildon-p-20-ready-mix-plaster",
+      "live": true,
       "name": "Buildon P-20 Ready Mix Plaster",
       "slug": "buildon-p-20-ready-mix-plaster",
       "image": "/products/p-20-ready-mix.webp",
@@ -87,6 +94,7 @@
     },
     {
       "id": "bondit-151",
+      "live": true,
       "name": "Bondit-151",
       "slug": "bondit-151",
       "image": "/products/bondit-151.webp",
@@ -99,6 +107,7 @@
     },
     {
       "id": "bondit-plaster-bond-plus",
+      "live": true,
       "name": "Bondit Plaster Bond+",
       "slug": "bondit-plaster-bond-plus",
       "image": "/products/bondit-plaster-bond-plus.webp",

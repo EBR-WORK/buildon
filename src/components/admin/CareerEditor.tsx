@@ -13,6 +13,7 @@ import { PlusIcon } from "@/components/icons";
 import { RepeatableList, TextAreaField, TextField } from "./Fields";
 import EntryRow from "./EntryRow";
 import SaveBar, { type Status } from "./SaveBar";
+import { describeProblems, validateJobs } from "@/lib/cms/validate";
 import { useToast } from "./Toast";
 import { describeUsage, jobUsage } from "@/lib/cms/usage";
 
@@ -66,6 +67,17 @@ export default function CareerEditor() {
 
   async function save() {
     if (!content) return;
+
+    /* Checked here too, not only in the disabled button: a stale render or
+       a keyboard submit must not get past it. */
+    const blocking = validateJobs(content);
+    if (blocking.length > 0) {
+      setStatus("error");
+      setError(describeProblems(blocking));
+      notify("Not saved", describeProblems(blocking), "danger");
+      return;
+    }
+
     setStatus("saving");
     try {
       await repository.save(content);
@@ -117,6 +129,9 @@ export default function CareerEditor() {
     edit((d) =>
       void d.career.jobs.push({
         id,
+        /* New work starts as a draft: incomplete entries should not reach
+           the site by being forgotten. */
+        live: false,
         slug,
         title: "",
         category: "",
@@ -155,6 +170,10 @@ export default function CareerEditor() {
     notify("Deleted", `“${title || slug}” is gone from the draft.`);
   }
 
+  /* Recomputed on every render rather than on save: an editor should see
+     a problem while they can still fix it, not after pressing Save. */
+  const problems = content ? validateJobs(content) : [];
+
   if (!content) {
     return (
       <div className="p-6 sm:p-10">
@@ -192,6 +211,7 @@ export default function CareerEditor() {
           <div className="mb-6 grid gap-5 sm:grid-cols-2">
             <TextField
               label="Section heading"
+              required
               value={career.openingsTitle}
               onChange={(next) => edit((d) => void (d.career.openingsTitle = next))}
             />
@@ -230,11 +250,16 @@ export default function CareerEditor() {
                   }
                   isOpen={isOpen}
                   onToggle={() => setOpen(isOpen ? null : job.id)}
+                  live={job.live}
+                  onToggleLive={() =>
+                    edit((d) => void (d.career.jobs[i].live = !d.career.jobs[i].live))
+                  }
                   onDelete={() => void removeJob(job.slug, job.title)}
                   deleteLabel={`Delete ${job.title || "this opening"}`}
                 >
                   <TextField
                         label="Job title"
+                        required
                         value={job.title}
                         onChange={(next) =>
                           edit((d) => {
@@ -286,6 +311,7 @@ export default function CareerEditor() {
                         />
                         <TextField
                           label="Location"
+                          required
                           hint="Also drives the filter on /career."
                           value={job.location}
                           onChange={(next) => edit((d) => void (d.career.jobs[i].location = next))}
@@ -333,6 +359,7 @@ export default function CareerEditor() {
         status={status}
         dirty={dirty}
         error={error}
+        problems={problems}
         onSave={save}
         onReset={reset}
         onExport={exportJson}
