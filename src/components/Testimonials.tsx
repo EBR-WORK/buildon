@@ -1,6 +1,7 @@
 "use client";
 
-import { testimonials } from "@/lib/content";
+/* The published file — see Hero. */
+import { publishedTestimonials as testimonials } from "@/lib/cms/published";
 import { useSnapCarousel } from "@/lib/useSnapCarousel";
 import CarouselButton from "./CarouselButton";
 import CtaLink from "./CtaLink";

@@ -1,4 +1,6 @@
-import { hero } from "@/lib/content";
+/* The published file, so an edit in the admin panel reaches the banner
+   after the next pull and build. */
+import { publishedHero as hero } from "@/lib/cms/published";
 import BackgroundVideo from "./BackgroundVideo";
 import CtaLink from "./CtaLink";
 import { ArrowIcon, PlayIcon } from "./icons";

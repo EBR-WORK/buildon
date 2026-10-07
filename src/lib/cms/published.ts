@@ -17,17 +17,100 @@
  */
 
 import blogJson from "@/../content/blog.json";
+import homeJson from "@/../content/home.json";
 import careerJson from "@/../content/career.json";
 import faqJson from "@/../content/faq.json";
 import { applicationFields, jobOpenings as fallbackJobs } from "@/lib/careerDetails";
 import { blogPosts as fallbackPosts, type BlogPost } from "@/lib/blogDetails";
-import { careerPage, faqPage } from "@/lib/content";
+import { careerPage, faqPage, hero, testimonials } from "@/lib/content";
 
 const text = (value: unknown, fallback: string) =>
   typeof value === "string" && value.trim() ? value : fallback;
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
+
+/* -------------------------------------------------------------------- home */
+
+type PublishedCta = { readonly label: string; readonly href: string };
+
+/**
+ * A call to action, both halves or neither.
+ *
+ * A button with words and no destination renders as a dead control, and one
+ * with a destination and no words renders as a gap — so a half-filled CTA
+ * falls back whole rather than being patched field by field.
+ */
+function readCta(value: unknown, fallback: PublishedCta): PublishedCta {
+  if (!isObject(value)) return fallback;
+  const label = typeof value.label === "string" ? value.label.trim() : "";
+  const href = typeof value.href === "string" ? value.href.trim() : "";
+  return label && href ? { label, href } : fallback;
+}
+
+/** Non-empty strings only, and only if any survive. */
+function readLines(value: unknown, fallback: readonly string[]): readonly string[] {
+  if (!Array.isArray(value)) return fallback;
+  const lines = value.filter(
+    (line): line is string => typeof line === "string" && line.trim().length > 0,
+  );
+  return lines.length > 0 ? lines : fallback;
+}
+
+const homeFile = (isObject(homeJson) ? homeJson : {}) as Record<string, unknown>;
+const heroFile = (isObject(homeFile.hero) ? homeFile.hero : {}) as Record<string, unknown>;
+
+export const publishedHero = {
+  eyebrow: text(heroFile.eyebrow, hero.eyebrow),
+  /* Two lines, coloured differently — the split is the design, not a wrap. */
+  titleLines: readLines(heroFile.titleLines, hero.titleLines),
+  intro: text(heroFile.intro, hero.intro),
+  primaryCta: readCta(heroFile.primaryCta, hero.primaryCta),
+  videoCta: readCta(heroFile.videoCta, hero.videoCta),
+  /* An empty video is allowed: the banner falls back to its background colour,
+     which is a design the editor may have chosen. A data URL is not — it would
+     be an upload that never made it into public/, and would 404 on the live
+     site after inflating the page by megabytes. */
+  video: (() => {
+    const value = typeof heroFile.video === "string" ? heroFile.video.trim() : null;
+    if (value === null) return hero.video;
+    return value.startsWith("data:") ? hero.video : value;
+  })(),
+} as const;
+
+const testimonialsFile = (
+  isObject(homeFile.testimonials) ? homeFile.testimonials : {}
+) as Record<string, unknown>;
+
+function readQuotes(value: unknown) {
+  if (!Array.isArray(value)) return null;
+  const items = value.flatMap((row) => {
+    if (!isObject(row)) return [];
+    const quote = typeof row.quote === "string" ? row.quote.trim() : "";
+    const author = typeof row.author === "string" ? row.author.trim() : "";
+    /* An unattributed quote is the one thing this carousel cannot show: the
+       author line is what makes it a testimonial rather than a slogan. */
+    return quote && author ? [{ quote, author }] : [];
+  });
+  return items.length > 0 ? items : null;
+}
+
+const videoFile = (
+  isObject(testimonialsFile.video) ? testimonialsFile.video : {}
+) as Record<string, unknown>;
+
+export const publishedTestimonials = {
+  title: text(testimonialsFile.title, testimonials.title),
+  cta: readCta(testimonialsFile.cta, testimonials.cta),
+  video: {
+    src: text(videoFile.src, testimonials.video.src),
+    poster: text(videoFile.poster, testimonials.video.poster),
+  },
+  items: readQuotes(testimonialsFile.items) ?? testimonials.items.map((item) => ({
+    quote: item.quote,
+    author: item.author,
+  })),
+} as const;
 
 /* ------------------------------------------------------------------ career */
 
