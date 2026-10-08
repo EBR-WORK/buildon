@@ -12,3 +12,31 @@
   # next@16 requires Node >= 20.9. Pinned so a change to Netlify's default
   # image cannot move it underneath us.
   NODE_VERSION = "22"
+
+  # Netlify fails a build when the value of an environment variable appears in
+  # the output. That is the right default, and it cannot hold for a NEXT_PUBLIC_
+  # value: the prefix is Next's instruction to inline it into the client bundle,
+  # so being in the output is the entire purpose. Leaving them scanned means
+  # every deploy fails the moment the variable is set.
+  #
+  # None of the three is a secret.
+  #
+  #   URL and publishable key  The browser has to reach Supabase, so both are
+  #                            readable by anyone who opens devtools. What they
+  #                            permit is decided by row level security, not by
+  #                            keeping them quiet — verified: an anonymous
+  #                            caller can read content and change nothing.
+  #
+  #   bucket                   The name "media". Scanned, it matches 88 times
+  #                            across the build and almost none are the bucket:
+  #                            "media" is a substring of "immediate", which runs
+  #                            all through the blog copy. A five-letter English
+  #                            fragment cannot be told from a leak by a text
+  #                            search.
+  #
+  # What stays scanned is what would actually matter: SUPABASE_SECRET_KEY,
+  # which bypasses row level security, SUPABASE_DB_URL, which carries the
+  # database password, and NETLIFY_BUILD_HOOK_URL, which anyone holding it can
+  # use to trigger deploys. None of those three has any business in the output,
+  # and the build should fail if one appears.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SUPABASE_BUCKET,NEXT_PUBLIC_ADMIN_DEV_EMAIL"

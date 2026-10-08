@@ -14,7 +14,6 @@ import {
   loadProfile,
   signIn,
   signOut,
-  signUp,
   type AdminProfile,
 } from "@/lib/cms/auth";
 import { isSupabaseConfigured, supabase } from "@/lib/cms/supabase";
@@ -159,74 +158,41 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
       : "",
   );
   const [password, setPassword] = useState("");
-  const [mode, setMode] = useState<"in" | "up">("in");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [confirmSent, setConfirmSent] = useState(false);
 
+  /*
+   * Signing in is the only thing this screen does.
+   *
+   * It offered "Been invited? Create your account" as well, and that could not
+   * work: the project has email confirmation switched on with no SMTP
+   * configured, so a sign-up succeeded, sent a confirmation link nobody
+   * received, and left the person holding an account they could not use. A
+   * route that cannot complete is worse than no route, because the person
+   * following it believes they are nearly there.
+   *
+   * Accounts are made by a super admin instead — the Team screen, or
+   * `npm run db:admin -- create <email>`. If email confirmation is ever turned
+   * off, this is one revert away in git.
+   */
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
     setError("");
 
     try {
-      if (mode === "in") {
-        await signIn(email, password);
-        await onSignedIn();
-        /* Left busy: onSignedIn unmounts this, and clearing it first flashes
-           the form back for a frame. */
-        return;
-      }
-
-      const { needsConfirmation } = await signUp(email, password);
-      if (needsConfirmation) {
-        setConfirmSent(true);
-      } else {
-        await onSignedIn();
-        return;
-      }
+      await signIn(email, password);
+      await onSignedIn();
+      /* Left busy: onSignedIn unmounts this, and clearing it first flashes the
+         form back for a frame. */
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
+      setBusy(false);
     }
-    setBusy(false);
-  }
-
-  if (confirmSent) {
-    return (
-      <Shell title="Check your email">
-        <p className="text-[15px] leading-relaxed text-ink-500">
-          Your account was created, but this project asks for the address to be
-          confirmed before you can sign in. Open the link sent to{" "}
-          <strong className="font-semibold text-ink-900">{email}</strong>.
-        </p>
-        <p className="mt-3 text-[15px] leading-relaxed text-ink-500">
-          Nothing arrived? The project may have no mail configured. Ask a super
-          admin to create the account for you instead.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setConfirmSent(false);
-            setMode("in");
-            setPassword("");
-          }}
-          className="mt-6 cursor-pointer rounded-full border border-line bg-white px-5 py-2.5 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500"
-        >
-          Back to sign in
-        </button>
-      </Shell>
-    );
   }
 
   return (
-    <Shell title={mode === "in" ? "Buildon Admin" : "Create your account"}>
-      {mode === "up" && (
-        <p className="mb-5 text-[15px] leading-relaxed text-ink-500">
-          Use the exact address you were invited with. Any other address will
-          create a login that cannot edit anything.
-        </p>
-      )}
-
+    <Shell title="Buildon Admin">
       <form onSubmit={submit} className="space-y-4">
         <label className="block">
           <span className="mb-1.5 block text-sm font-semibold text-ink-900">Email</span>
@@ -246,17 +212,11 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
           <input
             type="password"
             required
-            minLength={mode === "up" ? 10 : undefined}
-            autoComplete={mode === "in" ? "current-password" : "new-password"}
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-xl border border-line bg-white px-4 py-3 text-[15px] outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
           />
-          {mode === "up" && (
-            <span className="mt-1.5 block text-sm text-ink-500">
-              At least 10 characters.
-            </span>
-          )}
         </label>
 
         {error && (
@@ -270,34 +230,14 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
           disabled={busy}
           className="w-full cursor-pointer rounded-full bg-brand-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {busy
-            ? mode === "in"
-              ? "Signing in…"
-              : "Creating…"
-            : mode === "in"
-              ? "Sign in"
-              : "Create account"}
+          {busy ? "Signing in…" : "Sign in"}
         </button>
       </form>
 
-      <div className="mt-6 border-t border-line pt-4">
-        <button
-          type="button"
-          onClick={() => {
-            setMode(mode === "in" ? "up" : "in");
-            setError("");
-            setPassword("");
-          }}
-          className="cursor-pointer text-sm font-semibold text-brand-500 transition hover:text-brand-600"
-        >
-          {mode === "in" ? "Been invited? Create your account" : "Already have an account? Sign in"}
-        </button>
-        <p className="mt-2 text-sm leading-relaxed text-ink-500">
-          {mode === "in"
-            ? "Lost your password? Ask a super admin to issue a new one."
-            : "An account only works if the address was invited first."}
-        </p>
-      </div>
+      <p className="mt-6 border-t border-line pt-4 text-sm leading-relaxed text-ink-500">
+        Accounts are created by a super admin. If you need one, or have lost your
+        password, ask them to issue it.
+      </p>
     </Shell>
   );
 }

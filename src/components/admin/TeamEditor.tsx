@@ -24,7 +24,11 @@ import { useToast } from "./Toast";
  *
  * Adding somebody is an invitation, not an account. Creating a user needs the
  * secret key, which cannot be in a browser, so the super admin adds an address
- * to the allowlist and the trigger grants the role when that person signs up.
+ * to the allowlist, and the trigger grants the role the moment an account
+ * with that address is created — in the panel, or by hand in the Supabase
+ * dashboard. The login screen offers no sign-up: this project has email
+ * confirmation on with no SMTP, so a self-service sign-up could never
+ * complete.
  * The panel says so plainly, because an invite that looks like it sent an email
  * would leave the new admin waiting for one.
  */
@@ -178,7 +182,13 @@ export default function TeamEditor() {
     }
   }
 
-  /** The fallback: an allowlist entry, and they make their own account. */
+  /**
+   * Pre-authorise an address.
+   *
+   * It does not make an account — nothing here can, without the secret key.
+   * It records which role the address should get, so whoever creates the
+   * account next does not have to remember.
+   */
   async function invite() {
     if (!supabase) return;
     const email = newEmail.trim().toLowerCase();
@@ -200,7 +210,8 @@ export default function TeamEditor() {
     await load();
     notify(
       "Invited",
-      `${email} can now sign up at /admin and will become a ${describeRole(newRole).toLowerCase()}. No email was sent.`,
+      `${email} is pre-authorised as a ${describeRole(newRole).toLowerCase()}. ` +
+        "Create the account for them and the role is applied automatically.",
     );
   }
 
@@ -250,7 +261,7 @@ export default function TeamEditor() {
     if (!supabase) return;
     const ok = await confirm({
       title: `Cancel the invite for ${email}?`,
-      body: "If they sign up later they will get an account with no access.",
+      body: "An account created for that address later would have no access.",
       confirmLabel: "Cancel invite",
     });
     if (!ok) return;
@@ -286,11 +297,13 @@ export default function TeamEditor() {
             Add someone
           </h2>
           <p className="mt-1.5 max-w-2xl text-[15px] leading-relaxed text-ink-500">
-            Creating the account gives you a password to hand over. Inviting instead
-            lets them choose their own, by signing up at{" "}
-            <code className="text-ink-900">/admin</code> with this exact address.{" "}
-            <strong className="font-semibold text-ink-900">No email is sent</strong> either
-            way &mdash; tell them yourself.
+            <strong className="font-semibold text-ink-900">Create account</strong> makes
+            the login and gives you a password to hand over.{" "}
+            <strong className="font-semibold text-ink-900">Invite</strong> only
+            pre-authorises the address &mdash; the role is applied whenever the account
+            is made. Either way{" "}
+            <strong className="font-semibold text-ink-900">no email is sent</strong>, so
+            tell them yourself.
           </p>
 
           <form onSubmit={create} className="mt-5 flex flex-wrap items-end gap-3">
@@ -333,7 +346,7 @@ export default function TeamEditor() {
               onClick={() => void invite()}
               className="cursor-pointer rounded-full border border-line bg-white px-5 py-3 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Invite instead
+              Pre-authorise only
             </button>
           </form>
 
