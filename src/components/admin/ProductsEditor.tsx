@@ -10,7 +10,7 @@ import {
   slugify,
   type SiteContent,
 } from "@/lib/cms/schema";
-import { TextAreaField, TextField } from "./Fields";
+import { PagePath, TextAreaField, TextField } from "./Fields";
 import { PlusIcon } from "@/components/icons";
 import ImageField from "./ImageField";
 import { describeUsage, productUsage } from "@/lib/cms/usage";
@@ -313,14 +313,16 @@ export default function ProductsEditor() {
                       />
 
                       {shipped ? (
-                        <p className="rounded-xl bg-surface px-4 py-3 text-sm leading-relaxed text-ink-500">
-                          Live at{" "}
-                          <strong className="font-semibold text-ink-900">
-                            /products/{product.slug}
-                          </strong>
-                          . The address is fixed — changing it would break every
-                          link to this page.
-                        </p>
+                        <div className="rounded-xl bg-surface px-4 py-3">
+                          {/* The address, and a way to open it. Live needs both:
+                              not a draft, and already built — a page published
+                              minutes ago does not exist until the next deploy. */}
+                          <PagePath path={`/products/${product.slug}`} live={product.live !== false} />
+                          <p className="mt-2 text-sm leading-relaxed text-ink-500">
+                            The address is fixed. Changing it would break every link to
+                            this page.
+                          </p>
+                        </div>
                       ) : (
                         <TextField
                           label="Web address"

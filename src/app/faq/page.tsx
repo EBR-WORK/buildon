@@ -9,6 +9,7 @@ import { faqPage, site } from "@/lib/content";
 /* Questions come from the published file; the banner stays in content.ts,
    which is page furniture rather than content an editor changes. */
 import { publishedFaq } from "@/lib/cms/published";
+import RichBlocks from "@/components/RichBlocks";
 
 export const metadata: Metadata = {
   title: publishedFaq.title,
@@ -38,7 +39,7 @@ export default function FaqPage() {
       group.items.map((item) => ({
         "@type": "Question",
         name: item.question,
-        acceptedAnswer: { "@type": "Answer", text: item.answer },
+        acceptedAnswer: { "@type": "Answer", text: item.answerText },
       })),
     ),
   };
@@ -95,25 +96,13 @@ export default function FaqPage() {
                           className="mt-0.5 size-5 shrink-0 text-brand-500 transition duration-300 group-hover:text-accent-500 group-open:rotate-45"
                         />
                       </summary>
-                      {/* A procedure is set as numbered steps; everything else
-                          is a paragraph. `answer` carries the same words either
-                          way, so the FAQ schema above stays one string. */}
-                      {"steps" in item && item.steps ? (
-                        <ol className="faq-answer space-y-2 px-5 pb-5 text-[15px] leading-relaxed text-ink-500 sm:px-6 sm:pb-6">
-                          {item.steps.map((step, n) => (
-                            <li key={step} className="flex gap-3">
-                              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-50 text-xs font-semibold text-brand-600">
-                                {n + 1}
-                              </span>
-                              <span>{step}</span>
-                            </li>
-                          ))}
-                        </ol>
-                      ) : (
-                        <p className="faq-answer px-5 pb-5 text-[15px] leading-relaxed text-ink-500 sm:px-6 sm:pb-6">
-                          {item.answer}
-                        </p>
-                      )}
+                      {/* Whatever the editor wrote: a paragraph, bullets, a
+                          numbered procedure. The schema above takes the same
+                          words as one string, derived from these blocks rather
+                          than kept beside them. */}
+                      <div className="faq-answer px-5 pb-5 sm:px-6 sm:pb-6">
+                        <RichBlocks blocks={item.body} />
+                      </div>
                     </details>
                   </Reveal>
                 ))}

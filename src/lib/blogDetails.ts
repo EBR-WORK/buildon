@@ -47,6 +47,12 @@ export type BlogBlock =
   | { readonly kind: "p"; readonly runs: readonly BlogRun[] }
   /** A bulleted list; each item is a paragraph's worth of runs. */
   | { readonly kind: "ul"; readonly items: readonly (readonly BlogRun[])[] }
+  /**
+   * A numbered list. Same shape as "ul", separate kind because the number is
+   * the content: a procedure read out of order is wrong, and a bullet does not
+   * say that.
+   */
+  | { readonly kind: "ol"; readonly items: readonly (readonly BlogRun[])[] }
   | {
       readonly kind: "image";
       readonly src: string;

@@ -231,28 +231,69 @@ export function validateFaq(content: SiteContent): Problem[] {
     problems.push({ id: "faq", label: "The FAQ page", message: "needs a heading." });
   }
 
-  for (const group of content.faq.groups) {
-    if (group.live === false) continue;
-    const label = group.title || "A section";
+  /* The document is read the way published.ts reads it, so the panel reports
+     exactly the shapes that would be dropped on the way to the page rather
+     than a set of rules that only resemble them. */
+  let section: string | null = null;
+  let question: string | null = null;
+  let answered = false;
+  let sections = 0;
+  let questions = 0;
 
-    if (blank(group.title)) {
-      problems.push({ id: group.id, label: "A section", message: "needs a heading." });
+  const closeQuestion = () => {
+    if (question && !answered) {
+      problems.push({ id: "faq", label: `"${question}"`, message: "has no answer under it." });
     }
+  };
 
-    const liveItems = group.items.filter((item) => item.live !== false);
-    if (liveItems.length === 0) {
-      problems.push({ id: group.id, label, message: "has no published questions, so it renders as an empty heading." });
-    }
-
-    for (const item of liveItems) {
-      if (blank(item.question)) {
-        problems.push({ id: item.id, label, message: "has a question with no text." });
+  for (const block of content.faq.body) {
+    if (block.kind === "h2") {
+      closeQuestion();
+      if (!block.text.trim()) {
+        problems.push({ id: block.id, label: "A section", message: "has no heading." });
       }
-      if (blank(item.answer)) {
-        problems.push({ id: item.id, label: item.question || label, message: "has no answer." });
-      }
+      section = block.text.trim();
+      question = null;
+      answered = false;
+      sections += 1;
+      continue;
     }
+
+    if (block.kind === "h3") {
+      closeQuestion();
+      if (!section) {
+        problems.push({
+          id: block.id,
+          label: `"${block.text.trim() || "A question"}"`,
+          message: "comes before any section, so the page has nowhere to show it.",
+        });
+      }
+      if (!block.text.trim()) {
+        problems.push({ id: block.id, label: "A question", message: "has no text." });
+      }
+      question = block.text.trim();
+      answered = false;
+      questions += 1;
+      continue;
+    }
+
+    if (!question) {
+      problems.push({
+        id: block.id,
+        label: "An answer",
+        message: "has no question above it, so the page has nowhere to show it.",
+      });
+      continue;
+    }
+    answered = true;
+  }
+
+  closeQuestion();
+
+  if (sections === 0 || questions === 0) {
+    problems.push({ id: "faq", label: "The FAQ page", message: "needs at least one section with a question in it." });
   }
 
   return problems;
 }
+

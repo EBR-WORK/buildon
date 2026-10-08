@@ -3,7 +3,7 @@
 /**
  * Between the blocks the site renders and the document the editor edits.
  *
- * The site stores a post body as `BlogBlockEntry[]` — a flat list of five
+ * The site stores a post body as `RichBlock[]` — a flat list of five
  * kinds, each paragraph a list of runs carrying bold and href. TipTap holds a
  * ProseMirror document: nested nodes with marks. Neither shape is going to
  * change, so the whole of the mapping lives here and nowhere else.
@@ -19,7 +19,7 @@
  * table to be typed, saved, and then dropped on the way out.
  */
 
-import { newId, type BlogBlockEntry, type RichRun } from "./schema";
+import { newId, type RichBlock, type RichRun } from "./schema";
 
 /* ProseMirror's JSON, as much of it as this file touches. */
 export type DocNode = {
@@ -79,7 +79,7 @@ function headingToNodes(text: string, linkText?: string, linkHref?: string): Doc
   ];
 }
 
-export function blocksToDoc(blocks: readonly BlogBlockEntry[]): RichDoc {
+export function blocksToDoc(blocks: readonly RichBlock[]): RichDoc {
   const content = blocks.flatMap((block): DocNode[] => {
     switch (block.kind) {
       case "h2":
@@ -93,9 +93,10 @@ export function blocksToDoc(blocks: readonly BlogBlockEntry[]): RichDoc {
         ];
 
       case "ul":
+      case "ol":
         return [
           {
-            type: "bulletList",
+            type: block.kind === "ol" ? "orderedList" : "bulletList",
             content: block.items.map((item) => ({
               type: "listItem",
               /* A listItem must contain a block, never text directly. */
@@ -177,10 +178,10 @@ function nodesToHeading(nodes: DocNode[] | undefined) {
   };
 }
 
-export function docToBlocks(doc: RichDoc | null | undefined): BlogBlockEntry[] {
+export function docToBlocks(doc: RichDoc | null | undefined): RichBlock[] {
   if (!doc?.content) return [];
 
-  return doc.content.flatMap((node): BlogBlockEntry[] => {
+  return doc.content.flatMap((node): RichBlock[] => {
     switch (node.type) {
       case "heading": {
         const level = Number(node.attrs?.level) === 3 ? "h3" : "h2";
@@ -190,11 +191,13 @@ export function docToBlocks(doc: RichDoc | null | undefined): BlogBlockEntry[] {
         return [{ id: newId(), kind: level, ...heading }];
       }
 
-      case "bulletList": {
+      case "bulletList":
+      case "orderedList": {
         const items = (node.content ?? [])
           .map((item) => nodesToRuns(item.content?.[0]?.content))
           .filter((runs) => runs.length > 0);
-        return items.length > 0 ? [{ id: newId(), kind: "ul", items }] : [];
+        if (items.length === 0) return [];
+        return [{ id: newId(), kind: node.type === "orderedList" ? "ol" : "ul", items }];
       }
 
       case "image": {
@@ -235,7 +238,7 @@ export function docToBlocks(doc: RichDoc | null | undefined): BlogBlockEntry[] {
  * the editor, not a thing in the content — so a comparison that included them
  * would never pass and would hide the differences that matter.
  */
-export function sameBlocks(a: readonly BlogBlockEntry[], b: readonly BlogBlockEntry[]) {
+export function sameBlocks(a: readonly RichBlock[], b: readonly RichBlock[]) {
   return stableJson(normalise(a)) === stableJson(normalise(b));
 }
 
@@ -251,7 +254,7 @@ export function sameBlocks(a: readonly BlogBlockEntry[], b: readonly BlogBlockEn
  * the round-trip check answer the question it is actually asking: does the
  * article come back the same, not is the JSON byte-identical.
  */
-function normalise(blocks: readonly BlogBlockEntry[]): BlogBlockEntry[] {
+function normalise(blocks: readonly RichBlock[]): RichBlock[] {
   const mergeRuns = (runs: readonly RichRun[]): RichRun[] => {
     const out: RichRun[] = [];
     for (const run of runs) {
@@ -264,7 +267,9 @@ function normalise(blocks: readonly BlogBlockEntry[]): BlogBlockEntry[] {
 
   return blocks.map((block) => {
     if (block.kind === "p") return { ...block, runs: mergeRuns(block.runs) };
-    if (block.kind === "ul") return { ...block, items: block.items.map(mergeRuns) };
+    if (block.kind === "ul" || block.kind === "ol") {
+      return { ...block, items: block.items.map(mergeRuns) };
+    }
     return block;
   });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { internalRoutes } from "@/lib/cms/schema";
 import { CheckIcon, ChevronDownIcon, PlusIcon, TrashIcon } from "@/components/icons";
 import { useToast } from "./Toast";
@@ -114,6 +114,77 @@ export function TextAreaField({
         className={`${FIELD} resize-y leading-relaxed`}
       />
     </Field>
+  );
+}
+
+/**
+ * Where an entry will live, and a way to go there.
+ *
+ * The address was only ever mentioned in passing — "Live at /blog/…" in a line
+ * of prose — so an editor who had just written a post had to work out its URL
+ * from the slug field. It is the one thing they need afterwards: to check it,
+ * to send it to somebody, to put it in a newsletter.
+ *
+ * The link is relative, so it opens on whatever origin the panel is being
+ * served from: localhost while editing, the real site once deployed. A
+ * hard-coded domain would send someone editing locally to production.
+ */
+export function PagePath({
+  path,
+  live,
+}: {
+  path: string;
+  /** False while the entry is a draft, or has not been built yet. */
+  live: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    const absolute =
+      typeof window === "undefined" ? path : new URL(path, window.location.origin).toString();
+    try {
+      await navigator.clipboard.writeText(absolute);
+      setCopied(true);
+      /* Reverts on its own: a button stuck reading "Copied" says nothing about
+         the next press. */
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* Clipboard access is refused in some contexts; the path is on screen
+         and selectable either way. */
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+      <code className="rounded-lg bg-surface px-2.5 py-1 font-mono text-sm text-ink-700 select-all">
+        {path}
+      </code>
+
+      {live ? (
+        <>
+          <a
+            href={path}
+            target="_blank"
+            rel="noopener"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-500 transition hover:text-brand-600"
+          >
+            Open
+            <span aria-hidden>&#8599;</span>
+          </a>
+          <button
+            type="button"
+            onClick={() => void copy()}
+            className="cursor-pointer text-sm font-semibold text-ink-500 transition hover:text-ink-900"
+          >
+            {copied ? "Copied" : "Copy link"}
+          </button>
+        </>
+      ) : (
+        /* No link while there is no page: an Open button that 404s teaches an
+           editor to distrust the one that works. */
+        <span className="text-sm text-ink-500">Not on the site yet</span>
+      )}
+    </div>
   );
 }
 

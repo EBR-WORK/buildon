@@ -166,10 +166,14 @@ export type JobEntry = {
   type: string;
   location: string;
   /**
-   * "Key Responsibilities". Plain strings: the reference sets no links inside
-   * them, so a rich text field here would offer formatting nothing uses.
+   * The description, as rich body copy.
+   *
+   * Was a flat list of strings under a "Key Responsibilities" heading the page
+   * supplied. That heading is part of the body now, which renders identically
+   * and means a role needing a paragraph of context, or a second section, can
+   * have one — the old shape could only ever produce bullets.
    */
-  responsibilities: string[];
+  body: RichBlock[];
 };
 
 export type CareerContent = {
@@ -181,9 +185,9 @@ export type CareerContent = {
 };
 
 /**
- * One block of a post's body.
+ * One block of rich body copy — a post's article, a job's description.
  *
- * The same five kinds the blog renderer already understands, each carrying an
+ * The same five kinds the renderer understands, each carrying an
  * `id` for the same reason list rows do: the editor keys on it, and a key
  * derived from the content unmounts the field being typed into.
  *
@@ -191,7 +195,7 @@ export type CareerContent = {
  * because a form with an optional object in it needs a branch at every level
  * and this one is only ever two text boxes.
  */
-export type BlogBlockEntry =
+export type RichBlock =
   | {
       readonly id: string;
       kind: "h2" | "h3";
@@ -202,6 +206,8 @@ export type BlogBlockEntry =
     }
   | { readonly id: string; kind: "p"; runs: RichRun[] }
   | { readonly id: string; kind: "ul"; items: RichRun[][] }
+  /** Numbered, for a procedure where the order is the point. */
+  | { readonly id: string; kind: "ol"; items: RichRun[][] }
   | {
       readonly id: string;
       kind: "image";
@@ -238,67 +244,38 @@ export type BlogEntry = {
   modified: string;
   /** A key into blogAuthors — the site credits three people. */
   author: string;
-  body: BlogBlockEntry[];
+  body: RichBlock[];
 };
 
 export type BlogContent = {
   items: BlogEntry[];
 };
 
-export type FaqItemEntry = {
-  readonly id: string;
-  /**
-   * Whether this reaches the site.
-   *
-   * Named `live` rather than `published` because a post already has a
-   * `published` date, and two meanings on one word in the same object is a bug
-   * waiting to be written.
-   *
-   * Absent counts as live, which is what makes the flag safe to add: every row
-   * written before it existed stays on the site. New entries are created as
-   * drafts instead, so half-written work cannot escape by being forgotten.
-   */
-  live: boolean;
-  question: string;
-  /**
-   * Plain text, not rich text. The reference sets no links inside an answer,
-   * and the accordion renders a single paragraph.
-   */
-  answer: string;
-  /**
-   * A procedure, rendered as a numbered list instead of the paragraph.
-   *
-   * `answer` still carries the same words run together, because the FAQ
-   * structured data has to be one string either way — so a search engine and a
-   * reader get the same content, formatted for each.
-   */
-  steps?: string[];
-};
-
-export type FaqGroupEntry = {
-  readonly id: string;
-  /**
-   * Whether this reaches the site.
-   *
-   * Named `live` rather than `published` because a post already has a
-   * `published` date, and two meanings on one word in the same object is a bug
-   * waiting to be written.
-   *
-   * Absent counts as live, which is what makes the flag safe to add: every row
-   * written before it existed stays on the site. New entries are created as
-   * drafts instead, so half-written work cannot escape by being forgotten.
-   */
-  live: boolean;
-  /** The accordion's section heading — "Gypsum plaster". */
-  title: string;
-  items: FaqItemEntry[];
-};
-
+/**
+ * The whole FAQ page, as one document.
+ *
+ * Not a tree of groups holding items holding answers. The page reads as a
+ * flat run of sections, questions and answers, and that is how it is written:
+ * one rich text field where a block's role is chosen from a menu.
+ *
+ * The roles ride on block kinds the renderer already has, so nothing new had
+ * to be invented to store them:
+ *
+ *   Section   h2     starts a new group
+ *   Question  h3     starts a new question inside it
+ *   Answer    anything else — paragraphs, lists, images — belongs to the
+ *             question above it
+ *
+ * published.ts rebuilds the accordion from that shape. The cost of flattening
+ * is that a single question can no longer be held back as a draft: there is no
+ * row to flag, only blocks in a document. Deleting it is the way now.
+ */
 export type FaqContent = {
   /** The page heading. */
   title: string;
-  groups: FaqGroupEntry[];
+  body: RichBlock[];
 };
+
 
 /* "Life at Buildon" is deliberately absent: its galleries are fixed event
    albums, edited in content.ts on the rare occasion they change. */
@@ -392,7 +369,7 @@ export const defaults: SiteContent = {
       published: post.published,
       modified: post.modified,
       author: post.author,
-      body: post.body.map((block): BlogBlockEntry => {
+      body: post.body.map((block): RichBlock => {
         switch (block.kind) {
           case "h2":
           case "h3":
@@ -404,9 +381,10 @@ export const defaults: SiteContent = {
               linkHref: block.link?.href,
             };
           case "ul":
+          case "ol":
             return {
               id: newId(),
-              kind: "ul",
+              kind: block.kind,
               items: block.items.map((item) => item.map((run) => ({ ...run }))),
             };
           case "image":
@@ -426,18 +404,33 @@ export const defaults: SiteContent = {
   },
   faq: {
     title: faqPage.title,
-    groups: faqPage.groups.map((group) => ({
-      id: slugify(group.title),
-      live: true,
-      title: group.title,
-      items: group.items.map((item) => ({
-        id: newId(),
-        live: true,
-        question: item.question,
-        answer: item.answer,
-        ...("steps" in item && item.steps ? { steps: [...item.steps] } : {}),
-      })),
-    })),
+    /* Flattened in reading order: the section heading, then each question and
+       the answer under it. Same words, same order — the nesting moved into
+       the block roles, nothing else changed. */
+    body: faqPage.groups.flatMap((group) => [
+      { id: newId(), kind: "h2" as const, text: group.title },
+      ...group.items.flatMap((item) => {
+        const steps = "steps" in item && item.steps ? item.steps : null;
+        return [
+          { id: newId(), kind: "h3" as const, text: item.question },
+          /* A procedure becomes a numbered list, anything else a paragraph —
+             which is exactly what the page drew before. `answer` held the
+             steps run together for the structured data, and blocksToText
+             rebuilds that string from the list. */
+          steps
+            ? {
+                id: newId(),
+                kind: "ol" as const,
+                items: steps.map((line) => [{ text: line }]),
+              }
+            : {
+                id: newId(),
+                kind: "p" as const,
+                runs: [{ text: item.answer }],
+              },
+        ];
+      }),
+    ]),
   },
   career: {
     openingsTitle: careerPage.openings.title,
@@ -456,7 +449,19 @@ export const defaults: SiteContent = {
         category: detail?.category ?? item.title,
         type: detail?.type ?? item.experience,
         location: item.location,
-        responsibilities: detail ? [...detail.responsibilities] : [],
+        /* The exact strings, under the heading the page used to add. Same
+           words, same order, same rendered output — only the heading has
+           moved from the template into the content. */
+        body: detail && detail.responsibilities.length > 0
+          ? [
+              { id: newId(), kind: "h2" as const, text: "Key Responsibilities" },
+              {
+                id: newId(),
+                kind: "ul" as const,
+                items: detail.responsibilities.map((line) => [{ text: line }]),
+              },
+            ]
+          : [],
       };
     }),
   },

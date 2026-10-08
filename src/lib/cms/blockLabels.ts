@@ -22,26 +22,52 @@ import type { Node as ProseNode } from "@tiptap/pm/model";
 
 const key = new PluginKey("blockLabels");
 
-/** What to call each node, in the words the editor's own menus use. */
-function labelFor(node: ProseNode) {
+/** What a block is called, in whatever words the surrounding screen uses. */
+export type BlockLabelSet = {
+  h2?: string;
+  h3?: string;
+  paragraph?: string;
+  bulletList?: string;
+  orderedList?: string;
+  image?: string;
+};
+
+const DEFAULTS: Required<BlockLabelSet> = {
+  h2: "Heading",
+  h3: "Sub-heading",
+  paragraph: "Paragraph",
+  bulletList: "Bulleted list",
+  orderedList: "Numbered list",
+  image: "Image",
+};
+
+function labelFor(node: ProseNode, labels: Required<BlockLabelSet>) {
   switch (node.type.name) {
     case "heading":
-      return node.attrs.level === 3 ? "Sub-heading" : "Heading";
+      return node.attrs.level === 3 ? labels.h3 : labels.h2;
     case "bulletList":
-      return "Bulleted list";
+      return labels.bulletList;
+    case "orderedList":
+      return labels.orderedList;
     case "image":
-      return "Image";
+      return labels.image;
     case "paragraph":
-      return "Paragraph";
+      return labels.paragraph;
     default:
       return node.type.name;
   }
 }
 
-export const BlockLabels = Extension.create({
+export const BlockLabels = Extension.create<{ labels: BlockLabelSet }>({
   name: "blockLabels",
 
+  addOptions() {
+    return { labels: {} };
+  },
+
   addProseMirrorPlugins() {
+    const labels = { ...DEFAULTS, ...this.options.labels };
+
     return [
       new Plugin({
         key,
@@ -58,7 +84,7 @@ export const BlockLabels = Extension.create({
             state.doc.forEach((node, offset) => {
               decorations.push(
                 Decoration.node(offset, offset + node.nodeSize, {
-                  "data-block": labelFor(node),
+                  "data-block": labelFor(node, labels),
                   class: offset === activePos ? "block-active" : "",
                 }),
               );

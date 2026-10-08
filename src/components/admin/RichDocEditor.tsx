@@ -6,9 +6,9 @@ import { BubbleMenu, FloatingMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
-import type { BlogBlockEntry } from "@/lib/cms/schema";
+import type { RichBlock } from "@/lib/cms/schema";
 import { blocksToDoc, docToBlocks, sameBlocks, type RichDoc } from "@/lib/cms/richdoc";
-import { BlockLabels } from "@/lib/cms/blockLabels";
+import { BlockLabels, type BlockLabelSet } from "@/lib/cms/blockLabels";
 import { internalRoutes } from "@/lib/cms/schema";
 import { ImagesIcon, PlusIcon } from "@/components/icons";
 import ImageField from "./ImageField";
@@ -41,10 +41,24 @@ const ITEM =
 export default function RichDocEditor({
   blocks,
   onChange,
+  labels,
 }: {
-  blocks: BlogBlockEntry[];
-  onChange: (next: BlogBlockEntry[]) => void;
+  blocks: RichBlock[];
+  onChange: (next: RichBlock[]) => void;
+  /**
+   * What the block kinds are called on this screen. An FAQ is written as
+   * sections, questions and answers; the blocks underneath are the same
+   * headings and paragraphs, and only the words change.
+   */
+  labels?: BlockLabelSet;
 }) {
+  const names = {
+    h2: labels?.h2 ?? "Heading",
+    h3: labels?.h3 ?? "Sub-heading",
+    bulletList: labels?.bulletList ?? "Bulleted list",
+    orderedList: labels?.orderedList ?? "Numbered list",
+    image: labels?.image ?? "Image",
+  };
   const [linking, setLinking] = useState(false);
   const [inserting, setInserting] = useState(false);
 
@@ -59,7 +73,6 @@ export default function RichDocEditor({
         horizontalRule: false,
         strike: false,
         italic: false,
-        orderedList: false,
         heading: { levels: [2, 3] },
         link: false,
       }),
@@ -72,7 +85,7 @@ export default function RichDocEditor({
         HTMLAttributes: { rel: "noopener" },
       }),
       Image.configure({ inline: false, allowBase64: false }),
-      BlockLabels,
+      BlockLabels.configure({ labels: labels ?? {} }),
     ],
 
     content: blocksToDoc(blocks),
@@ -147,7 +160,10 @@ export default function RichDocEditor({
           editor={editor}
           shouldShow={({ editor: e, from, to }) => from !== to && !e.isActive("image")}
           options={{ placement: "top", offset: 8 }}
-          className="flex items-center gap-0.5 rounded-xl border border-ink-900/10 bg-ink-900 p-1 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.45)]"
+          /* z-50: above the admin rail, which is sticky at z-40 and was
+             painting over these. Below the toasts at 60 — a save that
+             failed has to be readable even with a menu open. */
+          className="z-50 flex items-center gap-0.5 rounded-xl border border-ink-900/10 bg-ink-900 p-1 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.45)]"
         >
           {linking ? (
             <LinkBar
@@ -175,18 +191,18 @@ export default function RichDocEditor({
               <span aria-hidden className="mx-1 h-5 w-px bg-white/20" />
 
               <Dark
-                label="Heading"
+                label={names.h2}
                 active={editor.isActive("heading", { level: 2 })}
                 onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
               >
-                H2
+                {names.h2 === "Heading" ? "H2" : names.h2}
               </Dark>
               <Dark
-                label="Sub-heading"
+                label={names.h3}
                 active={editor.isActive("heading", { level: 3 })}
                 onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
               >
-                H3
+                {names.h3 === "Sub-heading" ? "H3" : names.h3}
               </Dark>
               <Dark
                 label="Bulleted list"
@@ -194,6 +210,13 @@ export default function RichDocEditor({
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
               >
                 &bull; List
+              </Dark>
+              <Dark
+                label="Numbered list"
+                active={editor.isActive("orderedList")}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              >
+                1. List
               </Dark>
             </>
           )}
@@ -207,7 +230,7 @@ export default function RichDocEditor({
           pluginKey="imageMenu"
           shouldShow={({ editor: e }) => e.isActive("image")}
           options={{ placement: "bottom", offset: 8 }}
-          className="flex items-center gap-2 rounded-xl border border-line bg-white p-2 shadow-card"
+          className="z-50 flex items-center gap-2 rounded-xl border border-line bg-white p-2 shadow-card"
         >
           <label className="flex items-center gap-2">
             <span className="text-xs font-semibold text-ink-500">Alt text</span>
@@ -240,16 +263,22 @@ export default function RichDocEditor({
             return empty && $from.parent.type.name === "paragraph" && $from.parent.childCount === 0 && e.isEditable;
           }}
           options={{ placement: "left-start", offset: 8 }}
-          className="flex items-center gap-0.5 rounded-xl border border-line bg-white p-1 shadow-card"
+          className="z-50 flex items-center gap-0.5 rounded-xl border border-line bg-white p-1 shadow-card"
         >
-          <Pale label="Heading" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
+          <Pale label={names.h2} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
             H2
           </Pale>
-          <Pale label="Sub-heading" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
+          <Pale label={names.h3} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
             H3
           </Pale>
           <Pale label="Bulleted list" onClick={() => editor.chain().focus().toggleBulletList().run()}>
             &bull;
+          </Pale>
+          <Pale
+            label="Numbered list"
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          >
+            1.
           </Pale>
           <Pale label="Insert an image" onClick={() => setInserting(true)}>
             <ImagesIcon className="size-4" />

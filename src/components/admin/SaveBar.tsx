@@ -34,7 +34,11 @@ export default function SaveBar({
 }) {
   const blocked = problems.length > 0;
   return (
-    <div className="fixed inset-x-0 bottom-0 border-t border-line bg-white/95 backdrop-blur">
+    /* z-30 puts this at the bottom of the admin's stacking ladder:
+       30 save bar · 40 rail · 50 editor menus · 60 toasts · 70 dialogs.
+       Without a value it painted by DOM order, which put it over a
+       bubble menu opened on the last line of an article. */
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-[90rem] flex-wrap items-center justify-end gap-3 px-6 py-4 sm:px-10 lg:pl-[17rem]">
         {/* A blocking problem outranks the status: an editor needs to know
             why Save is greyed out before anything else the bar might say. */}

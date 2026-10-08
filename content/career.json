@@ -2,42 +2,85 @@
   "jobs": [
     {
       "id": "business-development-manager",
+      "body": [
+        {
+          "id": "c90e9b1b-c89d-461f-8937-d5c561f9fcb8",
+          "kind": "h2",
+          "text": "Key Responsibilities"
+        },
+        {
+          "id": "f34d3b85-6cab-4d3c-95e2-8c8325d96595",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Will be responsible for generating the Sales of the company product portfolio in an assigned territory"
+              }
+            ],
+            [
+              {
+                "text": "Meeting HNI clients - Builders / developers/contractors (At corporate level &/or site specific)"
+              }
+            ],
+            [
+              {
+                "text": "Key Product Portfolio that needs to be sold –Gypsum, Readymix Plaster other bonding agents and related products"
+              }
+            ],
+            [
+              {
+                "text": "The candidate needs to plan the forecasting and strategies for increasing the sales"
+              }
+            ],
+            [
+              {
+                "text": "Retain existing customers & generate repeat business or cross sell our product portfolio."
+              }
+            ],
+            [
+              {
+                "text": "Develop & build new customers on an ongoing basis."
+              }
+            ],
+            [
+              {
+                "text": "A good understanding of Sales processes in the building material industry - gypsum preferred"
+              }
+            ],
+            [
+              {
+                "text": "Ability to reach out to customers & sell the Buildon Value proposition."
+              }
+            ]
+          ]
+        }
+      ],
       "live": true,
       "slug": "business-development-manager",
       "type": "5 years Experience",
       "title": "Business Development Manager",
       "category": "Business Development Manager",
-      "location": "Hyderabad",
-      "responsibilities": [
-        "Will be responsible for generating the Sales of the company product portfolio in an assigned territory",
-        "Meeting HNI clients - Builders / developers/contractors (At corporate level &/or site specific)",
-        "Key Product Portfolio that needs to be sold –Gypsum, Readymix Plaster other bonding agents and related products",
-        "The candidate needs to plan the forecasting and strategies for increasing the sales",
-        "Retain existing customers & generate repeat business or cross sell our product portfolio.",
-        "Develop & build new customers on an ongoing basis.",
-        "A good understanding of Sales processes in the building material industry - gypsum preferred",
-        "Ability to reach out to customers & sell the Buildon Value proposition."
-      ]
+      "location": "Hyderabad"
     },
     {
       "id": "sales-associate-bangalore",
+      "body": [],
       "live": true,
       "slug": "sales-associate-bangalore",
       "type": "2 years Experience",
       "title": "Sales Associate",
       "category": "Sales Associate",
-      "location": "Bangalore",
-      "responsibilities": []
+      "location": "Bangalore"
     },
     {
       "id": "sales-associate-kolkata",
+      "body": [],
       "live": true,
       "slug": "sales-associate-kolkata",
       "type": "2 years Experience",
       "title": "Sales Associate",
       "category": "Sales Associate",
-      "location": "Kolkata",
-      "responsibilities": []
+      "location": "Kolkata"
     }
   ],
   "moreLabel": "More Details",

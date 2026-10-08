@@ -7,7 +7,8 @@ import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { careerPage, site } from "@/lib/content";
-import { getPublishedJob, publishedCareer } from "@/lib/cms/published";
+import { blocksToText, getPublishedJob, publishedCareer } from "@/lib/cms/published";
+import RichBlocks from "@/components/RichBlocks";
 
 /**
  * /career/<slug> — one template for every opening.
@@ -59,7 +60,7 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title,
-    description: job.responsibilities.join(" ") || `${job.title} at ${site.name}.`,
+    description: blocksToText(job.body) || `${job.title} at ${site.name}.`,
     employmentType: "FULL_TIME",
     hiringOrganization: { "@type": "Organization", name: site.name, sameAs: site.url },
     jobLocation: {
@@ -108,21 +109,14 @@ export default async function JobPage({ params }: { params: Promise<{ slug: stri
                   </dl>
                 </Reveal>
 
-                {job.responsibilities.length > 0 ? (
+                {job.body.length > 0 ? (
+                  /* The heading is part of the body now, not supplied here —
+                     which is what lets a role carry a paragraph of context or
+                     a second section rather than only bullets. */
                   <Reveal delay={0.06}>
-                    <h2 className="mt-10 font-display text-xl leading-snug font-semibold text-ink-900 sm:mt-12 sm:text-2xl">
-                      Key Responsibilities
-                    </h2>
-                    <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-ink-500 sm:text-base">
-                      {job.responsibilities.map((item) => (
-                        <li
-                          key={item}
-                          className="relative pl-6 before:absolute before:top-[0.6em] before:left-0 before:size-1.5 before:rounded-full before:bg-brand-500"
-                        >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="mt-10 sm:mt-12">
+                      <RichBlocks blocks={job.body} />
+                    </div>
                   </Reveal>
                 ) : (
                   /* Two of the three openings carry no description upstream.

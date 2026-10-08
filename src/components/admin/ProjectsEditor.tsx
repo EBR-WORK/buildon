@@ -12,7 +12,7 @@ import {
   type SiteContent,
 } from "@/lib/cms/schema";
 import { ChevronDownIcon, PlusIcon, TrashIcon } from "@/components/icons";
-import { TextAreaField, TextField } from "./Fields";
+import { PagePath, TextAreaField, TextField } from "./Fields";
 import ImageField from "./ImageField";
 import { describeUsage, projectUsage } from "@/lib/cms/usage";
 import RichTextField from "./RichTextField";
@@ -266,14 +266,16 @@ export default function ProjectsEditor() {
                       />
 
                       {shipped ? (
-                        <p className="rounded-xl bg-surface px-4 py-3 text-sm leading-relaxed text-ink-500">
-                          Live at{" "}
-                          <strong className="font-semibold text-ink-900">
-                            /projects/{project.slug}
-                          </strong>
-                          . The address is fixed — changing it would break every link to
-                          this page.
-                        </p>
+                        <div className="rounded-xl bg-surface px-4 py-3">
+                          {/* The address, and a way to open it. Live needs both:
+                              not a draft, and already built — a page published
+                              minutes ago does not exist until the next deploy. */}
+                          <PagePath path={`/projects/${project.slug}`} live={project.live !== false} />
+                          <p className="mt-2 text-sm leading-relaxed text-ink-500">
+                            The address is fixed. Changing it would break every link to
+                            this page.
+                          </p>
+                        </div>
                       ) : (
                         <TextField
                           label="Web address"

@@ -23,7 +23,7 @@ import projectsJson from "@/../content/projects.json";
 import careerJson from "@/../content/career.json";
 import faqJson from "@/../content/faq.json";
 import { applicationFields, jobOpenings as fallbackJobs } from "@/lib/careerDetails";
-import { blogPosts as fallbackPosts, type BlogPost } from "@/lib/blogDetails";
+import { blogPosts as fallbackPosts, type BlogBlock, type BlogPost } from "@/lib/blogDetails";
 import { projectDetails } from "@/lib/projectDetails";
 import type { RichRun } from "@/lib/cms/schema";
 import {
@@ -326,7 +326,13 @@ export type PublishedJob = {
   readonly category: string;
   readonly type: string;
   readonly location: string;
-  readonly responsibilities: readonly string[];
+  /**
+   * The description, in the shape a page renders — the same `BlogBlock`
+   * the articles use, not the admin's `RichBlock`. The two differ by an `id`
+   * the editor needs and a page does not, and by how a heading's link is
+   * held; converting once, here, keeps that difference out of the template.
+   */
+  readonly body: readonly BlogBlock[];
 };
 
 /**
@@ -355,11 +361,11 @@ function readJobs(value: unknown): PublishedJob[] | null {
         category: text(row.category, title),
         type: text(row.type, ""),
         location: text(row.location, ""),
-        responsibilities: Array.isArray(row.responsibilities)
-          ? row.responsibilities.filter(
-              (line): line is string => typeof line === "string" && line.trim().length > 0,
-            )
-          : [],
+        /* readBlocks is shared with the blog, so a job description gets the
+           same validation: an image with no dimensions, a heading link whose
+           phrase is not in the heading, a run with no text — all dropped
+           before they can reach a page. */
+        body: Array.isArray(row.body) ? row.body.flatMap(readBlock) : [],
       },
     ];
   });
@@ -381,7 +387,16 @@ export const publishedCareer = {
       category: job.category,
       type: job.type,
       location: job.location,
-      responsibilities: job.responsibilities,
+      body:
+        job.responsibilities.length > 0
+          ? [
+              { kind: "h2" as const, text: "Key Responsibilities" },
+              {
+                kind: "ul" as const,
+                items: job.responsibilities.map((line) => [{ text: line }]),
+              },
+            ]
+          : [],
     })),
 } as const;
 
@@ -401,9 +416,16 @@ export function publishedJobHref(title: string, location: string) {
 
 export type PublishedFaqItem = {
   readonly question: string;
-  readonly answer: string;
-  /** A procedure, shown as a numbered list. `answer` holds the same words. */
-  readonly steps?: readonly string[];
+  /** The answer, in the shape a page renders. */
+  readonly body: readonly BlogBlock[];
+  /**
+   * The same answer as one string, for the page's FAQPage structured data.
+   *
+   * Derived rather than stored: a schema field kept beside the body is a
+   * second copy to forget, and this one is invisible — nobody notices it has
+   * drifted from what the page shows.
+   */
+  readonly answerText: string;
 };
 
 export type PublishedFaqGroup = {
@@ -411,52 +433,83 @@ export type PublishedFaqGroup = {
   readonly items: readonly PublishedFaqItem[];
 };
 
+/**
+ * Rebuild the accordion from the flat document.
+ *
+ * The editor writes one run of blocks; the page needs groups of questions.
+ * A heading opens something and everything after it belongs to that thing,
+ * until the next heading of the same or higher rank:
+ *
+ *   h2  starts a section
+ *   h3  starts a question in the current section
+ *   anything else  is answer copy for the current question
+ *
+ * Blocks before the first section are dropped. They would have nowhere to
+ * render — the accordion draws sections, and content outside one is content
+ * the page has no place for. The editor is told so by validateFaq rather than
+ * discovering it missing.
+ */
 function readFaqGroups(value: unknown): PublishedFaqGroup[] | null {
   if (!Array.isArray(value)) return null;
 
-  const groups = value.flatMap((row): PublishedFaqGroup[] => {
-    if (!isObject(row)) return [];
-    if (!isLive(row)) return [];
+  type Building = { title: string; items: { question: string; body: BlogBlock[] }[] };
+  const groups: Building[] = [];
 
-    const title = typeof row.title === "string" ? row.title.trim() : "";
-    if (!title || !Array.isArray(row.items)) return [];
+  for (const raw of value) {
+    const [block] = readBlock(raw);
+    if (!block) continue;
 
-    /* A question with no answer is worse than no question: the accordion opens
-       on nothing, and the FAQ structured data would carry an empty entry. */
-    const items = row.items.flatMap((item) => {
-      if (!isObject(item) || !isLive(item)) return [];
-      const question = typeof item.question === "string" ? item.question.trim() : "";
-      const answer = typeof item.answer === "string" ? item.answer.trim() : "";
-      if (!question || !answer) return [];
+    if (block.kind === "h2") {
+      if (block.text.trim()) groups.push({ title: block.text.trim(), items: [] });
+      continue;
+    }
 
-      const steps = Array.isArray(item.steps)
-        ? item.steps.filter(
-            (step): step is string => typeof step === "string" && step.trim().length > 0,
-          )
-        : [];
+    const group = groups.at(-1);
+    if (!group) continue;
 
-      return [{ question, answer, ...(steps.length > 0 ? { steps } : {}) }];
-    });
+    if (block.kind === "h3") {
+      if (block.text.trim()) group.items.push({ question: block.text.trim(), body: [] });
+      continue;
+    }
 
-    return items.length > 0 ? [{ title, items }] : [];
-  });
+    /* Answer copy with no question above it has nowhere to go. */
+    const item = group.items.at(-1);
+    if (item) item.body.push(block);
+  }
 
-  return groups.length > 0 ? groups : null;
+  const built = groups
+    .map((group) => ({
+      title: group.title,
+      /* A question with no answer would open the accordion onto nothing and
+         put a blank into the page's structured data. */
+      items: group.items
+        .filter((item) => item.body.length > 0)
+        .map((item) => ({
+          question: item.question,
+          body: item.body,
+          answerText: blocksToText(item.body),
+        })),
+    }))
+    .filter((group) => group.items.length > 0);
+
+  return built.length > 0 ? built : null;
 }
 
-const faqFile = faqJson as Record<string, unknown>;
+const faqFile = (isObject(faqJson) ? faqJson : {}) as Record<string, unknown>;
 
 export const publishedFaq = {
   title: text(faqFile.title, faqPage.title),
   groups:
-    readFaqGroups(faqFile.groups) ??
+    readFaqGroups(faqFile.body) ??
     faqPage.groups.map((group) => ({
       title: group.title,
-      items: group.items.map((item) => ({
-        question: item.question,
-        answer: item.answer,
-        ...("steps" in item && item.steps ? { steps: item.steps } : {}),
-      })),
+      items: group.items.map((item) => {
+        const steps = "steps" in item && item.steps ? item.steps : null;
+        const body: BlogBlock[] = steps
+          ? [{ kind: "ol", items: steps.map((line) => [{ text: line }]) }]
+          : [{ kind: "p", runs: [{ text: item.answer }] }];
+        return { question: item.question, body, answerText: item.answer };
+      }),
     })),
 } as const;
 
@@ -521,11 +574,13 @@ function readBlock(value: unknown): BlogPost["body"][number][] {
       return [{ kind: value.kind, text: heading, ...(link ? { link } : {}) }];
     }
 
-    case "ul": {
+    case "ul":
+    case "ol": {
       const items = Array.isArray(value.items)
         ? value.items.map(readRuns).filter((runs) => runs.length > 0)
         : [];
-      return items.length > 0 ? [{ kind: "ul", items }] : [];
+      if (items.length === 0) return [];
+      return [{ kind: value.kind === "ol" ? "ol" : "ul", items }];
     }
 
     case "image": {
@@ -600,3 +655,18 @@ export const publishedBlog = {
 /* The application form's option lists are not content an editor changes, so
    they stay where they are. */
 export { applicationFields };
+
+/** Rich blocks flattened to plain text, for a meta description or JSON-LD. */
+export function blocksToText(blocks: readonly BlogBlock[]) {
+  return blocks
+    .map((block) => {
+      if (block.kind === "h2" || block.kind === "h3") return block.text;
+      if (block.kind === "ul" || block.kind === "ol") {
+        return block.items.map(runsToText).join(" ");
+      }
+      if (block.kind === "image") return "";
+      return runsToText(block.runs);
+    })
+    .filter(Boolean)
+    .join(" ");
+}

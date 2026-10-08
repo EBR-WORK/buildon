@@ -10,8 +10,9 @@ import {
   type SiteContent,
 } from "@/lib/cms/schema";
 import { PlusIcon } from "@/components/icons";
-import { RepeatableList, TextAreaField, TextField } from "./Fields";
+import { PagePath, TextField } from "./Fields";
 import EntryRow from "./EntryRow";
+import RichDocEditor from "./RichDocEditor";
 import SaveBar, { type Status } from "./SaveBar";
 import { describeProblems, validateJobs } from "@/lib/cms/validate";
 import { useToast } from "./Toast";
@@ -137,7 +138,7 @@ export default function CareerEditor() {
         category: "",
         type: "",
         location: "",
-        responsibilities: [""],
+        body: [],
       }),
     );
     setOpen(id);
@@ -273,14 +274,16 @@ export default function CareerEditor() {
                       />
 
                       {shipped ? (
-                        <p className="rounded-xl bg-surface px-4 py-3 text-sm leading-relaxed text-ink-500">
-                          Live at{" "}
-                          <strong className="font-semibold text-ink-900">
-                            /career/{job.slug}
-                          </strong>
-                          . The address is fixed — anyone who has the link, or has applied
-                          from it, would lose the page.
-                        </p>
+                        <div className="rounded-xl bg-surface px-4 py-3">
+                          {/* The address, and a way to open it. Live needs both:
+                              not a draft, and already built — a page published
+                              minutes ago does not exist until the next deploy. */}
+                          <PagePath path={`/career/${job.slug}`} live={job.live !== false} />
+                          <p className="mt-2 text-sm leading-relaxed text-ink-500">
+                            The address is fixed. Changing it would break every link to
+                            this page.
+                          </p>
+                        </div>
                       ) : (
                         <TextField
                           label="Web address"
@@ -318,20 +321,18 @@ export default function CareerEditor() {
                         />
                       </div>
 
-                      <RepeatableList
-                        label="Key responsibilities"
-                        hint="One per row. Leave empty if the role has no description yet — the page says so rather than showing an empty heading."
-                        items={job.responsibilities}
-                        min={0}
-                        addLabel="Add responsibility"
-                        blank={() => ""}
-                        onChange={(next) =>
-                          edit((d) => void (d.career.jobs[i].responsibilities = next))
-                        }
-                        render={(line, update) => (
-                          <TextAreaField label="Responsibility" rows={2} value={line} onChange={update} />
-                        )}
+                      {/* Keyed on the opening: switching rows must give the
+                          editor a new instance rather than reusing one still
+                          holding the last job's description. */}
+                      <RichDocEditor
+                        key={job.id}
+                        blocks={job.body}
+                        onChange={(next) => edit((d) => void (d.career.jobs[i].body = next))}
                       />
+                      <p className="text-sm text-ink-500">
+                        Leave this empty if the role has no description yet &mdash; the page
+                        says so rather than showing an empty heading.
+                      </p>
 
                   {shipped && (
                         <p className="border-t border-line pt-4 text-sm text-ink-500">
