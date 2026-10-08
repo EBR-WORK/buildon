@@ -151,6 +151,25 @@ export function validatePosts(content: SiteContent): Problem[] {
     }
     if (blank(post.image)) problems.push({ id: post.id, label, message: "needs a featured image." });
     if (post.body.length === 0) problems.push({ id: post.id, label, message: "has no body yet." });
+
+    if (blank(post.published)) {
+      problems.push({ id: post.id, label, message: "needs a published date." });
+    }
+
+    /* Backwards dates are not cosmetic: both go into the article's structured
+       data, and a modified date before the published one is the kind of thing
+       a search engine treats as a signal that the page is not trustworthy. */
+    if (
+      !blank(post.published) &&
+      !blank(post.modified) &&
+      post.modified < post.published
+    ) {
+      problems.push({
+        id: post.id,
+        label,
+        message: "was last updated before it was published — one of the two dates is wrong.",
+      });
+    }
   }
 
   return problems;

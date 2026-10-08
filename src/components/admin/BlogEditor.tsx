@@ -12,9 +12,9 @@ import {
 } from "@/lib/cms/schema";
 import { describeUsage, postUsage } from "@/lib/cms/usage";
 import { PlusIcon, SearchIcon } from "@/components/icons";
-import BlockEditor from "./BlockEditor";
+import RichDocEditor from "./RichDocEditor";
 import EntryRow from "./EntryRow";
-import { Field, TextAreaField, TextField } from "./Fields";
+import { DateField, Field, TextAreaField, TextField, today } from "./Fields";
 import ImageField from "./ImageField";
 import SaveBar, { type Status } from "./SaveBar";
 import { describeProblems, validatePosts } from "@/lib/cms/validate";
@@ -127,7 +127,7 @@ export default function BlogEditor() {
 
   function addPost() {
     const id = newId();
-    const today = new Date().toISOString().slice(0, 10);
+    const now = today();
     edit((d) =>
       void d.blog.items.unshift({
         id,
@@ -138,8 +138,8 @@ export default function BlogEditor() {
         title: "",
         description: "",
         image: "",
-        published: today,
-        modified: today,
+        published: now,
+        modified: now,
         author: blogAuthorKeys[0] ?? "buildon co",
         body: [],
       }),
@@ -329,18 +329,24 @@ export default function BlogEditor() {
                     />
 
                     <div className="grid gap-5 sm:grid-cols-3">
-                      <TextField
+                      <DateField
                         label="Published"
-                        hint="YYYY-MM-DD"
+                        required
+                        hint="Shown on the article and used by search engines."
                         value={post.published}
+                        /* No future dates: this site builds to static files, so
+                           a post dated next week is live now and simply lies
+                           about when it was written. */
+                        max={today()}
                         onChange={(next) =>
                           edit((d) => void (d.blog.items[index].published = next))
                         }
                       />
-                      <TextField
+                      <DateField
                         label="Last updated"
-                        hint="YYYY-MM-DD"
+                        hint="Leave as the published date if nothing has changed."
                         value={post.modified}
+                        max={today()}
                         onChange={(next) => edit((d) => void (d.blog.items[index].modified = next))}
                       />
                       <Field label="Author" hint="One of the three bios on file.">
@@ -361,7 +367,7 @@ export default function BlogEditor() {
                     </div>
 
                     <div className="border-t border-line pt-5">
-                      <BlockEditor
+                      <RichDocEditor
                         blocks={post.body}
                         onChange={(next) => edit((d) => void (d.blog.items[index].body = next))}
                       />

@@ -9,8 +9,8 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { PlusIcon } from "@/components/icons";
 import BlogCards from "@/components/BlogCards";
-import { blogPage, productCatalogue, products, site } from "@/lib/content";
-import { getBlogPost } from "@/lib/blogDetails";
+import { productCatalogue, products, site } from "@/lib/content";
+import { publishedBlog } from "@/lib/cms/published";
 import { gypsumPlasterPage as page } from "@/lib/gypsumPlasterPage";
 
 /**
@@ -40,11 +40,12 @@ export default function GypsumPlasterPage() {
   /* The three posts by the titles the reference names, looked up in the
      listing so their cards carry the same image and excerpt as everywhere
      else. */
+  /* Matched on slug rather than title: a title edited in the panel used to
+     drop the post out of this row silently, because the two lists stopped
+     agreeing. One list now, and the slug is the thing that does not move. */
   const latest = page.latest.slugs
-    .map((slug) => getBlogPost(slug))
-    .filter((post) => post !== undefined)
-    .map((post) => blogPage.items.find((item) => item.title === post.title))
-    .filter((item) => item !== undefined);
+    .map((slug) => publishedBlog.cards.find((card) => card.href === `/blog/${slug}`))
+    .filter((card) => card !== undefined);
 
   const faqJsonLd = {
     "@context": "https://schema.org",

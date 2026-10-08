@@ -3,10 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
-import { blogPage } from "@/lib/content";
+/* Cards are derived from the posts themselves — see publishedBlog. */
+import { publishedBlog, type PublishedPostCard } from "@/lib/cms/published";
 import { blogHref } from "@/lib/blogDetails";
 
-type Item = (typeof blogPage.items)[number];
+type Item = PublishedPostCard;
 
 /**
  * The listing's cards, given whichever posts should be shown.
@@ -52,7 +53,7 @@ export default function BlogCards({ items }: { items: readonly Item[] }) {
                   aria-hidden
                   className="mt-4 inline-flex items-center self-start text-sm font-semibold text-brand-500 transition group-hover:text-brand-600 sm:mt-5"
                 >
-                  {blogPage.readMore}
+                  {publishedBlog.readMore}
                 </span>
               </div>
             </>

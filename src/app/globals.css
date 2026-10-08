@@ -250,3 +250,159 @@
     }
   }
 }
+
+/* ---------------------------------------------------------------- admin ---
+   The rich text editor's own content.
+
+   ProseMirror renders real h2/h3/ul/img elements, and Tailwind's preflight
+   strips every one of them back to plain text. Unstyled, a heading in the
+   editor looks exactly like a paragraph — which defeats the point of editing
+   the article as it reads. These are deliberately close to the site's own
+   type scale rather than identical: it is an editing surface, not a preview,
+   and pretending otherwise invites fights about pixel differences. */
+
+.prose-admin:focus {
+  outline: none;
+}
+
+.prose-admin > * + * {
+  margin-top: 0.9em;
+}
+
+.prose-admin h2 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-ink-900);
+  margin-top: 1.5em;
+}
+
+.prose-admin h3 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-ink-900);
+  margin-top: 1.3em;
+}
+
+.prose-admin ul {
+  list-style: disc;
+  padding-left: 1.4em;
+}
+
+.prose-admin li {
+  margin-top: 0.3em;
+}
+
+.prose-admin img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-line);
+}
+
+/* The selected image, so it is obvious what Delete would remove. */
+.prose-admin img.ProseMirror-selectednode {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+.prose-admin a {
+  color: var(--color-brand-500);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* An empty document gives no hint about what to do with it. */
+.prose-admin p.is-editor-empty:first-child::before {
+  content: "Write the article here.";
+  color: var(--color-ink-400);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* The gutter the menus sit in. The editor is padded to the left so a floating
+   menu beside an empty line lands in white space rather than over the words
+   of the line above it. */
+.prose-admin {
+  caret-color: var(--color-brand-500);
+}
+
+/* ProseMirror keeps the selection visible while the editor is blurred, which
+   is what a bubble menu needs: clicking Bold blurs the text and the highlight
+   has to stay or there is nothing to show the command applied to. */
+.prose-admin .ProseMirror-selectednode,
+.prose-admin ::selection {
+  background: color-mix(in srgb, var(--color-brand-500) 22%, transparent);
+}
+
+/* Block outlines and type labels, the way a page builder shows them.
+
+   The label is ::after, not ::before: the empty-document placeholder already
+   owns ::before on the first paragraph, and one element cannot have two.
+
+   Both are decorations from blockLabels.ts, so nothing here is ever stored in
+   a post — the attribute exists only while the editor is on screen. */
+
+.prose-admin > * {
+  position: relative;
+}
+
+.prose-admin > *::after {
+  content: attr(data-block);
+  position: absolute;
+  top: -0.55rem;
+  left: -0.5rem;
+  z-index: 1;
+  padding: 0.05rem 0.4rem;
+  border-radius: 0.25rem;
+  background: var(--color-brand-500);
+  color: #fff;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+}
+
+/* On hover it is a hint; on the active block it is a statement. The hover one
+   is paler so the two are distinguishable when the pointer is somewhere the
+   cursor is not. */
+.prose-admin > *:hover::after {
+  opacity: 0.45;
+}
+
+.prose-admin > .block-active::after {
+  opacity: 1;
+}
+
+.prose-admin > *:hover {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-brand-500) 25%, transparent);
+  border-radius: 0.25rem;
+}
+
+.prose-admin > .block-active {
+  box-shadow: 0 0 0 1px var(--color-brand-500);
+  border-radius: 0.25rem;
+}
+
+/* The outline is drawn on the box, so the text needs room inside it or the
+   line sits tight against the first character. */
+.prose-admin > * {
+  padding: 0.1rem 0.4rem;
+  margin-left: -0.4rem;
+  margin-right: -0.4rem;
+}
+
+/* The first block's label sits above its own top edge, which on the first
+   line of the document would be clipped by the editor's padding. */
+.prose-admin > *:first-child::after {
+  top: -0.4rem;
+}

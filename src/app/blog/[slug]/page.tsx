@@ -16,7 +16,7 @@ import {
 } from "@/lib/blogDetails";
 /* Posts come from the published file, so an edit in the admin panel reaches
    the article after the next pull and build. */
-import { getPublishedPost, publishedPosts } from "@/lib/cms/published";
+import { getPublishedPost, publishedBlog, publishedPosts } from "@/lib/cms/published";
 
 /**
  * /blog/<slug> — one template for every post.
@@ -109,7 +109,7 @@ function runHref(href: string | undefined) {
  * the same way More Projects rotates on a project page.
  */
 function railPosts(title: string) {
-  const items = blogPage.items;
+  const items = publishedBlog.cards;
   const index = Math.max(
     0,
     items.findIndex((item) => item.title === title),

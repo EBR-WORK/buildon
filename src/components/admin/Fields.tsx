@@ -117,6 +117,81 @@ export function TextAreaField({
   );
 }
 
+/** YYYY-MM-DD, which is both what the site stores and what <input type="date"> wants. */
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * A date, with the browser's own picker.
+ *
+ * `type="date"` is the whole feature: it brings a calendar, a locale-correct
+ * display, and keyboard entry, none of which is worth rebuilding. It exchanges
+ * values as YYYY-MM-DD regardless of how it shows them, which is already the
+ * stored format — so nothing is parsed or reformatted here.
+ *
+ * The catch it hides: given anything that is not YYYY-MM-DD, the control
+ * renders blank. A post holding "31 July 2025" would look empty, and the first
+ * touch of the field would overwrite it with nothing. So a value it cannot
+ * represent falls back to a text box that shows the real contents and says
+ * what is wrong, rather than quietly swallowing it.
+ */
+export function DateField({
+  label,
+  hint,
+  value,
+  onChange,
+  required,
+  max,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (next: string) => void;
+  required?: boolean;
+  /** Latest date the picker will offer — "today" for a published date. */
+  max?: string;
+}) {
+  const malformed = Boolean(value) && !ISO_DATE.test(value);
+  const error = required && !value.trim() ? "Pick a date." : undefined;
+
+  if (malformed) {
+    return (
+      <Field
+        label={label}
+        required={required}
+        error={`"${value}" is not a date the picker can show. Use YYYY-MM-DD.`}
+      >
+        <input
+          type="text"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className={FIELD}
+        />
+      </Field>
+    );
+  }
+
+  return (
+    <Field label={label} hint={hint} required={required} error={error}>
+      <input
+        type="date"
+        value={value}
+        max={max}
+        onChange={(event) => onChange(event.target.value)}
+        /* The picker indicator is tiny and low-contrast by default in Chrome;
+           the filter darkens it to match the rest of the controls. */
+        className={`${FIELD} [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:hover:opacity-100`}
+      />
+    </Field>
+  );
+}
+
+/** Today as YYYY-MM-DD, in the editor's own timezone. */
+export function today() {
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 10);
+}
+
 /**
  * A call to action: its words and where it goes.
  *

@@ -27,6 +27,7 @@ import { blogPosts as fallbackPosts, type BlogPost } from "@/lib/blogDetails";
 import { projectDetails } from "@/lib/projectDetails";
 import type { RichRun } from "@/lib/cms/schema";
 import {
+  blogPage,
   careerPage,
   faqPage,
   hero,
@@ -560,6 +561,41 @@ export const publishedPosts: readonly BlogPost[] =
 export function getPublishedPost(slug: string) {
   return publishedPosts.find((post) => post.slug === slug);
 }
+
+export type PublishedPostCard = {
+  readonly title: string;
+  readonly href: string;
+  readonly excerpt: string;
+  readonly image: string;
+};
+
+/**
+ * The listing cards, derived from the posts rather than kept beside them.
+ *
+ * content.ts holds a second list — blogPage.items — with its own titles,
+ * excerpts and images. Two lists of the same thirty-three articles is two
+ * places to edit and one to forget: a post added in the panel got a page and
+ * never appeared on /blog, because the listing was reading the other list.
+ *
+ * So there is one list now. The excerpt is the post's own description, which
+ * is what the reference's cards show anyway, and the card inherits the draft
+ * flag for free: a post not published has no page and no card, with nothing
+ * to keep in step.
+ */
+export const publishedBlog = {
+  title: blogPage.title,
+  readMore: blogPage.readMore,
+  cards: publishedPosts.map(
+    (post): PublishedPostCard => ({
+      title: post.title,
+      href: `/blog/${post.slug}`,
+      /* The reference's excerpts end in an ellipsis where they were cut; the
+         description carries that already, so nothing is re-truncated here. */
+      excerpt: post.description,
+      image: post.image,
+    }),
+  ),
+} as const;
 
 /* The application form's option lists are not content an editor changes, so
    they stay where they are. */

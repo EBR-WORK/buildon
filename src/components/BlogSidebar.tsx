@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { blogPage } from "@/lib/content";
+import { publishedBlog } from "@/lib/cms/published";
 import { blogTags } from "@/lib/blogDetails";
 import SearchBox from "./SearchBox";
 import { ChevronRightIcon } from "./icons";
@@ -89,7 +89,7 @@ export default function BlogSidebar({
             </Link>
 
             <span className="grid size-[23px] place-items-center rounded-full bg-brand-500 text-[11px] font-semibold text-white">
-              {blogPage.items.length}
+              {publishedBlog.cards.length}
             </span>
           </li>
         </ul>

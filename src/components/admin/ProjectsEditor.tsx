@@ -11,7 +11,7 @@ import {
   type RichRun,
   type SiteContent,
 } from "@/lib/cms/schema";
-import { PlusIcon } from "@/components/icons";
+import { ChevronDownIcon, PlusIcon, TrashIcon } from "@/components/icons";
 import { TextAreaField, TextField } from "./Fields";
 import ImageField from "./ImageField";
 import { describeUsage, projectUsage } from "@/lib/cms/usage";
@@ -372,6 +372,21 @@ function Paragraphs({
   paragraphs: RichRun[][];
   onChange: (next: RichRun[][]) => void;
 }) {
+  const { confirm } = useToast();
+
+  /* Body copy is the part of a project page nobody can retype from memory, and
+     this button sat next to two harmless ones with nothing between a misclick
+     and a lost paragraph. */
+  async function remove(index: number) {
+    const words = paragraphs[index].map((run) => run.text).join("").trim();
+    const ok = await confirm({
+      title: `Delete paragraph ${index + 1}?`,
+      body: words ? `"${words.slice(0, 120)}${words.length > 120 ? "…" : ""}"` : "It is empty.",
+      confirmLabel: "Delete paragraph",
+    });
+    if (ok) onChange(paragraphs.filter((_, n) => n !== index));
+  }
+
   const move = (from: number, to: number) => {
     if (to < 0 || to >= paragraphs.length) return;
     const next = [...paragraphs];
@@ -397,31 +412,32 @@ function Paragraphs({
                 Paragraph {i + 1}
               </span>
 
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
+              {/* Icons, matching every other list in the panel. The words were
+                  the odd one out here, and three underlined links in a row read
+                  as prose rather than controls. */}
+              <div className="flex items-center gap-1">
+                <ParagraphButton
+                  label="Move up"
                   disabled={i === 0}
                   onClick={() => move(i, i - 1)}
-                  className="cursor-pointer text-sm text-ink-500 underline disabled:cursor-not-allowed disabled:opacity-30"
                 >
-                  Up
-                </button>
-                <button
-                  type="button"
+                  <ChevronDownIcon className="size-4 rotate-180" />
+                </ParagraphButton>
+                <ParagraphButton
+                  label="Move down"
                   disabled={i === paragraphs.length - 1}
                   onClick={() => move(i, i + 1)}
-                  className="cursor-pointer text-sm text-ink-500 underline disabled:cursor-not-allowed disabled:opacity-30"
                 >
-                  Down
-                </button>
-                <button
-                  type="button"
+                  <ChevronDownIcon className="size-4" />
+                </ParagraphButton>
+                <ParagraphButton
+                  label="Delete paragraph"
+                  danger
                   disabled={paragraphs.length <= 1}
-                  onClick={() => onChange(paragraphs.filter((_, n) => n !== i))}
-                  className="cursor-pointer text-sm text-signal-500 underline disabled:cursor-not-allowed disabled:opacity-30"
+                  onClick={() => void remove(i)}
                 >
-                  Remove
-                </button>
+                  <TrashIcon className="size-4" />
+                </ParagraphButton>
               </div>
             </div>
 
@@ -445,5 +461,34 @@ function Paragraphs({
         Add paragraph
       </button>
     </section>
+  );
+}
+
+function ParagraphButton({
+  label,
+  onClick,
+  disabled,
+  danger,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      onClick={onClick}
+      className={`grid size-8 cursor-pointer place-items-center rounded-lg text-ink-500 transition disabled:cursor-not-allowed disabled:opacity-30 ${
+        danger ? "hover:bg-signal-50 hover:text-signal-500" : "hover:bg-surface hover:text-ink-900"
+      }`}
+    >
+      {children}
+    </button>
   );
 }

@@ -209,3 +209,28 @@ export async function replaceUpload(previous: string, next: string) {
   const path = pathFromUrl(previous);
   if (path) await removeUpload(path);
 }
+
+/**
+ * The natural size of an image already on a URL.
+ *
+ * Needed because an image chosen from the gallery arrives as a path with no
+ * dimensions attached, and the renderer needs both: next/image reserves the
+ * space before the file loads, which is what stops an article jumping as it
+ * comes in. Guessing a 4:3 default turns every portrait photograph into a
+ * wrongly-shaped hole.
+ */
+export function measureImage(src: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const probe = new window.Image();
+    probe.onload = () =>
+      resolve({ width: probe.naturalWidth || 1600, height: probe.naturalHeight || 1200 });
+    probe.onerror = () => reject(new Error("That image could not be loaded."));
+
+    /* Deliberately no crossOrigin. Setting it turns this into a CORS request,
+       which fails outright on any host that does not send the headers — and
+       all this needs is naturalWidth, which is readable from a tainted image.
+       Asking for permission that is not required only creates ways to fail. */
+    probe.decoding = "async";
+    probe.src = src;
+  });
+}
