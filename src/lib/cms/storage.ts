@@ -194,21 +194,19 @@ export function pathFromUrl(value: string) {
 }
 
 /**
- * Delete the file a field used to hold, now that it holds another.
+ * Files are no longer deleted when a field is pointed somewhere else.
  *
- * Only ever a file we uploaded: a path in public/ is committed to the repo and
- * deleting it is not this function's business, and a URL somewhere else is not
- * ours to touch.
+ * It used to delete the previous file as soon as a new one was uploaded, and
+ * that is a step too early: the new URL is not in the database until Save is
+ * pressed. An editor who uploaded twice, or uploaded and then navigated away,
+ * left the stored content pointing at a file that had already been removed —
+ * a banner that 404s, with nothing in the panel to say why.
  *
- * A failure is swallowed. The new file is already stored and the field already
- * points at it, so the worst case is an orphan in the bucket — which is a
- * tidiness problem, not a reason to tell an editor their upload failed.
+ * An orphaned file costs a few megabytes of a bucket. A deleted file that the
+ * site still references costs a broken page. Keeping both is the wrong trade
+ * only if storage is scarce, and it is not.
  */
-export async function replaceUpload(previous: string, next: string) {
-  if (!previous || previous === next) return;
-  const path = pathFromUrl(previous);
-  if (path) await removeUpload(path);
-}
+
 
 /**
  * The natural size of an image already on a URL.

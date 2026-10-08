@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
 import { mediaLibrary } from "@/lib/cms/media";
 import { ImagesIcon, PlusIcon } from "@/components/icons";
-import { canUpload, replaceUpload, uploadImage } from "@/lib/cms/storage";
+import { canUpload, uploadImage } from "@/lib/cms/storage";
 import { TARGET_BYTES as IMAGE_TARGET } from "@/lib/cms/image";
 import {
   describeSaving,
@@ -94,7 +94,6 @@ export default function ImageField({
 
     try {
       if (canUpload()) {
-        const previous = value;
         const result = await uploadImage(file, folder ?? "uploads");
         setUploaded(null);
         setOversized(null);
@@ -104,9 +103,6 @@ export default function ImageField({
             : describeSaving(result.prepared),
         );
         onChange(result.url);
-        /* Only once the new file is stored: a failure above leaves the old
-           image in place rather than the field pointing at nothing. */
-        await replaceUpload(previous, result.url);
         return;
       }
 
@@ -184,13 +180,11 @@ export default function ImageField({
                 <button
                   type="button"
                   onClick={() => {
-                    const previous = value;
                     onChange("");
                     setUploaded(null);
                     setError("");
                     setSaving("");
                     setOversized(null);
-                    void replaceUpload(previous, "");
                   }}
                   className="cursor-pointer px-2 text-sm font-semibold text-ink-500 transition hover:text-signal-500"
                 >

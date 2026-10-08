@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { videoLibrary } from "@/lib/cms/media";
 import { formatBytes } from "@/lib/cms/image";
-import { canUpload, replaceUpload, uploadVideo } from "@/lib/cms/storage";
+import { canUpload, uploadVideo } from "@/lib/cms/storage";
 import {
   canCompressVideo,
   needsCompression,
@@ -131,7 +131,6 @@ export default function VideoField({
     setProgress(0);
     const controller = new AbortController();
     abortRef.current = controller;
-    const previous = value;
 
     try {
       const result = await uploadVideo(file, "video", {
@@ -150,7 +149,6 @@ export default function VideoField({
 
       if (picked) URL.revokeObjectURL(picked.url);
       setPicked(null);
-      await replaceUpload(previous, result.url);
     } catch (e) {
       setError(e instanceof Error ? e.message : "That video could not be uploaded.");
     } finally {
@@ -203,12 +201,8 @@ export default function VideoField({
             <button
               type="button"
               onClick={() => {
-                const previous = value;
                 onChange("");
                 setNote("");
-                /* Removed after the field is cleared, so a slow delete cannot
-                   leave the field pointing at a file that is already gone. */
-                void replaceUpload(previous, "");
               }}
               className="shrink-0 cursor-pointer text-sm font-semibold text-ink-500 transition hover:text-signal-500"
             >

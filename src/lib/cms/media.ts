@@ -303,4 +303,5 @@ export const mediaLibrary: readonly string[] = [
 export const videoLibrary: readonly string[] = [
   "/brand/banner-vid.mp4",
   "/brand/banner-vid1.mp4",
+  "/brand/hero-banner.mp4",
 ];
