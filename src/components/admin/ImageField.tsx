@@ -1,10 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { mediaLibrary } from "@/lib/cms/media";
-import { ImagesIcon, PlusIcon } from "@/components/icons";
-import { canUpload, uploadImage } from "@/lib/cms/storage";
+import { ImagesIcon, PlusIcon, TrashIcon } from "@/components/icons";
+import { useToast } from "./Toast";
+import {
+  canUpload,
+  deleteUpload,
+  listUploads,
+  uploadImage,
+  type StoredFile,
+} from "@/lib/cms/storage";
 import { TARGET_BYTES as IMAGE_TARGET } from "@/lib/cms/image";
 import {
   describeSaving,
@@ -53,14 +60,87 @@ export default function ImageField({
   /* Chosen but not yet sent, because it is big enough that the editor should
      see what will happen to it first. */
   const [oversized, setOversized] = useState<File | null>(null);
+  /** What is already in the bucket. Empty until the gallery is first opened. */
+  const [uploads, setUploads] = useState<StoredFile[]>([]);
+  const [loadingUploads, setLoadingUploads] = useState(false);
+  const { confirm, notify } = useToast();
 
+  /** The bucket folder uploads from this field land in — see handleFile. */
+  const bucketFolder = folder ?? "uploads";
+
+  /* Fetched when the gallery is opened and after each upload, not on mount:
+     most visits never open it, and the listing is a network call. */
+  const refreshUploads = useCallback(async () => {
+    if (!canUpload()) return;
+    setLoadingUploads(true);
+    try {
+      setUploads(await listUploads(bucketFolder));
+    } finally {
+      setLoadingUploads(false);
+    }
+  }, [bucketFolder]);
+
+  function toggleGallery() {
+    const next = !browsing;
+    setBrowsing(next);
+    if (next) void refreshUploads();
+  }
+
+  /**
+   * Everything the editor may pick from: what has been uploaded to this
+   * field's folder, then what is committed in public/.
+   *
+   * Uploads come first because they are the ones just added and the only ones
+   * that can be removed from here — a file in public/ is in the repository,
+   * and no button in a browser can reach it.
+   */
   const choices = useMemo(() => {
     const scoped = folder
       ? mediaLibrary.filter((file) => file.startsWith(`/${folder}/`))
       : mediaLibrary;
+    const all = [
+      ...uploads.map((file) => ({
+        src: file.url,
+        name: file.name,
+        path: file.path as string | undefined,
+      })),
+      ...scoped.map((file) => ({
+        src: file,
+        name: file.split("/").pop() ?? file,
+        path: undefined as string | undefined,
+      })),
+    ];
     const needle = filter.trim().toLowerCase();
-    return needle ? scoped.filter((file) => file.toLowerCase().includes(needle)) : scoped;
-  }, [folder, filter]);
+    return needle ? all.filter((file) => file.name.toLowerCase().includes(needle)) : all;
+  }, [folder, filter, uploads]);
+
+  /**
+   * Remove an uploaded file from the bucket.
+   *
+   * Deleting the one this field points at clears the field too: leaving the
+   * value behind would keep showing an image that no longer exists and publish
+   * a 404 on the next save.
+   */
+  async function handleDelete(file: { path: string; name: string; src: string }) {
+    const inUseHere = value === file.src;
+    const ok = await confirm({
+      title: `Delete ${file.name}?`,
+      body: inUseHere
+        ? "This is the image set above, so the field will be cleared too. If any other page uses it, that page will break — deleting cannot be undone."
+        : "This removes the file from storage for good. If any page uses it, that page will break — run npm run db:prune to see what is safe to remove.",
+      confirmLabel: "Delete",
+    });
+    if (!ok) return;
+
+    try {
+      await deleteUpload(file.path);
+      if (inUseHere) onChange("");
+      setUploads((all) => all.filter((item) => item.path !== file.path));
+      notify(`${file.name} deleted`, undefined, "success");
+    } catch (e) {
+      notify("Could not delete that file", e instanceof Error ? e.message : undefined, "danger");
+    }
+  }
 
   const isUpload = value.startsWith("data:");
   /* An uploaded file is an absolute URL and lives in the bucket, not in the
@@ -103,6 +183,9 @@ export default function ImageField({
             : describeSaving(result.prepared),
         );
         onChange(result.url);
+        /* So the file that was just sent is in the gallery, not only in the
+           field — without this it is invisible until the panel is reloaded. */
+        void refreshUploads();
         return;
       }
 
@@ -169,7 +252,7 @@ export default function ImageField({
 
               <button
                 type="button"
-                onClick={() => setBrowsing((open) => !open)}
+                onClick={toggleGallery}
                 className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500"
               >
                 <ImagesIcon className="size-4" />
@@ -311,32 +394,54 @@ export default function ImageField({
               className="w-full max-w-xs rounded-full border border-line px-4 py-2 text-sm outline-none transition focus:border-brand-500 sm:w-64"
             />
             <span className="text-sm text-ink-500">
-              {choices.length} {choices.length === 1 ? "image" : "images"}
+              {loadingUploads && uploads.length === 0
+                ? "Loading uploads…"
+                : `${choices.length} ${choices.length === 1 ? "image" : "images"}`}
             </span>
           </div>
 
           <ul className="grid max-h-80 grid-cols-3 gap-3 overflow-y-auto sm:grid-cols-4 lg:grid-cols-6">
             {choices.map((file) => (
-              <li key={file}>
+              <li key={file.src} className="group relative">
+                {/* Choosing and deleting are separate buttons, not one tile
+                    with a corner that does something else: nesting them would
+                    fire the choice when the bin is pressed. */}
                 <button
                   type="button"
                   onClick={() => {
                     setUploaded(null);
-                    onChange(file);
+                    onChange(file.src);
                     setBrowsing(false);
                   }}
-                  title={file}
+                  title={file.name}
                   className={`block w-full cursor-pointer overflow-hidden rounded-lg border-2 transition ${
-                    file === value ? "border-brand-500" : "border-transparent hover:border-brand-200"
+                    file.src === value ? "border-brand-500" : "border-transparent hover:border-brand-200"
                   }`}
                 >
                   <span className="relative block aspect-square bg-surface">
-                    <Image src={file} alt="" fill sizes="8rem" className="object-cover" />
+                    <Image src={file.src} alt="" fill sizes="8rem" className="object-cover" />
                   </span>
                   <span className="block truncate px-1 py-1 text-[11px] text-ink-500">
-                    {file.split("/").pop()}
+                    {file.name}
                   </span>
                 </button>
+
+                {file.path && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void handleDelete({ path: file.path!, name: file.name, src: file.src })
+                    }
+                    aria-label={`Delete ${file.name}`}
+                    title={`Delete ${file.name}`}
+                    /* Always there on touch, where there is no hover to reveal
+                       it; faded in on a pointer so it does not sit over every
+                       thumbnail in a grid of sixty. */
+                    className="absolute top-1.5 right-1.5 inline-flex size-7 cursor-pointer items-center justify-center rounded-full bg-black/55 text-white opacity-100 backdrop-blur-sm transition hover:bg-signal-500 sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
+                  >
+                    <TrashIcon className="size-3.5" />
+                  </button>
+                )}
               </li>
             ))}
           </ul>

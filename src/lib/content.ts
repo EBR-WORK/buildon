@@ -343,108 +343,6 @@ export const quote = {
   title: "Support Your Project With Buildon",
 } as const;
 
-/** One branch of the assistant's menu. */
-type ChatOption = {
-  readonly id: string;
-  readonly label: string;
-  /** Matched against anything typed, lowercased, as a plain substring. */
-  readonly keywords: readonly string[];
-  readonly reply: string;
-  readonly links?: readonly { readonly label: string; readonly href: string }[];
-  /** Takes over the input and asks the enquiry questions instead of replying. */
-  readonly asks?: boolean;
-};
-
-const chatOptions: readonly ChatOption[] = [
-    {
-      id: "products",
-      label: "Our Products",
-      keywords: ["product", "plaster", "gypsum", "bond", "coat", "price", "rate", "cost"],
-      reply:
-        "We make and import gypsum plasters and bonding agents. Here is the full range — each page has the technical detail and coverage.",
-      links: [
-        ...productCatalogue.slice(0, 4).map((item) => ({ label: item.name, href: item.href })),
-        { label: "See all products", href: "/products" },
-      ],
-    },
-    {
-      id: "projects",
-      label: "Projects We Have Supplied",
-      keywords: ["project", "site", "work", "client", "clientele", "reference"],
-      reply:
-        "We have supplied to residential, commercial and institutional sites across India.",
-      links: [
-        { label: "Our projects", href: "/projects" },
-        { label: "Our clients", href: "/clientele" },
-      ],
-    },
-    {
-      id: "enquiry",
-      label: "Leave an Enquiry",
-      keywords: ["enquiry", "enquire", "inquiry", "quote", "quotation", "dealer", "distributor", "buy", "order", "supply"],
-      /* Handled by the enquiry flow rather than a canned reply. */
-      asks: true,
-      reply: "Happy to help. What is your name?",
-    },
-    {
-      id: "contact",
-      label: "Call or Email Us",
-      keywords: ["call", "phone", "number", "email", "mail", "address", "office", "where", "location", "contact"],
-      reply: `You can reach us on ${site.primaryPhone} or at ${site.email}. Our office is in ${site.address.locality}.`,
-      links: [
-        { label: `Call ${site.primaryPhone}`, href: site.primaryPhoneHref },
-        { label: "Email us", href: `mailto:${site.email}` },
-        { label: "Find us", href: "/contact-us" },
-      ],
-    },
-  ];
-
-/**
- * The scripted assistant in the bottom-right corner.
- *
- * It is a decision tree, not an AI: the site is a static export with no server
- * at request time, so there is nothing to send a question to. Every reply below
- * is written here in advance, which is also what the reference's widget does
- * behind its vendor — its menu is a fixed list of four branches.
- *
- * What it will not do is guess. A visitor who types something the keywords do
- * not cover is told so and offered the enquiry route, rather than being given a
- * confident answer nobody wrote.
- */
-export const chat = {
-  title: site.name,
-  subtitle: "Virtual Customer Care",
-  launcher: "Chat with us",
-  greeting: `Hi, I am the ${site.name} assistant. How can I help you today?`,
-  menuPrompt: "Would you like to see",
-  placeholder: "Type your message …",
-  /** Shown when nothing in `keywords` matches what was typed. */
-  fallback:
-    "I did not quite catch that. Pick one of the options below, or choose “Leave an enquiry” and a person will reply.",
-  menuAgain: "Anything else?",
-  options: chatOptions,
-  /** The three questions the enquiry branch asks, in order. */
-  enquiry: {
-    steps: [
-      { field: "name", ask: "Happy to help. What is your name?", invalid: "Please type your name." },
-      {
-        field: "phone",
-        ask: "Thanks, {name}. What number can we reach you on?",
-        invalid: "That does not look like a reachable number — please include the full number.",
-      },
-      {
-        field: "message",
-        ask: "And what do you need? A line or two is plenty.",
-        invalid: "Could you tell us a little more about your requirement?",
-      },
-    ],
-    /* The site has no backend, so this ends where every other form on it ends:
-       a mail draft to the office. Swap it for a POST when there is somewhere to
-       post to — the questions above do not change. */
-    done: "Thank you, {name}. I have opened an email with your enquiry — send it and our team will come back to you.",
-  },
-} as const;
-
 export const newsletter = {
   titleLead: "Subscribe to Our ",
   titleAccent: "Newsletter",
@@ -1534,3 +1432,144 @@ export const userAgreementPage: LegalPageContent = {
   banner: { image: "/faq/banner.webp", headingLines: ["User Agreement"] },
   sections: [{ paragraphs: Array(5).fill(loremParagraph) }],
 };
+
+/* Last in the file on purpose: the assistant quotes the product catalogue and
+   the projects page, both of which are declared above it. A const referenced
+   before its declaration throws at module load, so this block cannot move up. */
+
+/**
+ * One thing the assistant can talk about, read from the page that already
+ * holds it.
+ *
+ * The reply is the site's own copy — the product's description, the project's
+ * description — not a second version written for the chat. Two descriptions of
+ * one product is two things to keep in step, and the one in the chat is the one
+ * nobody would remember to update.
+ */
+type ChatTopic = {
+  readonly id: string;
+  readonly label: string;
+  readonly reply: string;
+  readonly image?: string;
+  /** The page that holds the whole thing, when there is one. */
+  readonly href?: string;
+};
+
+/** One branch of the assistant's menu. */
+type ChatOption = {
+  readonly id: string;
+  readonly label: string;
+  /** Matched against anything typed, lowercased, as a plain substring. */
+  readonly keywords: readonly string[];
+  readonly reply: string;
+  /** Answered inside the chat, from the content above. */
+  readonly topics?: readonly ChatTopic[];
+  /** Leaves the chat for a page, a phone or a mail client. */
+  readonly links?: readonly { readonly label: string; readonly href: string }[];
+  /** Takes over the input and asks the enquiry questions instead of replying. */
+  readonly asks?: boolean;
+};
+
+const chatOptions: readonly ChatOption[] = [
+    {
+      id: "products",
+      label: "Our Products",
+      keywords: ["product", "plaster", "gypsum", "bond", "coat", "price", "rate", "cost"],
+      reply:
+        "We make and import gypsum plasters and bonding agents. Pick one and I will tell you about it here.",
+      topics: productCatalogue.map((item) => ({
+        id: item.slug,
+        label: item.name,
+        reply: item.body,
+        image: item.image,
+        href: item.href,
+      })),
+      links: [{ label: "See all products", href: "/products" }],
+    },
+    {
+      id: "projects",
+      label: "Projects We Have Supplied",
+      keywords: ["project", "site", "work", "client", "clientele", "reference"],
+      reply:
+        "We have supplied to residential, commercial and institutional sites across India. Here are a few — pick one to read about it.",
+      topics: projectsPage.items.slice(0, 6).map((item, index) => ({
+        id: `project-${index}`,
+        label: item.name,
+        reply: item.body,
+        image: item.image,
+        /* Most of these have no page of their own; the index is where they
+           all are, and an empty href would render a link to nowhere. */
+        href: item.href || "/projects",
+      })),
+      links: [
+        { label: "All projects", href: "/projects" },
+        { label: "Our clients", href: "/clientele" },
+      ],
+    },
+    {
+      id: "enquiry",
+      label: "Leave an Enquiry",
+      keywords: ["enquiry", "enquire", "inquiry", "quote", "quotation", "dealer", "distributor", "buy", "order", "supply"],
+      /* Handled by the enquiry flow rather than a canned reply. */
+      asks: true,
+      reply: "Happy to help. What is your name?",
+    },
+    {
+      id: "contact",
+      label: "Call or Email Us",
+      keywords: ["call", "phone", "number", "email", "mail", "address", "office", "where", "location", "contact"],
+      reply: `You can reach us on ${site.primaryPhone} or at ${site.email}. Our office is in ${site.address.locality}.`,
+      links: [
+        { label: `Call ${site.primaryPhone}`, href: site.primaryPhoneHref },
+        { label: "Email us", href: `mailto:${site.email}` },
+        { label: "Find us", href: "/contact-us" },
+      ],
+    },
+  ];
+
+/**
+ * The scripted assistant in the bottom-right corner.
+ *
+ * It is a decision tree, not an AI: the site is a static export with no server
+ * at request time, so there is nothing to send a question to. Every reply below
+ * is written here in advance, which is also what the reference's widget does
+ * behind its vendor — its menu is a fixed list of four branches.
+ *
+ * What it will not do is guess. A visitor who types something the keywords do
+ * not cover is told so and offered the enquiry route, rather than being given a
+ * confident answer nobody wrote.
+ */
+export const chat = {
+  title: site.name,
+  subtitle: "Virtual Customer Care",
+  launcher: "Chat with us",
+  greeting: `Hi, I am the ${site.name} assistant. How can I help you today?`,
+  menuPrompt: "Would you like to see",
+  placeholder: "Type your message …",
+  /** Shown when nothing in `keywords` matches what was typed. */
+  fallback:
+    "I did not quite catch that. Pick one of the options below, or choose “Leave an enquiry” and a person will reply.",
+  menuAgain: "Anything else?",
+  options: chatOptions,
+  /** The three questions the enquiry branch asks, in order. */
+  enquiry: {
+    steps: [
+      { field: "name", ask: "Happy to help. What is your name?", invalid: "Please type your name." },
+      {
+        field: "phone",
+        ask: "Thanks, {name}. What number can we reach you on?",
+        invalid: "That does not look like a reachable number — please include the full number.",
+      },
+      {
+        field: "message",
+        ask: "And what do you need? A line or two is plenty.",
+        invalid: "Could you tell us a little more about your requirement?",
+      },
+    ],
+    /* The site has no backend, so this ends where every other form on it ends:
+       a mail draft to the office. Swap it for a POST when there is somewhere to
+       post to — the questions above do not change. */
+    cancelled: "No problem — I have dropped that. What else can I help with?",
+    done: "Thank you, {name}. I have opened an email with your enquiry — send it and our team will come back to you.",
+  },
+} as const;

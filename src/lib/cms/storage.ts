@@ -174,6 +174,73 @@ export async function uploadVideo(
   return { ...result, facts, compressed: true };
 }
 
+/** One file already in the bucket, as the gallery lists it. */
+export type StoredFile = {
+  url: string;
+  path: string;
+  /** Just the filename, which is what the gallery shows. */
+  name: string;
+  bytes: number;
+  uploadedAt: string;
+};
+
+/**
+ * What is already in a bucket folder, newest first.
+ *
+ * The galleries used to show only the manifest of files committed into
+ * public/, so an upload vanished the moment it was made: it was in the bucket
+ * and on the page, but the picker that was meant to find it again had never
+ * heard of it. Anyone wanting it on a second page had to upload it twice.
+ *
+ * Returns [] rather than throwing when storage is not configured — a gallery
+ * with nothing uploaded in it is still a usable gallery.
+ */
+export async function listUploads(folder: string): Promise<StoredFile[]> {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase.storage.from(BUCKET).list(folder, {
+    limit: 200,
+    sortBy: { column: "created_at", order: "desc" },
+  });
+
+  if (error || !data) return [];
+
+  return data
+    /* list() returns folder placeholders alongside files; only a real file
+       carries metadata. */
+    .filter((file) => file.metadata)
+    .map((file) => {
+      const path = `${folder}/${file.name}`;
+      return {
+        url: supabase!.storage.from(BUCKET).getPublicUrl(path).data.publicUrl,
+        path,
+        name: file.name,
+        bytes: (file.metadata?.size as number | undefined) ?? 0,
+        uploadedAt: file.created_at ?? "",
+      };
+    });
+}
+
+/**
+ * Delete one file from the bucket, loudly.
+ *
+ * removeUpload below swallows its errors because its callers are tidying up
+ * after themselves and a failure changes nothing. This one is a button an
+ * editor pressed, so a refusal has to reach them rather than leave the file
+ * sitting there looking deleted.
+ */
+export async function deleteUpload(path: string) {
+  if (!supabase) throw new Error("The database is not configured, so there is nothing to delete from.");
+
+  const { error } = await supabase.storage.from(BUCKET).remove([path]);
+  if (!error) return;
+
+  if (/row-level security|unauthorized|403/i.test(error.message)) {
+    throw new Error("You do not have permission to delete uploads. Ask a super admin to check your access.");
+  }
+  throw new Error(error.message);
+}
+
 /** Remove a file that was uploaded here. Quiet on failure — see the callers. */
 export async function removeUpload(path: string) {
   if (!supabase) return;

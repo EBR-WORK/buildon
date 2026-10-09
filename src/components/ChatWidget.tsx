@@ -4,7 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { chat, site } from "@/lib/content";
-import { ChatIcon, CloseIcon, SendIcon } from "./icons";
+
+type ChatTopic = (typeof chat.options)[number]["topics"] extends
+  | readonly (infer T)[]
+  | undefined
+  ? T
+  : never;
+import { ChatIcon, ChevronRightIcon, CloseIcon, SendIcon } from "./icons";
 
 /**
  * The assistant in the bottom-right corner: a launcher that opens a chat panel
@@ -27,8 +33,12 @@ type Message = {
   id: number;
   from: "bot" | "you";
   text: string;
-  /** Rendered as the stacked card of choices under a reply. */
+  /** Answered inside the chat when pressed. */
+  topics?: readonly ChatTopic[];
+  /** Leaves the chat: a page, a phone number, a mail client. */
   links?: readonly ChatLink[];
+  /** A picture that belongs with this reply. */
+  image?: string;
   /** Rendered as the menu card. Only the latest one stays pressable. */
   menu?: boolean;
 };
@@ -99,6 +109,11 @@ export default function ChatWidget({
 
     setMessages((all) => [...all, { id: nextId++, from: "you", text: option.label }]);
 
+    /* Picking anything else abandons an enquiry in progress. Without this it
+       kept running invisibly, and every later message was read as an answer to
+       a question that had scrolled out of sight. */
+    setEnquiry(null);
+
     if (option.asks) {
       setEnquiry({ step: 0, answers: {} });
       say(chat.enquiry.steps[0].ask);
@@ -106,8 +121,44 @@ export default function ChatWidget({
       return;
     }
 
-    say(option.reply, { links: option.links });
-    say(chat.menuAgain, { menu: true });
+    /* No menu underneath a reply that already offers choices. Repeating the
+       same four rows under the product list pushed the list out of view and
+       asked "anything else?" before the answer had been read. The way back to
+       the menu is the button under the input, which is always there. */
+    say(option.reply, { topics: option.topics, links: option.links });
+    if (!option.topics && !option.links) say(chat.menuAgain, { menu: true });
+  }
+
+  /**
+   * Answer one topic from the site's own copy.
+   *
+   * This is what the option rows used to do by navigating away. Reading it out
+   * here keeps the conversation intact — the page is still one press further
+   * on, for anyone who wants the whole thing.
+   */
+  function openTopic(topic: ChatTopic) {
+    setMessages((all) => [...all, { id: nextId++, from: "you", text: topic.label }]);
+    setEnquiry(null);
+    say(topic.reply, {
+      image: topic.image,
+      links: topic.href ? [{ label: `Open ${topic.label}`, href: topic.href }] : undefined,
+    });
+  }
+
+  /** Put the menu back, for anyone who has read an answer and wants the list. */
+  function showMenu() {
+    say(chat.menuPrompt, { menu: true });
+  }
+
+  /**
+   * Abandon the enquiry without answering it.
+   *
+   * The questions take over the input, so without this the only way out of a
+   * branch entered by accident is to reload the page.
+   */
+  function cancelEnquiry() {
+    setEnquiry(null);
+    say(chat.enquiry.cancelled, { menu: true });
   }
 
   /** The enquiry branch, one answer at a time. */
@@ -181,8 +232,8 @@ export default function ChatWidget({
       return;
     }
 
-    say(hit.reply, { links: hit.links });
-    say(chat.menuAgain, { menu: true });
+    say(hit.reply, { topics: hit.topics, links: hit.links });
+    if (!hit.topics && !hit.links) say(chat.menuAgain, { menu: true });
   }
 
   /* --------------------------------------------------------------- render */
@@ -190,7 +241,12 @@ export default function ChatWidget({
   // Only the last menu stays live: the ones further up belong to a part of the
   // conversation that has already been answered, and pressing them would start
   // a branch out of a reply that is no longer the end of the thread.
-  const liveMenu = [...messages].reverse().find((message) => message.menu)?.id;
+  /* Nothing is pressable while the questions are running: the input belongs to
+     the enquiry, and a menu row pressed underneath it used to start a second
+     branch on top of the first. Cancel, under the input, is the way out. */
+  const liveMenu = enquiry
+    ? undefined
+    : [...messages].reverse().find((message) => message.menu)?.id;
 
   return (
     <>
@@ -247,19 +303,52 @@ export default function ChatWidget({
                   {message.text}
                 </p>
 
-                {/* Links and menu rows share one card: both are a stack of
-                    choices, and giving them different shapes would suggest
-                    they behave differently. */}
+                {message.image && (
+                  <Image
+                    src={message.image}
+                    alt=""
+                    width={320}
+                    height={180}
+                    className="mt-2 block w-full max-w-[85%] rounded-xl border border-line object-cover"
+                  />
+                )}
+
+                {/* Topics, links and menu rows share one card shape: all three
+                    are a stack of choices, and giving them different shapes
+                    would suggest they behave differently. The arrow is what
+                    marks the ones that leave the chat. */}
+                {message.topics && message.topics.length > 0 && (
+                  <div className="mt-2 overflow-hidden rounded-xl border border-line bg-white">
+                    {message.topics.map((topic) => (
+                      <button
+                        suppressHydrationWarning
+                        key={topic.id}
+                        type="button"
+                        onClick={() => openTopic(topic)}
+                        className="block w-full cursor-pointer border-b border-line px-3.5 py-2.5 text-left text-sm text-brand-500 transition last:border-0 hover:bg-surface"
+                      >
+                        {topic.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {message.links && (
                   <div className="mt-2 overflow-hidden rounded-xl border border-line bg-white">
                     {message.links.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
-                        onClick={() => show(false)}
-                        className="block border-b border-line px-3.5 py-2.5 text-sm text-brand-500 transition last:border-0 hover:bg-surface"
+                        /* No onClick closing the panel. It used to, and that
+                           unmounted this anchor in the same tick as the click —
+                           the router never got it, so pressing a link appeared
+                           to do nothing at all. The widget lives in the layout,
+                           so it survives the navigation and the conversation is
+                           still there on the next page. */
+                        className="flex items-center justify-between gap-2 border-b border-line px-3.5 py-2.5 text-sm text-brand-500 transition last:border-0 hover:bg-surface"
                       >
                         {link.label}
+                        <ChevronRightIcon className="size-4 shrink-0" />
                       </Link>
                     ))}
                   </div>
@@ -285,7 +374,25 @@ export default function ChatWidget({
             ))}
           </div>
 
-          <form onSubmit={send} className="flex items-center gap-2 border-t border-line bg-white px-3 py-2.5">
+          {/* One row, two jobs, never both: a way out of the questions while
+              they are running, and a way back to the menu the rest of the
+              time. */}
+          {messages.length > 0 && (
+            <button
+              suppressHydrationWarning
+              type="button"
+              onClick={enquiry ? cancelEnquiry : showMenu}
+              className={`cursor-pointer border-t border-line bg-white px-4 pt-2 text-left text-xs font-semibold transition ${
+                enquiry
+                  ? "text-ink-500 hover:text-signal-500"
+                  : "text-ink-500 hover:text-brand-500"
+              }`}
+            >
+              {enquiry ? "Cancel this enquiry" : "Show the menu"}
+            </button>
+          )}
+
+          <form onSubmit={send} className={`flex items-center gap-2 bg-white px-3 py-2.5 ${messages.length > 0 ? "" : "border-t border-line"}`}>
             <input
               suppressHydrationWarning
               ref={inputRef}

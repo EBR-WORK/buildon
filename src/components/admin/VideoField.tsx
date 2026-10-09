@@ -1,9 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { videoLibrary } from "@/lib/cms/media";
 import { formatBytes } from "@/lib/cms/image";
-import { canUpload, uploadVideo } from "@/lib/cms/storage";
+import {
+  canUpload,
+  deleteUpload,
+  listUploads,
+  uploadVideo,
+  type StoredFile,
+} from "@/lib/cms/storage";
 import {
   canCompressVideo,
   needsCompression,
@@ -11,7 +17,8 @@ import {
   TARGET_BYTES as VIDEO_TARGET,
   type VideoFacts,
 } from "@/lib/cms/video";
-import { CheckIcon, PlayIcon, PlusIcon, SearchIcon } from "@/components/icons";
+import { CheckIcon, PlayIcon, PlusIcon, SearchIcon, TrashIcon } from "@/components/icons";
+import { useToast } from "./Toast";
 
 /**
  * Choose the background video: one already here, or a file from the device.
@@ -52,6 +59,29 @@ export default function VideoField({
   const [oversized, setOversized] = useState<{ file: File; facts: VideoFacts } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const [error, setError] = useState("");
+  /** What is already in the bucket. Empty until the gallery is first opened. */
+  const [uploads, setUploads] = useState<StoredFile[]>([]);
+  const [loadingUploads, setLoadingUploads] = useState(false);
+  const { confirm, notify } = useToast();
+
+  /* Fetched when the gallery is opened and after each upload, not on mount:
+     most visits to this panel never open it, and the listing is a network
+     call. */
+  const refreshUploads = useCallback(async () => {
+    if (!canUpload()) return;
+    setLoadingUploads(true);
+    try {
+      setUploads(await listUploads("video"));
+    } finally {
+      setLoadingUploads(false);
+    }
+  }, []);
+
+  function toggleGallery() {
+    const next = !browsing;
+    setBrowsing(next);
+    if (next) void refreshUploads();
+  }
 
   /* An object URL is a live handle into the browser's memory; without this the
      tab holds every file the editor previewed until it is closed. */
@@ -61,12 +91,33 @@ export default function VideoField({
     };
   }, [picked]);
 
+  /**
+   * Everything the editor may pick from: what has been uploaded, then what is
+   * committed in public/.
+   *
+   * Uploads come first because they are the ones just added and the ones that
+   * can be removed from here. A file in public/ is in the repository — the
+   * panel cannot delete it, and pretending otherwise would be a button that
+   * fails every time.
+   */
   const choices = useMemo(() => {
     const needle = filter.trim().toLowerCase();
-    return needle
-      ? videoLibrary.filter((file) => file.toLowerCase().includes(needle))
-      : videoLibrary;
-  }, [filter]);
+    const all = [
+      ...uploads.map((file) => ({
+        src: file.url,
+        name: file.name,
+        path: file.path,
+        bytes: file.bytes,
+      })),
+      ...videoLibrary.map((file) => ({
+        src: file,
+        name: file.split("/").pop() ?? file,
+        path: undefined,
+        bytes: undefined,
+      })),
+    ];
+    return needle ? all.filter((file) => file.name.toLowerCase().includes(needle)) : all;
+  }, [filter, uploads]);
 
   /* A path typed or pasted that matches nothing in public/ is worth saying out
      loud: the banner would render a black rectangle and nothing else. */
@@ -149,12 +200,53 @@ export default function VideoField({
 
       if (picked) URL.revokeObjectURL(picked.url);
       setPicked(null);
+      /* So the file that was just sent is in the gallery, not only in the
+         field — without this it is invisible until the panel is reloaded. */
+      void refreshUploads();
     } catch (e) {
       setError(e instanceof Error ? e.message : "That video could not be uploaded.");
     } finally {
       setBusy(false);
       setProgress(0);
       abortRef.current = null;
+    }
+  }
+
+  /**
+   * Remove an uploaded file from the bucket.
+   *
+   * Deleting the one the field is pointing at clears the field too. Leaving the
+   * value behind would be worse than either outcome: the panel would keep
+   * showing a video that no longer exists, and the next save would publish a
+   * banner that 404s.
+   *
+   * The warning names the other risk the panel cannot see: this file may be in
+   * use on a page this editor is not looking at. `npm run db:prune` is the tool
+   * that knows, so the toast says which deletions are safe rather than implying
+   * this one is.
+   */
+  async function handleDelete(file: { path: string; name: string; src: string }) {
+    const inUseHere = value === file.src;
+    const ok = await confirm({
+      title: `Delete ${file.name}?`,
+      body: inUseHere
+        ? "This is the video set above, so the field will be cleared too. If any other page uses it, that page will break — deleting cannot be undone."
+        : "This removes the file from storage for good. If any page uses it, that page will break — run npm run db:prune to see what is safe to remove.",
+      confirmLabel: "Delete",
+    });
+    if (!ok) return;
+
+    try {
+      await deleteUpload(file.path);
+      if (inUseHere) onChange("");
+      setUploads((all) => all.filter((item) => item.path !== file.path));
+      notify(`${file.name} deleted`, undefined, "success");
+    } catch (e) {
+      notify(
+        "Could not delete that file",
+        e instanceof Error ? e.message : undefined,
+        "danger",
+      );
     }
   }
 
@@ -244,7 +336,7 @@ export default function VideoField({
 
         <button
           type="button"
-          onClick={() => setBrowsing((open) => !open)}
+          onClick={toggleGallery}
           className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500"
         >
           <PlayIcon className="size-4" />
@@ -356,7 +448,7 @@ export default function VideoField({
           editor can tell two similarly named files apart without opening both. */}
       {browsing && (
         <div className="mt-3 rounded-2xl border border-line bg-surface p-4">
-          {videoLibrary.length > 3 && (
+          {(choices.length > 3 || filter) && (
             <div className="relative mb-3">
               <SearchIcon
                 aria-hidden
@@ -373,28 +465,40 @@ export default function VideoField({
             </div>
           )}
 
+          {loadingUploads && uploads.length === 0 && (
+            <p className="mb-3 text-sm text-ink-500">Loading uploaded videos…</p>
+          )}
+
           {choices.length === 0 ? (
             <p className="py-4 text-center text-sm text-ink-500">
-              No video in public/ matches. Upload one and commit it first.
+              {filter
+                ? "Nothing here matches that."
+                : "No videos yet. Upload one and it will appear here."}
             </p>
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2">
               {choices.map((file) => (
-                <li key={file}>
+                <li
+                  key={file.src}
+                  className={`relative overflow-hidden rounded-xl border transition ${
+                    value === file.src
+                      ? "border-brand-500 ring-2 ring-brand-500/20"
+                      : "border-line hover:border-brand-200"
+                  }`}
+                >
+                  {/* Choosing and deleting are separate buttons, not one with a
+                      corner that does something else: nesting them would make
+                      the whole tile fire when the bin is pressed. */}
                   <button
                     type="button"
                     onClick={() => {
-                      onChange(file);
+                      onChange(file.src);
                       setBrowsing(false);
                     }}
-                    className={`block w-full cursor-pointer overflow-hidden rounded-xl border text-left transition ${
-                      value === file
-                        ? "border-brand-500 ring-2 ring-brand-500/20"
-                        : "border-line hover:border-brand-200"
-                    }`}
+                    className="block w-full cursor-pointer text-left"
                   >
                     <video
-                      src={file}
+                      src={file.src}
                       muted
                       loop
                       playsInline
@@ -407,14 +511,35 @@ export default function VideoField({
                       className="block aspect-video w-full bg-black object-cover"
                     />
                     <span className="flex items-center justify-between gap-2 bg-white px-3 py-2">
-                      <span className="min-w-0 truncate text-sm text-ink-700">
-                        {file.split("/").pop()}
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm text-ink-700">{file.name}</span>
+                        <span className="block text-xs text-ink-500">
+                          {file.path
+                            ? `Uploaded${file.bytes ? ` · ${formatBytes(file.bytes)}` : ""}`
+                            : "In public/"}
+                        </span>
                       </span>
-                      {value === file && (
+                      {value === file.src && (
                         <CheckIcon className="size-4 shrink-0 text-brand-500" />
                       )}
                     </span>
                   </button>
+
+                  {/* Only uploads can go. A file in public/ lives in the
+                      repository, and no button here can reach it. */}
+                  {file.path && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void handleDelete({ path: file.path!, name: file.name, src: file.src })
+                      }
+                      aria-label={`Delete ${file.name}`}
+                      title={`Delete ${file.name}`}
+                      className="absolute top-2 right-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition hover:bg-signal-500"
+                    >
+                      <TrashIcon className="size-4" />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

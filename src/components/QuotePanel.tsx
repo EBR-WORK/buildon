@@ -27,8 +27,23 @@ import { CloseIcon, PhoneIcon } from "./icons";
  */
 const AUTO_OPEN_AFTER_MS = 1200;
 
-export default function QuotePanel() {
+export default function QuotePanel({
+  /**
+   * Hides the side tab, not the dialog.
+   *
+   * The chat panel opens over the right-hand edge, and below sm it is full
+   * width — the tab and its edge handle end up behind it, where a press
+   * lands on the chat instead. One of the two has to stand down, and the chat
+   * is the one the visitor just opened.
+   */
+  tabHidden = false,
+}: {
+  tabHidden?: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  /* Whether the dialog let itself in, rather than being asked for. An
+     uninvited dialog does not get to take the keyboard — see below. */
+  const autoOpened = useRef(false);
   /** Below lg only: whether the tab has been slid out from the edge. */
   const [peek, setPeek] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -49,7 +64,16 @@ export default function QuotePanel() {
    * interrupting.
    */
   useEffect(() => {
-    const idle = window.setTimeout(() => setOpen(true), AUTO_OPEN_AFTER_MS);
+    const idle = window.setTimeout(() => {
+      /* Not while someone is typing. The dialog arrives 1.2s into every load,
+         which is exactly when a visitor may already be filling in the form
+         this page has of its own — and it would take the keyboard off them
+         mid-word. */
+      const active = document.activeElement;
+      if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return;
+      autoOpened.current = true;
+      setOpen(true);
+    }, AUTO_OPEN_AFTER_MS);
     return () => window.clearTimeout(idle);
   }, []);
 
@@ -62,7 +86,12 @@ export default function QuotePanel() {
     document.addEventListener("keydown", onKey);
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    panelRef.current?.querySelector<HTMLElement>("input, textarea")?.focus();
+    /* Focus moves in only when the dialog was asked for. Stealing it from
+       whatever the visitor was doing is the cost of opening uninvited. */
+    if (!autoOpened.current) {
+      panelRef.current?.querySelector<HTMLElement>("input, textarea")?.focus();
+    }
+    autoOpened.current = false;
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = previous;
@@ -79,7 +108,9 @@ export default function QuotePanel() {
         onClick={() => setPeek((value) => !value)}
         aria-expanded={peek}
         aria-label={peek ? `Hide ${quote.tab}` : `Show ${quote.tab}`}
-        className="fixed top-1/2 right-0 z-40 flex h-28 w-7 -translate-y-1/2 cursor-pointer items-center justify-end lg:hidden"
+        className={`fixed top-1/2 right-0 z-40 flex h-28 w-7 -translate-y-1/2 cursor-pointer items-center justify-end transition-opacity lg:hidden ${
+          tabHidden ? "pointer-events-none opacity-0" : ""
+        }`}
       >
         <svg
           viewBox="0 0 14 24"
@@ -101,7 +132,9 @@ export default function QuotePanel() {
         onClick={() => setOpen(true)}
         aria-expanded={open}
         aria-controls="quote-panel"
-        className={`fixed top-1/2 right-7 z-40 inline-flex -translate-y-1/2 rotate-180 cursor-pointer items-center gap-2 rounded-r-lg bg-accent-500 px-5 py-3 font-display text-sm font-medium tracking-wide text-white shadow-lift transition-[translate,opacity,visibility,background-color] duration-300 ease-out [writing-mode:vertical-rl] hover:bg-accent-600 lg:visible lg:right-0 lg:translate-x-0 lg:opacity-100 ${
+        className={`${
+          tabHidden ? "pointer-events-none opacity-0" : ""
+        } fixed top-1/2 right-7 z-40 inline-flex -translate-y-1/2 rotate-180 cursor-pointer items-center gap-2 rounded-r-lg bg-accent-500 px-5 py-3 font-display text-sm font-medium tracking-wide text-white shadow-lift transition-[translate,opacity,visibility,background-color] duration-300 ease-out [writing-mode:vertical-rl] hover:bg-accent-600 lg:visible lg:right-0 lg:translate-x-0 lg:opacity-100 ${
           peek ? "visible translate-x-0 opacity-100" : "invisible translate-x-[calc(100%+1.75rem)] opacity-0"
         }`}
       >

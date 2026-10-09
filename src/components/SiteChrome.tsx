@@ -28,7 +28,7 @@ export default function SiteChrome() {
   return (
     <>
       <BackToTop hidden={chatOpen} />
-      <QuotePanel />
+      <QuotePanel tabHidden={chatOpen} />
       <ChatWidget onOpenChange={setChatOpen} />
     </>
   );
