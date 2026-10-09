@@ -13,13 +13,23 @@ const THRESHOLD = 0.1;
  * pixel count, so a short page shows the button at the same point in the read
  * as a long one. Pages with nothing to scroll never show it at all.
  */
-export default function BackToTop() {
-  const [visible, setVisible] = useState(false);
+export default function BackToTop({
+  /**
+   * Forced out of sight while something else owns this corner — the chat panel
+   * opens over exactly this spot, and a button floating on top of it is both
+   * unreachable and confusing.
+   */
+  hidden = false,
+}: {
+  hidden?: boolean;
+}) {
+  const [onScreen, setOnScreen] = useState(false);
+  const visible = onScreen && !hidden;
 
   useEffect(() => {
     const onScroll = () => {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      setVisible(scrollable > 0 && window.scrollY / scrollable >= THRESHOLD);
+      setOnScreen(scrollable > 0 && window.scrollY / scrollable >= THRESHOLD);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -48,7 +58,10 @@ export default function BackToTop() {
       // so it is never a focus stop pointing at a scroll position you are in.
       aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}
-      className={`fixed right-4 bottom-4 z-40 inline-flex size-11 cursor-pointer items-center justify-center rounded-full bg-accent-500 text-white shadow-lift transition duration-300 hover:bg-accent-600 focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 sm:right-6 sm:bottom-6 ${
+      // Stacked above the enquiry bubble, which holds the corner itself: both
+      // are fixed to the bottom right, and at the same offset they sat on top
+      // of one another. Right edges aligned with it, not centres.
+      className={`fixed right-4 bottom-20 z-40 inline-flex size-11 cursor-pointer items-center justify-center rounded-full bg-accent-500 text-white shadow-lift transition duration-300 hover:bg-accent-600 focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 sm:right-5 ${
         visible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-3 opacity-0"

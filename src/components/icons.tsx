@@ -128,6 +128,16 @@ export function HeadphoneIcon(props: IconProps) {
   );
 }
 
+/** A speech bubble with three dots — start a conversation. */
+export function ChatIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M20.5 11.5a7.5 7.5 0 0 1-10.9 6.7L4 19.5l1.4-4.4A7.5 7.5 0 1 1 20.5 11.5Z" />
+      <path d="M8.75 11.5h.01M12 11.5h.01M15.25 11.5h.01" strokeWidth={2.2} />
+    </svg>
+  );
+}
+
 export function PlayIcon(props: IconProps) {
   return (
     <svg {...base} fill="currentColor" stroke="none" {...props}>
@@ -166,6 +176,15 @@ export function PlusIcon(props: IconProps) {
   return (
     <svg {...base} strokeWidth={1.8} {...props}>
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+/** A paper plane — send. */
+export function SendIcon(props: IconProps) {
+  return (
+    <svg {...base} strokeWidth={1.8} {...props}>
+      <path d="M21.5 2.5 11 13M21.5 2.5l-6.8 19-3.9-8.5-8.5-3.9 19-6.6Z" />
     </svg>
   );
 }
