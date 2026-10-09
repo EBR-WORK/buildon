@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { products } from "@/lib/content";
-import { useSnapCarousel } from "@/lib/useSnapCarousel";
+import { useCoverflow } from "@/lib/useCoverflow";
 import CarouselButton from "./CarouselButton";
 import CtaLink from "./CtaLink";
 import SectionHeading from "./SectionHeading";
@@ -28,7 +28,13 @@ export default function Products({
     ? [`Being ${city}’s largest and leading manufacturer & importer of`, products.intro[1]]
     : products.intro;
 
-  const { trackRef, index, atStart, atEnd, goTo } = useSnapCarousel<HTMLUListElement>();
+  /* Depth, not just a turn.
+     Read off the reference: the cards beside the centre are not only angled,
+     they stand behind it — which a scroll-snap row cannot do, since everything
+     in a scroller shares one plane. Hence a hand-placed row. */
+  const { frameRef, cardRefs, selected, ready, nudge, dragHandlers } = useCoverflow({
+    count: products.items.length,
+  });
 
   return (
     <section
@@ -42,73 +48,100 @@ export default function Products({
 
         <div className="mt-10 sm:mt-12 lg:mt-14">
           <div className="mb-5 flex justify-end gap-2">
+            {/* Never disabled: the row wraps, so there is always a next. */}
             <CarouselButton
               direction="prev"
               label="Previous products"
-              onClick={() => goTo(index - 1)}
-              disabled={atStart}
+              onClick={() => nudge(-1)}
             />
             <CarouselButton
               direction="next"
               label="Next products"
-              onClick={() => goTo(index + 1)}
-              disabled={atEnd}
+              onClick={() => nudge(1)}
             />
           </div>
 
-          {/* The negative right margin absorbs the last card's gutter, so the
-              row still ends flush with the container.
+          {/*
+            Two layouts, one markup.
 
-              No tabIndex on the track. Focusable, a click anywhere on a card
-              focused the whole list, and the browser scrolled the page to fit
-              it into view — a smooth glide, since html has scroll-behavior:
-              smooth. Keyboard users lose nothing: the Read More buttons are
-              focusable, and tabbing to one brings its card into view.
+            Before hydration `ready` is false and this is an ordinary
+            horizontal scroller: every card in flow, readable, scrollable,
+            crawlable. After it, the cards come out of flow and the hook places
+            them — which is the only way to put one card behind another.
 
-              overflow-y-hidden matters as much as overflow-x-auto. Making one
-              axis scroll makes the other compute to auto, so anything poking
-              out vertically turned the track into a small vertical scroller:
-              the wheel scrolled the cards inside their frame instead of the
-              page. Hidden, the track can never take a vertical wheel.
+            Rendering the coverflow on the server instead would ship nine cards
+            stacked at left-1/2 to anyone whose JavaScript has not arrived.
 
-              pb-6 is room for the hover shadow to fade out rather than end in
-              a hard line at the track's edge; -mb-5 hands that space back so
-              the section's spacing is unchanged. */}
-          <ul
-            ref={trackRef}
-            aria-label="Buildon gypsum products"
-            className="-mr-4 -mb-5 flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden pb-6 sm:-mr-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            py-10 keeps the shadows and the receding cards clear of the
+            overflow clip; -my-6 hands most of that space back so the section's
+            rhythm is unchanged.
+
+            touchAction pan-y: the horizontal drag is ours, the page keeps
+            vertical scrolling. Without it a diagonal swipe on a phone fights
+            the page.
+          */}
+          <div
+            ref={frameRef}
+            {...dragHandlers}
+            style={{
+              /* One card drives everything: pitch, recession and the lens.
+                 Expressing perspective as a multiple of it keeps the rake the
+                 same shape at every screen size. */
+              ["--card" as string]: "clamp(15rem, 26vw, 21rem)",
+              perspective: ready ? "calc(var(--card) * 3.2)" : undefined,
+              touchAction: ready ? "pan-y" : undefined,
+            }}
+            className={
+              ready
+                ? "relative -my-6 cursor-grab overflow-hidden py-10 select-none active:cursor-grabbing"
+                : "-mr-4 -mb-5 flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden pb-6 sm:-mr-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            }
           >
-            {products.items.map((product, i) => (
-              // Cards past the third sit outside the track's clip, so they
-              // animate when the carousel brings them in rather than on load.
-              // The delay is capped so those never wait half a second.
-              //
-              // y={0}: a fade with no rise. A card waiting 24px below its place
-              // is overflow the track would clip, and cards 4-6 wait until the
-              // carousel reaches them.
-              <Reveal
-                as="li"
-                key={product.name}
-                y={0}
-                delay={Math.min(i, 2) * 0.08}
-                className="flex w-full shrink-0 snap-start pr-4 sm:w-1/2 sm:pr-6 lg:w-1/3"
-              >
-                {/* The reference's own card, read off its stylesheet rather
-                    than guessed at:
-
-                      .business_box::before      #2E2E2E at 0.1 over the photo
-                      :hover ::before            the brand colour at 0.8
-                      .business_box_content      top: 60%, height: 100%,
-                                                 justify-content: space-between
-                      :hover .business_box_content   top: 0
-                      transition                 0.5s ease-in-out all
-
-                    So the panel is never hidden and nothing fades: it sits
-                    low, showing only its head, and slides up to reveal the
-                    body. The wash is always there too — it only changes colour
-                    and deepens. */}
-                <article className="group relative aspect-4/5 w-full overflow-hidden rounded-2xl">
+            <ul
+              aria-label="Buildon gypsum products"
+              className={ready ? "relative mx-auto" : "contents"}
+              style={
+                ready
+                  ? { height: "calc(var(--card) * 1.25)", transformStyle: "preserve-3d" }
+                  : undefined
+              }
+            >
+              {products.items.map((product, i) => (
+                /* No Reveal here any more. It animates opacity and transform
+                   on the list item, and once the hook is placing cards those
+                   are exactly the two properties it owns — two writers, one
+                   property, and the card either never appears or never moves.
+                   The section heading still reveals; the row does not need to. */
+                <li
+                  key={product.name}
+                  ref={(node) => {
+                    cardRefs.current[i] = node;
+                  }}
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label={`${i + 1} of ${products.items.length}`}
+                  /* Which card is being offered, for anything that cannot
+                     see which one is facing forward. */
+                  aria-current={ready && i === selected ? "true" : undefined}
+                  className={
+                    ready
+                      ? "absolute top-0 left-1/2 transition-opacity duration-500 ease-out will-change-transform"
+                      : "flex w-full shrink-0 snap-start pr-4 sm:w-1/2 sm:pr-6 lg:w-1/3"
+                  }
+                  /* Two states, not a gradient: every card dimmed, the centred
+                     one lit, with the transition doing the in-between. The
+                     reference does exactly this in CSS, and it is why its row
+                     reads as one card being offered rather than a shelf of
+                     evenly-faded ones. */
+                  style={
+                    ready ? { width: "var(--card)", opacity: i === selected ? 1 : 0.4 } : undefined
+                  }
+                >
+                  {/* No transform of its own: the list item is what the hook
+                      places, and two owners of one property is a fight neither
+                      wins. The shadow is what reads the depth — a card standing
+                      behind another needs to cast onto it. */}
+                  <article className="group relative aspect-4/5 w-full overflow-hidden rounded-2xl shadow-lift">
                   <Image
                     src={product.image}
                     alt={`${product.name} — Buildon packaging`}
@@ -164,10 +197,11 @@ export default function Products({
                       </CtaLink>
                     </div>
                   </div>
-                </article>
-              </Reveal>
-            ))}
-          </ul>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>

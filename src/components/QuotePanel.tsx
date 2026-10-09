@@ -19,6 +19,14 @@ import { CloseIcon, PhoneIcon } from "./icons";
  * tapping it slides the tab in beside it, and tapping it again (the arrow now
  * turned outward) sends it back.
  */
+/**
+ * How long after the page loads the dialog lets itself in.
+ *
+ * Long enough that it follows the page rather than racing it; short enough
+ * that it is still part of arriving rather than an interruption later.
+ */
+const AUTO_OPEN_AFTER_MS = 1200;
+
 export default function QuotePanel() {
   const [open, setOpen] = useState(false);
   /** Below lg only: whether the tab has been slid out from the edge. */
@@ -30,6 +38,20 @@ export default function QuotePanel() {
     setOpen(false);
     tabRef.current?.focus();
   };
+
+  /**
+   * Open itself shortly after the page settles, as the reference does — on
+   * every page load, with nothing remembered between them.
+   *
+   * The one difference is the wait. The reference fires on `load`; a dialog
+   * that appears while the hero video is still decoding lands on a half-drawn
+   * page, and on a slow connection it can arrive before the thing it is
+   * interrupting.
+   */
+  useEffect(() => {
+    const idle = window.setTimeout(() => setOpen(true), AUTO_OPEN_AFTER_MS);
+    return () => window.clearTimeout(idle);
+  }, []);
 
   // Escape, a scroll lock, and focus moved into the panel — only while it is up.
   useEffect(() => {
@@ -97,14 +119,23 @@ export default function QuotePanel() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-100 flex justify-end bg-secondary/45 backdrop-blur-sm lg:items-center lg:justify-center lg:p-6">
+        /* A dialog in the middle of the screen, not a drawer off the right
+           edge. The drawer kept the page visible beside it, which sounds
+           generous and in practice meant a tall narrow column: six fields in
+           a strip the width of a phone, on a desktop with room for a proper
+           two-column form.
+
+           items-start with overflow-y-auto, not items-center: centred, a form
+           taller than the viewport is clipped at both ends with no way to
+           reach the top. Starting at the top lets the backdrop scroll. */
+        <div className="fixed inset-0 z-100 flex items-start justify-center overflow-y-auto bg-secondary/50 p-4 backdrop-blur-sm sm:p-8">
           <button
             suppressHydrationWarning
             type="button"
             onClick={close}
             aria-label="Close"
             tabIndex={-1}
-            className="absolute inset-0 cursor-default"
+            className="fixed inset-0 cursor-default"
           />
 
           <div
@@ -113,36 +144,28 @@ export default function QuotePanel() {
             role="dialog"
             aria-modal
             aria-label={quote.title}
-            className="relative z-10 flex h-full w-full flex-col overflow-y-auto bg-white p-6 shadow-lift sm:p-8 lg:h-auto lg:max-h-[85svh] lg:max-w-md lg:rounded-2xl"
+            className="relative z-10 my-auto w-full max-w-2xl rounded-2xl bg-white p-6 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.35)] sm:p-8"
           >
-            {/* Below lg the panel is the whole screen, so the form sits in a
-                capped column centred both ways. m-auto rather than justify-
-                center: auto margins drop to zero once the form outgrows the
-                screen (a phone with its keyboard up), so the top stays
-                reachable by scrolling instead of being cut off.
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <h2 className="font-display text-xl leading-snug font-semibold sm:text-2xl">
+                {quote.title}
+              </h2>
 
-                On tablets (sm to lg) the whole column is zoomed up, so a
-                full screen isn't mostly empty. zoom rather than bigger text
-                classes: it scales type, fields, gaps and the button together
-                without forking EnquiryForm, which the home and contact pages
-                share. */}
-            <div className="m-auto w-full max-w-lg sm:[zoom:1.3] lg:[zoom:1]">
-              <div className="flex items-start justify-between gap-4">
-                <h2 className="font-display text-2xl leading-snug font-semibold">{quote.title}</h2>
-                <button
-                  suppressHydrationWarning
-                  type="button"
-                  onClick={close}
-                  aria-label="Close"
-                  className="-mt-1 inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-700 transition hover:bg-signal-500 hover:text-white"
-                >
-                  <CloseIcon className="size-5" />
-                </button>
-              </div>
-
-              {/* Prefixed ids: the page underneath usually has this same form. */}
-              <EnquiryForm idPrefix="quote-" className="mt-6" />
+              <button
+                suppressHydrationWarning
+                type="button"
+                onClick={close}
+                aria-label="Close"
+                className="-mt-1 -mr-1 inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-500 transition hover:bg-surface hover:text-ink-900"
+              >
+                <CloseIcon className="size-5" />
+              </button>
             </div>
+
+            {/* Prefixed ids: the page underneath usually has this same form.
+                `detailed` is what makes it the longer version — company,
+                enquiry type, and phone beside email. */}
+            <EnquiryForm idPrefix="quote-" detailed />
           </div>
         </div>
       )}

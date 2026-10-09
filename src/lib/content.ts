@@ -289,6 +289,10 @@ export const contact = {
   title: "Contact Us",
   formTitle: "Send Us Message",
   submit: "Contact Us",
+  /* The dialog says "Submit": its heading already says what is being sent,
+     so repeating "Contact Us" on the button names the page rather than the
+     action. The page form keeps `submit` above. */
+  submitDialog: "Submit",
   labels: {
     address: "Address",
     email: "Email",
@@ -299,13 +303,44 @@ export const contact = {
     email: "Your Mail Id*",
     phone: "Your Phone Number*",
     message: "Your Message",
+    /* Only the quote dialog asks these two — see EnquiryForm's `detailed`. */
+    company: "Company Name (if applicable)",
+    enquiryType: "Enquiry Type",
+  },
+  /**
+   * What the quote dialog offers under Enquiry Type.
+   *
+   * Who is asking, not what about. Someone specifying plaster for a tower and
+   * someone skimming for a bathroom wall need different answers, and the role
+   * sorts the enquiry before anyone reads the message.
+   */
+  enquiryTypes: [
+    "Architect",
+    "Contractor",
+    "Dealer / Distributor",
+    "Builder / Developer",
+    "Interior Designer",
+    "Homeowner",
+    "Consultant",
+    "Other",
+  ],
+  /** Shown inside the dialog's fields, which label from above rather than within. */
+  placeholders: {
+    name: "Your full name",
+    phone: "+91 12345 67890",
+    email: "you@company.com",
+    company: "Company name",
+    enquiryType: "Select…",
+    message: "Message",
   },
 } as const;
 
 /** The tab pinned to the right edge of every page, and the panel it opens. */
 export const quote = {
   tab: "Get a Quote",
-  title: "Get a Quote",
+  /* The dialog's own heading. The tab says what the button does; this says
+     what the form is for, which is not the same sentence. */
+  title: "Support Your Project With Buildon",
 } as const;
 
 export const newsletter = {

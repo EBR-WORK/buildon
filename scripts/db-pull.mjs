@@ -21,12 +21,33 @@ const { ok, reason, written } = await pull({ log: (line) => console.log(line) })
 
 if (!ok) {
   if (soft) {
-    console.warn(`!  ${reason}`);
-    console.warn("   Building from the files already in content/.");
+    /* Loud, because the failure is silent by nature: the build carries on, the
+       deploy succeeds, and the site serves whatever content was last committed.
+       An editor who saved an hour ago sees their change simply not appear, with
+       a green deploy and nothing anywhere to explain it. */
+    console.warn("");
+    console.warn("  ==================================================================");
+    console.warn("   CONTENT NOT PULLED FROM THE DATABASE");
+    console.warn("");
+    console.warn(`   ${reason}`);
+    console.warn("");
+    console.warn("   Building from the committed files in content/ instead. Anything");
+    console.warn("   saved in the admin panel since those were committed will NOT be");
+    console.warn("   on the deployed site.");
+    console.warn("  ==================================================================");
+    console.warn("");
   } else {
     console.error(`x  ${reason}`);
     process.exitCode = 1;
   }
+} else if (soft) {
+  /* Said on every build, so the log always answers "where did this content
+     come from" without anyone having to infer it from silence. */
+  console.log(
+    written.length === 0
+      ? "   content: read from the database, already matching"
+      : `   content: ${written.length} section(s) refreshed from the database`,
+  );
 } else {
   console.log(
     written.length === 0
