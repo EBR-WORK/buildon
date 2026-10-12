@@ -12,12 +12,15 @@ import {
 } from "react";
 import {
   loadProfile,
+  requestPasswordReset,
+  RESET_PATH,
   signIn,
   signOut,
   type AdminProfile,
 } from "@/lib/cms/auth";
 import { EyeIcon, EyeOffIcon } from "@/components/icons";
 import { isSupabaseConfigured, supabase } from "@/lib/cms/supabase";
+import { usePathname } from "next/navigation";
 
 /**
  * The door to the admin panel.
@@ -51,9 +54,22 @@ export function useAdmin() {
   return context;
 }
 
+/**
+ * The same, but null instead of a throw when there is no provider.
+ *
+ * One screen under /admin renders outside the gate — the reset page, which is
+ * for someone who cannot sign in. The chrome around it still mounts, because a
+ * child route cannot escape its parent layout, so anything in that chrome has
+ * to cope with there being no signed-in admin to describe.
+ */
+export function useAdminMaybe() {
+  return useContext(AuthContext);
+}
+
 type Status = "loading" | "out" | "no-access" | "in";
 
 export default function AuthGate({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [status, setStatus] = useState<Status>("loading");
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -101,6 +117,15 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       await refresh();
     },
   };
+
+  /* The reset page is the one screen under /admin that has to work for someone
+     the gate would otherwise turn away: they are here precisely because they
+     cannot sign in. It establishes its own session from the emailed link and
+     renders its own states, so it goes straight through.
+
+     Placed after the hooks above, never before them — an early return among
+     them would change the hook order between renders. */
+  if (pathname === RESET_PATH) return <>{children}</>;
 
   if (!isSupabaseConfigured) {
     return (
@@ -162,6 +187,10 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
   /* Off on every render of this screen. A password left showing is a password
      on screen for whoever walks past next. */
   const [showPassword, setShowPassword] = useState(false);
+  /* The forgotten-password step, shown in place of the form rather than on a
+     page of its own: the address is usually already typed in above, and a
+     navigation would throw it away. */
+  const [forgot, setForgot] = useState<"no" | "asking" | "sent">("no");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -193,6 +222,94 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
       setBusy(false);
     }
+  }
+
+  async function sendReset(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+
+    try {
+      await requestPasswordReset(email);
+      setForgot("sent");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /* Sent. Deliberately not "we have emailed you": the message is the same for
+     an address with an account and one without, because the alternative is a
+     form that tells a stranger which addresses are real. */
+  if (forgot === "sent") {
+    return (
+      <Shell title="Check your email">
+        <p className="text-[15px] leading-relaxed text-ink-500">
+          If <strong className="font-semibold text-ink-900">{email}</strong> has an
+          account, a link to set a new password is on its way. It is good for one hour.
+        </p>
+        <p className="mt-3 text-[15px] leading-relaxed text-ink-500">
+          Nothing after a few minutes? Check the spam folder, then try again.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setForgot("no");
+            setError("");
+          }}
+          className="mt-6 cursor-pointer rounded-full border border-line bg-white px-5 py-2.5 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500"
+        >
+          Back to sign in
+        </button>
+      </Shell>
+    );
+  }
+
+  if (forgot === "asking") {
+    return (
+      <Shell title="Reset your password">
+        <form onSubmit={sendReset} className="space-y-4">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-ink-900">Email</span>
+            <input
+              type="email"
+              required
+              autoComplete="username"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-xl border border-line bg-white px-4 py-3 text-[15px] outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            />
+          </label>
+
+          {error && (
+            <p role="alert" className="text-sm font-medium text-signal-500">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={busy}
+            className="w-full cursor-pointer rounded-full bg-brand-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy ? "Sending…" : "Email me a link"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setForgot("no");
+              setError("");
+            }}
+            className="w-full cursor-pointer text-sm font-semibold text-ink-500 transition hover:text-brand-500"
+          >
+            Back to sign in
+          </button>
+        </form>
+      </Shell>
+    );
   }
 
   return (
@@ -262,11 +379,21 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
         >
           {busy ? "Signing in…" : "Sign in"}
         </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setForgot("asking");
+            setError("");
+          }}
+          className="w-full cursor-pointer text-sm font-semibold text-ink-500 transition hover:text-brand-500"
+        >
+          Forgot your password?
+        </button>
       </form>
 
       <p className="mt-6 border-t border-line pt-4 text-sm leading-relaxed text-ink-500">
-        Accounts are created by a super admin. If you need one, or have lost your
-        password, ask them to issue it.
+        Accounts are created by a super admin. If you need one, ask them to issue it.
       </p>
     </Shell>
   );

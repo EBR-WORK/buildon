@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { canManageTeam, describeRole } from "@/lib/cms/auth";
 import { site } from "@/lib/content";
-import { useAdmin } from "./AuthGate";
+import { RESET_PATH } from "@/lib/cms/auth";
+import { useAdminMaybe } from "./AuthGate";
 
 /**
  * The admin's navigation, and the way out of it.
@@ -39,8 +40,15 @@ const PAGES = [
 const TEAM = { href: "/admin/team", label: "Team", note: "Who may edit" };
 
 export default function AdminRail() {
-  const { profile, signOut } = useAdmin();
+  const admin = useAdminMaybe();
   const pathname = usePathname();
+
+  /* No rail on the reset screen: it renders outside the gate, for someone who
+     is not signed in, so every link and the Sign out button would be furniture
+     for a session that does not exist. */
+  if (!admin || pathname === RESET_PATH) return null;
+
+  const { profile, signOut } = admin;
 
   const pages = canManageTeam(profile) ? [...PAGES, TEAM] : PAGES;
 

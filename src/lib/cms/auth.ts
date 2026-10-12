@@ -92,6 +92,59 @@ export async function signIn(email: string, password: string) {
   }
 }
 
+/** Where the link in the email lands. Must be allow-listed in Supabase. */
+export const RESET_PATH = "/admin/reset";
+
+/**
+ * Email a reset link.
+ *
+ * Resolves the same way whether or not the address has an account. Supabase
+ * does not say either, and nor should this: a form that answers "no such user"
+ * is a way to find out who the admins are, one guess at a time.
+ *
+ * The mail itself is sent by Supabase, through whatever SMTP the project has
+ * configured. Nothing here touches a mail server — this site has no backend
+ * to put one in.
+ */
+export async function requestPasswordReset(email: string) {
+  if (!supabase) throw new Error("The database is not configured.");
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+    redirectTo: `${window.location.origin}${RESET_PATH}`,
+  });
+
+  /* Rate limiting is the one failure worth repeating back: the person is
+     pressing the button again because nothing arrived, and "try later" is the
+     only thing that explains the silence. Everything else stays quiet, for the
+     reason above. */
+  if (error && /rate|limit|too many/i.test(error.message)) {
+    throw new Error("Too many requests just now. Wait a minute and try again.");
+  }
+}
+
+/**
+ * Set a new password for whoever the current session belongs to.
+ *
+ * Called from the reset page, where that session came from the emailed link.
+ * It is also what a signed-in admin changing their own password would use.
+ */
+export async function setNewPassword(password: string) {
+  if (!supabase) throw new Error("The database is not configured.");
+
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (!error) return;
+
+  if (/session|jwt|expired|not authenticated/i.test(error.message)) {
+    throw new Error(
+      "That link has expired. Ask for a new one — reset links are good for one hour.",
+    );
+  }
+  /* Supabase enforces the project's own minimum, which the form checks first;
+     this catches a stricter policy set in the dashboard later. */
+  throw new Error(error.message);
+}
+
 export async function signOut() {
   await supabase?.auth.signOut();
 }
