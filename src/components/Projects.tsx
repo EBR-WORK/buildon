@@ -7,14 +7,17 @@ import SectionHeading from "./SectionHeading";
  * The grey band from buildon.co.in: centred heading, one line of intro, and the
  * skin-colour "VIEW MORE" pill beneath. No image grid.
  *
- * The reference row puts ~50px above the heading and 100px below the button;
- * the padding here is those values on the spacing scale.
+ * The reference row puts ~50px above the heading and 100px below the button.
+ * The space above is kept; the space below is not. Stacked on the testimonials
+ * band’s own top padding it came to roughly 210px of nothing between the
+ * button and "What Clients say ?", which read as the end of the page rather
+ * than as a gap between two sections.
  */
 export default function Projects() {
   return (
     <section
       id="projects"
-      className="scroll-mt-28 bg-surface pt-14 pb-20 text-center sm:pt-16 sm:pb-24"
+      className="scroll-mt-28 bg-surface pt-14 pb-14 text-center sm:pt-16 sm:pb-16"
     >
       <Reveal className="container-page">
         <SectionHeading title={projects.title} intro={projects.intro} align="center" />

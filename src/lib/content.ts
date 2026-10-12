@@ -343,6 +343,20 @@ export const quote = {
   title: "Support Your Project With Buildon",
 } as const;
 
+/** /download-catalogue. The page the footer's "Download Catalogue" opens. */
+export const cataloguePage = {
+  title: "Download Catalogue",
+  heading: "Product catalogues",
+  intro:
+    "Technical sheets for the Buildon range — coverage, mixing, application and packing. Open one to read it, or save it to send on.",
+  /* Three of the nine products publish no sheet. Saying so beats a grid that
+     quietly omits them, which reads as "we only make six". */
+  rest:
+    "The rest of the range has its specifications on its own page.",
+  restCta: { label: "See all products", href: "/products" },
+  download: "Download PDF",
+} as const;
+
 export const newsletter = {
   titleLead: "Subscribe to Our ",
   titleAccent: "Newsletter",
@@ -375,7 +389,7 @@ export const footerLinks = {
     { label: "Our Branches", href: "/contact-us" },
     { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "User Agreement", href: "/user-agreement" },
-    { label: "Download Catalogue", href: "/faq" },
+    { label: "Download Catalogue", href: "/download-catalogue" },
   ],
   quick: [
     { label: "Home", href: "/" },

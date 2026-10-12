@@ -180,6 +180,46 @@ export function PlusIcon(props: IconProps) {
   );
 }
 
+/**
+ * A document wallet — one catalogue in the folder grid.
+ *
+ * Filled rather than stroked, unlike every other icon in this file: it is
+ * drawn at around 96px as the subject of a card, not at 16px beside a label,
+ * and a line drawing at that size reads as an outline of a folder instead of a
+ * folder. It takes no `stroke`, so it ignores `currentColor` on purpose.
+ */
+export function FolderIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 64 56" fill="none" aria-hidden {...props}>
+      {/* Back of the wallet, with its tab */}
+      <path
+        d="M4 10a4 4 0 0 1 4-4h14.3c1.1 0 2.1.4 2.9 1.2L29 11h27a4 4 0 0 1 4 4v33a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V10Z"
+        fill="#E9A800"
+      />
+      {/* The sheets inside, fanned so the stack reads as paper */}
+      <rect x="13" y="15" width="38" height="26" rx="2" fill="#F4F6F8" />
+      <rect x="13" y="18.5" width="38" height="3" fill="#D64545" />
+      <rect x="13" y="22" width="38" height="3" fill="#3C72C4" />
+      <rect x="13" y="25.5" width="38" height="3" fill="#3F9E68" />
+      {/* Front flap, lighter so the wallet looks open */}
+      <path d="M4 24h56v24a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V24Z" fill="#FFC400" />
+      {/* The written label */}
+      <rect x="20" y="30" width="24" height="7" rx="1.5" fill="#FFFFFF" opacity="0.9" />
+    </svg>
+  );
+}
+
+/** An arrow into a tray — download. */
+export function DownloadIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 3.5v11" />
+      <path d="m7.5 10.5 4.5 4 4.5-4" />
+      <path d="M4.5 16.5v2a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2" />
+    </svg>
+  );
+}
+
 /** A paper plane — send. */
 export function SendIcon(props: IconProps) {
   return (

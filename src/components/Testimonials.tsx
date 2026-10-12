@@ -19,8 +19,11 @@ export default function Testimonials() {
   const { trackRef, index, atStart, atEnd, goTo } = useSnapCarousel<HTMLUListElement>();
   const count = testimonials.items.length;
 
+  /* section-y for the bottom, a lighter top: the grey band above ends in a
+     button, and two full section paddings back to back left a gap the size of
+     a screen. The colour change already marks the boundary. */
   return (
-    <section id="testimonials" className="section-y scroll-mt-28 bg-white">
+    <section id="testimonials" className="section-y scroll-mt-28 bg-white pt-10 sm:pt-12 lg:pt-16">
       <Reveal className="container-page grid items-center gap-10 lg:grid-cols-3 lg:gap-12">
         <div className="min-w-0 lg:col-span-1">
           <VideoPlayer
