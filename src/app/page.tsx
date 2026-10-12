@@ -1,5 +1,6 @@
 import About from "@/components/About";
 import Clients from "@/components/Clients";
+import Counters from "@/components/Counters";
 import ContactDetails from "@/components/ContactDetails";
 import ContactForm from "@/components/ContactForm";
 import Hero from "@/components/Hero";
@@ -22,6 +23,8 @@ export default function Home() {
         <Products />
         <ContactForm />
         <About />
+        {/* Placeholder figures — see `counters` in content.ts. */}
+        <Counters />
         <Clients />
         <Projects />
         <Testimonials />

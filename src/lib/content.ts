@@ -201,6 +201,30 @@ export const about = {
   image: "/projects/project-2.webp",
 } as const;
 
+/**
+ * The figures band on the home page.
+ *
+ * PLACEHOLDER. Every number below is invented and none of it has been checked
+ * against anything. It is here so the band can be designed and positioned; the
+ * real figures replace these values and nothing else has to change.
+ *
+ * Before this goes live, each one needs a source somebody will stand behind —
+ * a claim like "12,500 projects" on a manufacturer's home page is the kind of
+ * number a buyer repeats back to you.
+ */
+export const counters = {
+  title: "Buildon by the numbers",
+  intro: "A decade of gypsum, measured.",
+  /* `value` is the number to count up to, `suffix` what follows it. Split
+     rather than one string, because the animation needs the number alone. */
+  items: [
+    { id: "years", value: 12, suffix: "+", label: "Years of manufacturing" },
+    { id: "projects", value: 2500, suffix: "+", label: "Projects supplied" },
+    { id: "tonnes", value: 150, suffix: "K", label: "Tonnes of plaster delivered" },
+    { id: "cities", value: 40, suffix: "+", label: "Cities served" },
+  ],
+} as const;
+
 export const clients = {
   title: "Meet Our Clients",
   intro:
