@@ -209,6 +209,28 @@ export function FolderIcon(props: IconProps) {
   );
 }
 
+/** An open eye — the password is showing. */
+export function EyeIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="3.2" />
+    </svg>
+  );
+}
+
+/** The same eye, struck through — the password is hidden. */
+export function EyeOffIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M9.9 5.8A8.8 8.8 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a16.6 16.6 0 0 1-2.9 3.6" />
+      <path d="M6.4 7.6A16.4 16.4 0 0 0 2.5 12S6 18.5 12 18.5c1.4 0 2.6-.3 3.7-.8" />
+      <path d="M10.1 10.1a2.7 2.7 0 0 0 3.8 3.8" />
+      <path d="m4 4 16 16" />
+    </svg>
+  );
+}
+
 /** An arrow into a tray — download. */
 export function DownloadIcon(props: IconProps) {
   return (

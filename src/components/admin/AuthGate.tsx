@@ -16,6 +16,7 @@ import {
   signOut,
   type AdminProfile,
 } from "@/lib/cms/auth";
+import { EyeIcon, EyeOffIcon } from "@/components/icons";
 import { isSupabaseConfigured, supabase } from "@/lib/cms/supabase";
 
 /**
@@ -158,6 +159,9 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
       : "",
   );
   const [password, setPassword] = useState("");
+  /* Off on every render of this screen. A password left showing is a password
+     on screen for whoever walks past next. */
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -207,17 +211,43 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
           />
         </label>
 
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-semibold text-ink-900">Password</span>
-          <input
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-line bg-white px-4 py-3 text-[15px] outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
-          />
-        </label>
+        {/* A div with an explicit label, not a <label> wrapping both: a label
+            containing the toggle would make pressing it an activation of the
+            input as well, and the field has its own reasons to be touched. */}
+        <div>
+          <label
+            htmlFor="admin-password"
+            className="mb-1.5 block text-sm font-semibold text-ink-900"
+          >
+            Password
+          </label>
+          <div className="relative">
+            <input
+              id="admin-password"
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              /* Room on the right for the toggle, so a long password does not
+                 run underneath it. */
+              className="w-full rounded-xl border border-line bg-white py-3 pr-12 pl-4 text-[15px] outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((shown) => !shown)}
+              /* The state, not the action: a screen reader user needs to know
+                 whether their password is on display, which "Show password"
+                 alone does not say. */
+              aria-pressed={showPassword}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              title={showPassword ? "Hide password" : "Show password"}
+              className="absolute top-1/2 right-1.5 inline-flex size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg text-ink-500 transition hover:bg-surface hover:text-ink-900"
+            >
+              {showPassword ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
+            </button>
+          </div>
+        </div>
 
         {error && (
           <p role="alert" className="text-sm font-medium text-signal-500">
