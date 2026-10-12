@@ -40,7 +40,17 @@ export default function QuotePanel({
 }: {
   tabHidden?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  /**
+   * Closed, or open as one of two different dialogs.
+   *
+   *   "tab"   someone pressed Get a Quote. Short form, the tab's own title:
+   *           they asked a specific question and six fields is an answer to a
+   *           question they did not ask.
+   *   "auto"  it let itself in 1.2s after the page loaded. The longer form,
+   *           because nobody asked for this one and if it is going to
+   *           interrupt, it may as well collect what the office actually needs.
+   */
+  const [open, setOpen] = useState<null | "tab" | "auto">(null);
   /* Whether the dialog let itself in, rather than being asked for. An
      uninvited dialog does not get to take the keyboard — see below. */
   const autoOpened = useRef(false);
@@ -50,7 +60,7 @@ export default function QuotePanel({
   const tabRef = useRef<HTMLButtonElement>(null);
 
   const close = () => {
-    setOpen(false);
+    setOpen(null);
     tabRef.current?.focus();
   };
 
@@ -71,8 +81,14 @@ export default function QuotePanel({
          mid-word. */
       const active = document.activeElement;
       if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) return;
-      autoOpened.current = true;
-      setOpen(true);
+      /* Functional, and only from closed: press Get a Quote inside the first
+         1.2 seconds and this would otherwise fire a moment later and swap the
+         short form you asked for into the long one you did not. */
+      setOpen((current) => {
+        if (current !== null) return current;
+        autoOpened.current = true;
+        return "auto";
+      });
     }, AUTO_OPEN_AFTER_MS);
     return () => window.clearTimeout(idle);
   }, []);
@@ -129,8 +145,8 @@ export default function QuotePanel({
         suppressHydrationWarning
         ref={tabRef}
         type="button"
-        onClick={() => setOpen(true)}
-        aria-expanded={open}
+        onClick={() => setOpen("tab")}
+        aria-expanded={open !== null}
         aria-controls="quote-panel"
         className={`${
           tabHidden ? "pointer-events-none opacity-0" : ""
@@ -151,7 +167,7 @@ export default function QuotePanel({
         {quote.tab}
       </button>
 
-      {open && (
+      {open !== null && (
         /* A dialog in the middle of the screen, not a drawer off the right
            edge. The drawer kept the page visible beside it, which sounds
            generous and in practice meant a tall narrow column: six fields in
@@ -176,12 +192,19 @@ export default function QuotePanel({
             ref={panelRef}
             role="dialog"
             aria-modal
-            aria-label={quote.title}
-            className="relative z-10 my-auto w-full max-w-2xl rounded-2xl bg-white p-6 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.35)] sm:p-8"
+            aria-label={open === "tab" ? quote.tab : quote.title}
+            className={`relative z-10 my-auto w-full rounded-2xl bg-white p-6 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.35)] sm:p-8 ${
+              /* The short form is one column of four fields; at max-w-2xl it
+                 sits in a card twice as wide as anything in it. */
+              open === "tab" ? "max-w-md" : "max-w-2xl"
+            }`}
           >
             <div className="mb-6 flex items-start justify-between gap-4">
               <h2 className="font-display text-xl leading-snug font-semibold sm:text-2xl">
-                {quote.title}
+                {/* The tab's own words, so the dialog answers the button that
+                    opened it. The uninvited one needs a sentence instead: it
+                    has to say what it is for, because nothing preceded it. */}
+                {open === "tab" ? quote.tab : quote.title}
               </h2>
 
               <button
@@ -198,7 +221,14 @@ export default function QuotePanel({
             {/* Prefixed ids: the page underneath usually has this same form.
                 `detailed` is what makes it the longer version — company,
                 enquiry type, and phone beside email. */}
-            <EnquiryForm idPrefix="quote-" detailed />
+            <EnquiryForm
+              idPrefix="quote-"
+              detailed={open === "auto"}
+              /* Named by how it was opened, not by which shape it took: the
+                 tab opens the short form, and filing those as ordinary page
+                 enquiries hid every quote request the tab produced. */
+              source={open === "tab" ? "Get a Quote tab" : "Pop-up dialog"}
+            />
           </div>
         </div>
       )}

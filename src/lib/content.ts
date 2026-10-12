@@ -20,6 +20,9 @@ export const site = {
   primaryPhoneHref: "tel:+919004083336",
   callUs: "Call Us : +91 90040 83336",
   email: "info@buildon.co.in",
+  /* Where enquiries go, which is not the address the site displays: info@ is
+     the published one, marketing@ is the desk that answers forms. */
+  enquiryEmail: "Marketing@buildon.co.in",
   copyright: { lead: "Copyright © 2024 ", brand: "Buildon", tail: ". All rights reserved." },
   address: {
     full: "3-B, Mapkhan Compound, Mapkhan Nagar, Marol Maroshi Road, Andheri (E), Mumbai - 400059, Maharashtra, India",
@@ -317,6 +320,17 @@ export const contact = {
      so repeating "Contact Us" on the button names the page rather than the
      action. The page form keeps `submit` above. */
   submitDialog: "Submit",
+  /* What the form says once it has gone. No "we will get back to you within
+     24 hours" — that is a promise this file cannot keep on the office's
+     behalf. */
+  sentTitle: "Thank you — we have your enquiry.",
+  sentBody: "Someone from the team will be in touch. If it is urgent, call +91 90040 83336.",
+  sentAgain: "Send another",
+  /* Shown when the enquiry could not be stored, just before the mail draft
+     opens — because on a machine with no mail client nothing else happens
+     at all, and a silent button reads as a broken one. */
+  failed:
+    "We could not send that just now. An email is opening with your message — send it, or call +91 90040 83336.",
   labels: {
     address: "Address",
     email: "Email",

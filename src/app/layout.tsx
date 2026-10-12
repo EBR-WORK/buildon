@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import NetlifyForms from "@/components/NetlifyForms";
 import SiteChrome from "@/components/SiteChrome";
 import ScrollToTop from "@/components/ScrollToTop";
 import { site } from "@/lib/content";
@@ -77,6 +78,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         {/* Public-site furniture only — SiteChrome hides it under /admin. */}
         <SiteChrome />
+        {/* Invisible, and not for the visitor at all: see the component. */}
+        <NetlifyForms />
         <script
           type="application/ld+json"
           // Static, locally-authored object — no user input reaches this string.

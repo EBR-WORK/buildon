@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { contact, site } from "@/lib/content";
+import { submitEnquiry } from "@/lib/cms/enquiries";
+import { ENQUIRY_FORM } from "./NetlifyForms";
 import { ArrowIcon, ChevronDownIcon } from "./icons";
 
 type Errors = Partial<Record<"name" | "email" | "phone" | "message", string>>;
@@ -23,9 +25,19 @@ export default function EnquiryForm({
   className = "",
   idPrefix = "",
   detailed = false,
+  source,
 }: {
   className?: string;
   idPrefix?: string;
+  /**
+   * What the desk sees as the origin of the enquiry.
+   *
+   * A prop rather than something derived from `detailed`: the Get a Quote tab
+   * opens the SHORT form, so reading the shape to decide the label filed every
+   * quote request as an ordinary page enquiry — which is the one thing this
+   * field exists to tell apart.
+   */
+  source?: string;
   /**
    * Adds company and enquiry type, and sets phone and email side by side.
    *
@@ -37,12 +49,60 @@ export default function EnquiryForm({
   detailed?: boolean;
 }) {
   const [errors, setErrors] = useState<Errors>({});
+  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
 
   /**
-   * No backend is wired up yet, so a valid submission composes the enquiry as a
-   * mail draft to info@buildon.co.in. Swap this for a POST to a route handler
-   * (or the CRM endpoint) when one exists — the validation below stays as is.
+   * Send it to Netlify, which emails it on to the enquiry desk.
+   *
+   * There is no server here to post to — the site is a static export — so the
+   * host does the receiving. Netlify records every submission against the site
+   * and forwards it to whichever address is set under Forms → Notifications,
+   * which is where Marketing@buildon.co.in belongs.
+   *
+   * The mail draft that used to be the whole mechanism is now only the
+   * fallback, for when that POST cannot work: on localhost, where there is no
+   * Netlify to answer it, and on a deploy with form handling off. It is a poor
+   * substitute — it opens the visitor's mail app and asks them to press send,
+   * and on a desktop with no mail client it does nothing at all. Which is
+   * exactly why it is no longer the primary path.
    */
+  /**
+   * Record it, then tell the host about it.
+   *
+   * The database is the one that has to work: it is reached the same way from
+   * localhost, from Netlify and from wherever this site is hosted next, so an
+   * enquiry is kept whatever happens to the deploy. If that insert fails,
+   * nothing was received and the visitor gets their words back as a draft.
+   *
+   * Netlify is told afterwards, and only because it is what emails the desk.
+   * Its failure is not the visitor's problem — the enquiry is already stored
+   * and visible in the admin panel — so it is swallowed rather than surfaced.
+   * On a host that is not Netlify this simply never succeeds, and nothing
+   * about the form changes.
+   */
+  /**
+   * Tell the host, after the fact and without waiting.
+   *
+   * This is only what emails the desk; the enquiry is already stored by the
+   * time it runs. Awaiting it kept the visitor on "Sending…" for as long as
+   * the network took — on a slow connection, long enough to give up, reload
+   * and send a second copy — for a request whose outcome does not concern
+   * them. Its failure is swallowed for the same reason. On a host that is not
+   * Netlify it simply never succeeds, and nothing about the form changes.
+   */
+  function notifyHost(data: FormData) {
+    /* The dev server answers a POST to "/" with 200 rather than refusing it,
+       so there is nothing in the response to tell a delivered form from a
+       page. Skipped outright rather than trusted. */
+    if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname)) return;
+
+    void fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(data as unknown as Record<string, string>).toString(),
+    }).catch(() => {});
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -52,11 +112,20 @@ export default function EnquiryForm({
     const phone = String(data.get("phone") ?? "").trim();
     const message = String(data.get("message") ?? "").trim();
 
+    /* Both ends of each range, and the upper ones are the insert policy's own
+       numbers (0003_enquiries.sql). Without them an over-long message passes
+       the form, is refused by the database, and the visitor is dropped into
+       the mail-draft fallback with no idea which field was the problem. */
     const next: Errors = {};
     if (name.length < 2) next.name = "Please enter your name.";
+    else if (name.length > 120) next.name = "That is too long for a name.";
     if (!emailPattern.test(email)) next.email = "Please enter a valid email address.";
+    else if (email.length > 200) next.email = "That address is too long.";
     if (phone.replace(/\D/g, "").length < 8) next.phone = "Please enter a reachable phone number.";
+    else if (phone.length > 40) next.phone = "That is too long for a phone number.";
     if (message.length < 10) next.message = "Tell us a little about your requirement.";
+    else if (message.length > 5000)
+      next.message = "That is longer than we can accept — please shorten it a little.";
 
     setErrors(next);
     if (Object.keys(next).length > 0) {
@@ -64,11 +133,83 @@ export default function EnquiryForm({
       return;
     }
 
-    const body = [`Name: ${name}`, `Email: ${email}`, `Phone: ${phone}`, "", message].join("\n");
+    data.set("form-name", ENQUIRY_FORM);
+    const origin = source ?? (detailed ? "Quote dialog" : "Page form");
+    data.set("source", origin);
+    data.set("page", window.location.pathname);
 
-    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
-      `Enquiry from ${name}`,
-    )}&body=${encodeURIComponent(body)}`;
+    setStatus("sending");
+
+    submitEnquiry({
+      name,
+      email,
+      phone,
+      message,
+      company: String(data.get("company") ?? ""),
+      enquiryType: String(data.get("enquiryType") ?? ""),
+      source: origin,
+      page: window.location.pathname,
+    }).then(
+      () => {
+        /* Stored. Everything after this point is housekeeping, and none of it
+           may reach the catch below — a thrown reset would otherwise open a
+           mail draft for an enquiry that is already in the database, and the
+           desk would get it twice. */
+        setStatus("sent");
+        try {
+          form.reset();
+          notifyHost(data);
+        } catch {
+          /* Nothing here is worth telling the visitor about. */
+        }
+      },
+      () => {
+        /* Nothing received it. Hand the visitor their own words back rather
+           than an apology — a draft they can send beats a form that ate the
+           message — but say so first, because a mail client that does not
+           open leaves an otherwise silent failure. */
+        setStatus("idle");
+        setErrors({ message: contact.failed });
+
+        const lines = [
+          `Name: ${name}`,
+          `Email: ${email}`,
+          `Phone: ${phone}`,
+        ];
+        const company = String(data.get("company") ?? "").trim();
+        const enquiryType = String(data.get("enquiryType") ?? "").trim();
+        if (company) lines.push(`Company: ${company}`);
+        if (enquiryType) lines.push(`Enquiry type: ${enquiryType}`);
+        lines.push("", message);
+
+        window.location.href = `mailto:${site.enquiryEmail}?subject=${encodeURIComponent(
+          `Enquiry from ${name}`,
+        )}&body=${encodeURIComponent(lines.join("\n"))}`;
+      },
+    );
+  }
+
+  /* Sent. The form is replaced rather than left on screen with a notice above
+     it: a form still sitting there invites a second send, and the commonest
+     reason anyone does that is not being sure the first one worked. */
+  if (status === "sent") {
+    return (
+      <div
+        role="status"
+        className={`rounded-2xl border border-brand-200 bg-brand-50/50 p-6 text-center ${className}`}
+      >
+        <p className="font-display text-lg font-semibold">{contact.sentTitle}</p>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink-500">{contact.sentBody}</p>
+        <button
+          suppressHydrationWarning
+          type="button"
+          onClick={() => setStatus("idle")}
+          className="mt-5 cursor-pointer text-sm font-semibold text-brand-500 transition hover:text-brand-600"
+        >
+          {contact.sentAgain}
+        </button>
+      </div>
+    );
   }
 
   /* Two field styles, because the two places this appears are different
@@ -79,7 +220,17 @@ export default function EnquiryForm({
      exactly that. */
   if (detailed) {
     return (
-      <form onSubmit={handleSubmit} noValidate className={className}>
+      <form
+        name={ENQUIRY_FORM}
+        method="POST"
+        onSubmit={handleSubmit}
+        noValidate
+        className={className}
+      >
+        {/* Carried so a submission still arrives if the POST above never runs
+            — JavaScript blocked, or a browser that falls back to a plain
+            form submit. Netlify matches it to the hidden definition. */}
+        <input type="hidden" name="form-name" value={ENQUIRY_FORM} />
         <Filled
           name="name"
           idPrefix={idPrefix}
@@ -141,9 +292,10 @@ export default function EnquiryForm({
         <button
           suppressHydrationWarning
           type="submit"
+          disabled={status === "sending"}
           className="group mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600 sm:w-auto"
         >
-          {contact.submitDialog}
+          {status === "sending" ? "Sending…" : contact.submitDialog}
           <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
         </button>
       </form>
@@ -151,7 +303,17 @@ export default function EnquiryForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className={className}>
+    <form
+        name={ENQUIRY_FORM}
+        method="POST"
+        onSubmit={handleSubmit}
+        noValidate
+        className={className}
+      >
+        {/* Carried so a submission still arrives if the POST above never runs
+            — JavaScript blocked, or a browser that falls back to a plain
+            form submit. Netlify matches it to the hidden definition. */}
+        <input type="hidden" name="form-name" value={ENQUIRY_FORM} />
       <Field
         name="name"
         idPrefix={idPrefix}
@@ -186,9 +348,10 @@ export default function EnquiryForm({
       <button
         suppressHydrationWarning
         type="submit"
+        disabled={status === "sending"}
         className="group mt-8 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600 sm:w-auto"
       >
-        {contact.submit}
+        {status === "sending" ? "Sending…" : contact.submit}
         <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
       </button>
     </form>
