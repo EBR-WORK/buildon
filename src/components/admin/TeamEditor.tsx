@@ -13,6 +13,7 @@ import {
 import { supabase } from "@/lib/cms/supabase";
 import { PlusIcon, TrashIcon } from "@/components/icons";
 import { useAdmin } from "./AuthGate";
+import PublishSetting from "./PublishSetting";
 import { useToast } from "./Toast";
 
 /**
@@ -511,6 +512,11 @@ export default function TeamEditor() {
             </ul>
           </section>
         )}
+
+        {/* Same screen because it is the same audience: this is the only one
+            super admins see, and where Publish points is a super admin's
+            decision like every other on it. */}
+        <PublishSetting />
       </div>
     </div>
   );

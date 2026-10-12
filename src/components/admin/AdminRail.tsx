@@ -7,6 +7,7 @@ import { canManageTeam, describeRole } from "@/lib/cms/auth";
 import { site } from "@/lib/content";
 import { RESET_PATH } from "@/lib/cms/auth";
 import { useAdminMaybe } from "./AuthGate";
+import PublishButton from "./PublishButton";
 
 /**
  * The admin's navigation, and the way out of it.
@@ -60,6 +61,11 @@ export default function AdminRail() {
      saves, but these two controls must not drift apart. */
   const actions = (
     <>
+      {/* First, and the only filled control here: on a static site a save is
+          not a publish, and this is the half an editor would otherwise never
+          know about. */}
+      <PublishButton />
+
       {/* A new tab: an editor checking how a change looks should not lose the
           form they are halfway through filling in. */}
       <Link
