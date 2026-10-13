@@ -147,6 +147,7 @@ export default function EnquiryForm({
       message,
       company: String(data.get("company") ?? ""),
       enquiryType: String(data.get("enquiryType") ?? ""),
+      product: String(data.get("product") ?? ""),
       source: origin,
       page: window.location.pathname,
     }).then(
@@ -178,8 +179,10 @@ export default function EnquiryForm({
         ];
         const company = String(data.get("company") ?? "").trim();
         const enquiryType = String(data.get("enquiryType") ?? "").trim();
+        const product = String(data.get("product") ?? "").trim();
         if (company) lines.push(`Company: ${company}`);
         if (enquiryType) lines.push(`Enquiry type: ${enquiryType}`);
+        if (product) lines.push(`Product: ${product}`);
         lines.push("", message);
 
         window.location.href = `mailto:${site.enquiryEmail}?subject=${encodeURIComponent(
@@ -269,13 +272,24 @@ export default function EnquiryForm({
           autoComplete="organization"
         />
 
-        <Filled
-          name="enquiryType"
-          idPrefix={idPrefix}
-          label="Enquiry Type"
-          placeholder={contact.placeholders.enquiryType}
-          options={contact.enquiryTypes}
-        />
+        {/* Side by side: both are one-line choices, and stacked they pushed
+            the message box below the fold on a laptop. */}
+        <div className="gap-x-5 sm:grid sm:grid-cols-2">
+          <Filled
+            name="enquiryType"
+            idPrefix={idPrefix}
+            label="Enquiry Type"
+            placeholder={contact.placeholders.enquiryType}
+            options={contact.enquiryTypes}
+          />
+          <Filled
+            name="product"
+            idPrefix={idPrefix}
+            label={contact.fields.product}
+            placeholder={contact.placeholders.product}
+            options={contact.productOptions}
+          />
+        </div>
 
         <Filled
           name="message"

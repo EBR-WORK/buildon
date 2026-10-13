@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { products } from "@/lib/content";
 import { useCoverflow } from "@/lib/useCoverflow";
 import CarouselButton from "./CarouselButton";
-import CtaLink from "./CtaLink";
 import SectionHeading from "./SectionHeading";
 import Reveal from "./Reveal";
 
@@ -32,7 +32,7 @@ export default function Products({
      Read off the reference: the cards beside the centre are not only angled,
      they stand behind it — which a scroll-snap row cannot do, since everything
      in a scroller shares one plane. Hence a hand-placed row. */
-  const { frameRef, cardRefs, selected, ready, nudge, dragHandlers } = useCoverflow({
+  const { frameRef, cardRefs, selected, ready, nudge, wasDragged, dragHandlers } = useCoverflow({
     count: products.items.length,
   });
 
@@ -141,7 +141,27 @@ export default function Products({
                       places, and two owners of one property is a fight neither
                       wins. The shadow is what reads the depth — a card standing
                       behind another needs to cast onto it. */}
-                  <article className="group relative aspect-4/5 w-full overflow-hidden rounded-2xl shadow-lift">
+                  {/* The whole card is the link, as the grid on /products
+                      already is: one target per product, named after it,
+                      rather than a card you can only open by finding the
+                      "Read More" inside it.
+
+                      onClick, not onDragEnd: a drag finishes with a click on
+                      whatever was under the finger, so throwing the row would
+                      otherwise open a product nobody chose. */}
+                  <Link
+                    href={product.href}
+                    onClick={(event) => {
+                      if (wasDragged()) event.preventDefault();
+                    }}
+                    /* A mouse press would move focus here, and the browser
+                       scrolls to reveal a newly focused element when its card
+                       sits partly below the fold. Cancelling the press's
+                       default keeps focus where it is; the click still fires,
+                       and keyboard focus is untouched. */
+                    onMouseDown={(event) => event.preventDefault()}
+                    className="group relative block aspect-4/5 w-full overflow-hidden rounded-2xl shadow-lift focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+                  >
                   <Image
                     src={product.image}
                     alt={`${product.name} — Buildon packaging`}
@@ -183,21 +203,20 @@ export default function Products({
                         {product.body}
                       </p>
 
-                      {/* A mouse press would move focus here, and the browser
-                          scrolls to reveal a newly focused element when its
-                          card sits partly below the fold. Cancelling the
-                          press's default keeps focus where it is; the click
-                          still fires, and keyboard focus is untouched. */}
-                      <CtaLink
-                        href={product.href}
-                        onMouseDown={(event) => event.preventDefault()}
-                        className="mt-4 inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold text-white transition hover:gap-2.5"
+                      {/* Display only: the card itself is the link, so this is
+                          the reference's affordance without a second tab stop,
+                          a link inside a link (which is invalid), or something
+                          screen readers would announce as "Read More" instead
+                          of the product's name. */}
+                      <span
+                        aria-hidden
+                        className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-white transition group-hover:gap-2.5"
                       >
                         {products.readMore}
-                      </CtaLink>
+                      </span>
                     </div>
                   </div>
-                  </article>
+                  </Link>
                 </li>
               ))}
             </ul>

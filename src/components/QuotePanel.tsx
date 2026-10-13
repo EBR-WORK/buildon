@@ -193,11 +193,7 @@ export default function QuotePanel({
             role="dialog"
             aria-modal
             aria-label={open === "tab" ? quote.tab : quote.title}
-            className={`relative z-10 my-auto w-full rounded-2xl bg-white p-6 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.35)] sm:p-8 ${
-              /* The short form is one column of four fields; at max-w-2xl it
-                 sits in a card twice as wide as anything in it. */
-              open === "tab" ? "max-w-md" : "max-w-2xl"
-            }`}
+            className="relative z-10 my-auto w-full max-w-2xl rounded-2xl bg-white p-6 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.35)] sm:p-8"
           >
             <div className="mb-6 flex items-start justify-between gap-4">
               <h2 className="font-display text-xl leading-snug font-semibold sm:text-2xl">
@@ -219,14 +215,15 @@ export default function QuotePanel({
             </div>
 
             {/* Prefixed ids: the page underneath usually has this same form.
-                `detailed` is what makes it the longer version — company,
-                enquiry type, and phone beside email. */}
+                One shape for both ways in — `detailed` either way — so the tab
+                and the pop-up ask for the same things and the office gets the
+                same answers however the visitor arrived.
+
+                `source` still separates them, since which one produced a lead
+                is worth knowing even when the form is identical. */}
             <EnquiryForm
               idPrefix="quote-"
-              detailed={open === "auto"}
-              /* Named by how it was opened, not by which shape it took: the
-                 tab opens the short form, and filing those as ordinary page
-                 enquiries hid every quote request the tab produced. */
+              detailed
               source={open === "tab" ? "Get a Quote tab" : "Pop-up dialog"}
             />
           </div>

@@ -67,6 +67,10 @@ export function useCoverflow({
   const widthRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const dragRef = useRef<{ id: number; x: number; pos: number; v: number; t: number } | null>(null);
+  /* Whether the last press travelled far enough to be a drag rather than a
+     click. The cards are links, and without this every throw of the row ends
+     in a navigation to whichever card happened to be under the finger. */
+  const draggedRef = useRef(false);
 
   const [selected, setSelected] = useState(0);
 
@@ -197,8 +201,14 @@ export function useCoverflow({
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
-    event.currentTarget.setPointerCapture(event.pointerId);
+    /* Deliberately NOT capturing the pointer here.
+       While a pointer is captured, the browser retargets the click that
+       follows to the capturing element — so a plain press on a card had its
+       click delivered to this frame instead of to the link inside it, and the
+       card simply would not open. Capture is taken in onPointerMove, once the
+       press has proved itself a drag, which is the only time it is needed. */
     targetRef.current = posRef.current;
+    draggedRef.current = false;
     dragRef.current = {
       id: event.pointerId,
       x: event.clientX,
@@ -214,6 +224,17 @@ export function useCoverflow({
 
     const pitch = widthRef.current * (1 + gap);
     if (!pitch) return;
+
+    /* A few pixels of slop, because a press is never perfectly still — on a
+       touchscreen especially, a tap moves two or three pixels and calling that
+       a drag would make the cards unopenable by finger. */
+    if (!draggedRef.current && Math.abs(event.clientX - drag.x) > 6) {
+      draggedRef.current = true;
+      /* Now it is a drag, so take the pointer: the row should keep following
+         the finger when it leaves this element, and the click this gesture
+         ends with is one we are going to cancel anyway. */
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
 
     const now = performance.now();
     const previous = posRef.current;
@@ -266,6 +287,16 @@ export function useCoverflow({
     [],
   );
 
+  /**
+   * Did the press that is finishing move the row?
+   *
+   * Read in a click handler, which fires after the pointer is up: true means
+   * the gesture was a drag and the click is its tail, not an intent to open
+   * anything. The flag is left set until the next press clears it, so the one
+   * click that follows a drag is the one it answers.
+   */
+  const wasDragged = useCallback(() => draggedRef.current, []);
+
   return {
     frameRef,
     cardRefs,
@@ -273,6 +304,7 @@ export function useCoverflow({
     ready,
     goTo,
     nudge,
+    wasDragged,
     dragHandlers: {
       onPointerDown,
       onPointerMove,

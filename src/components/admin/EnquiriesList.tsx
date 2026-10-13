@@ -243,6 +243,14 @@ export default function EnquiriesList() {
                   {row.enquiry_type}
                 </span>
               )}
+              {/* Tinted, because which product they want is the first thing
+                  anyone answering needs and it should not read as one more
+                  grey tag among the rest. */}
+              {row.product && (
+                <span className="rounded-full bg-brand-50 px-2.5 py-0.5 font-medium text-brand-600">
+                  {row.product}
+                </span>
+              )}
             </div>
 
             {/* whitespace-pre-line: the message was typed into a textarea and

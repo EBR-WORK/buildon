@@ -28,6 +28,7 @@ export type Enquiry = {
   message: string;
   company: string | null;
   enquiry_type: string | null;
+  product: string | null;
   source: string | null;
   page: string | null;
   handled: boolean;
@@ -42,6 +43,7 @@ export type NewEnquiry = {
   message: string;
   company?: string;
   enquiryType?: string;
+  product?: string;
   source?: string;
   page?: string;
 };
@@ -68,6 +70,7 @@ export async function submitEnquiry(entry: NewEnquiry) {
     message: entry.message.trim(),
     company: orNull(entry.company),
     enquiry_type: orNull(entry.enquiryType),
+    product: orNull(entry.product),
     source: orNull(entry.source),
     page: orNull(entry.page),
   });

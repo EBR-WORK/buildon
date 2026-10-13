@@ -45,6 +45,7 @@ export default function NetlifyForms() {
           from a submission is fine. A field missing from THIS list is not. */}
       <input name="company" readOnly />
       <input name="enquiryType" readOnly />
+      <input name="product" readOnly />
       <textarea name="message" readOnly />
       {/* Which of the three places on the site it came from, so the office can
           tell a quote request from a contact-page enquiry. */}

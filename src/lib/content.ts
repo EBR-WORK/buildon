@@ -344,6 +344,7 @@ export const contact = {
     /* Only the quote dialog asks these two — see EnquiryForm's `detailed`. */
     company: "Company Name (if applicable)",
     enquiryType: "Enquiry Type",
+    product: "Which Product",
   },
   /**
    * What the quote dialog offers under Enquiry Type.
@@ -363,12 +364,25 @@ export const contact = {
     "Other",
   ],
   /** Shown inside the dialog's fields, which label from above rather than within. */
+  /**
+   * What the dialog offers under Which Product.
+   *
+   * Read off the catalogue rather than retyped, so a product added or renamed
+   * there appears here without anyone remembering to. The last entry is for
+   * the enquiry that has not chosen yet — without it, someone who only knows
+   * they need plaster has to pick one at random or leave the field empty.
+   */
+  productOptions: [
+    ...productCatalogue.map((item) => item.name),
+    "Not sure — please advise",
+  ],
   placeholders: {
     name: "Your full name",
     phone: "+91 12345 67890",
     email: "you@company.com",
     company: "Company name",
     enquiryType: "Select…",
+    product: "Select a product…",
     message: "Message",
   },
 } as const;
