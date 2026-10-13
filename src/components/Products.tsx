@@ -195,7 +195,17 @@ export default function Products({
                       {product.name}
                     </h3>
 
-                    <div className="pb-14">
+                    {/* Hidden until the card is hovered, rather than merely
+                        pushed below the card's edge by the panel's resting
+                        offset. On a phone there is no hover and the cards are
+                        short, so 58% of one left the description sitting on
+                        top of the name it was supposed to be under.
+
+                        Tailwind's hover variant carries `@media (hover: hover)`,
+                        so on a touchscreen this never resolves and the card
+                        stays a picture with a name — which is the whole
+                        content of a tap target that opens the page anyway. */}
+                    <div className="pb-14 opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100">
                       {/* Clamped to five lines, as the reference clamps its
                           own, so a long description cannot push the link out
                           of the card. */}
