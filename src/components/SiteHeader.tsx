@@ -71,7 +71,10 @@ export default function SiteHeader() {
               width={179}
               height={87}
               priority
-              className="h-14 w-auto sm:h-16"
+              /* 72px on a large screen, in a 96px bar. The source artwork is
+                 179x87, so this is the largest it goes before it is being
+                 scaled up and softening. */
+              className="h-14 w-auto sm:h-16 lg:h-[4.5rem]"
             />
           </Link>
 

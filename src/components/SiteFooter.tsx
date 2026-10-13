@@ -105,9 +105,15 @@ export default function SiteFooter() {
                   <a
                     href={item.href}
                     aria-label={item.label}
-                    className="inline-flex size-10 items-center justify-center rounded-full bg-brand-500 text-white transition hover:bg-brand-600"
+                    className="inline-flex size-10 items-center justify-center rounded-full bg-brand-500 text-white transition hover:scale-105 hover:bg-brand-600"
                   >
-                    <Icon className="size-4.5" />
+                    {/* size-6 against a size-10 circle. The marks are now
+                        normalised to 17 of their 24-unit box (see icons.tsx),
+                        so 24px of icon draws about 17px of glyph in a 40px
+                        circle — a little over 40%, which is where a social
+                        button looks deliberate rather than timid. At the old
+                        size-4.5 it was under a third. */}
+                    <Icon className="size-6" />
                   </a>
                 </li>
               );
