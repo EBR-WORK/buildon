@@ -39,6 +39,7 @@ const PAGES = [
   /* Not a page of the site, but it belongs in the same list: it is the one
      thing in here an editor opens to act rather than to edit. */
   { href: "/admin/enquiries", label: "Enquiries", note: "From the forms" },
+  { href: "/admin/applications", label: "Applications", note: "Who has applied" },
 ];
 
 const TEAM = { href: "/admin/team", label: "Team", note: "Who may edit" };

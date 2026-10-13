@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { site } from "@/lib/content";
+import { submitApplication } from "@/lib/cms/applications";
 import { applicationFields } from "@/lib/careerDetails";
 import { ArrowIcon, ChevronDownIcon } from "./icons";
 
@@ -42,12 +43,15 @@ function singleLine(value: string) {
 /**
  * The job application form.
  *
- * The reference posts this to WordPress. This site is a static export with no
- * server to receive a POST — and no server means no safe place to accept an
- * uploaded file — so a valid application opens a mail draft to the company
- * with the answers filled in, and asks the applicant to attach the CV they
- * chose. The file is checked and named but never uploaded, which the form says
- * plainly rather than pretending to send it.
+ * A valid application is stored in the database and its CV uploaded to a
+ * private bucket, from the browser — the site is a static export with no
+ * server, so the database is what receives it. That works on localhost, on
+ * Netlify and on whatever this is hosted on next.
+ *
+ * It used to open a mail draft and ask the applicant to attach their own CV.
+ * Everyone who did not got lost, and the ones who did arrived in whichever
+ * inbox their mail client happened to be signed in to. The draft survives only
+ * as the fallback for when the database cannot be reached.
  *
  * Three things the reference's own form gets wrong are fixed here: its work
  * experience and location preference selects share one `name`, so one answer
@@ -57,6 +61,10 @@ function singleLine(value: string) {
 export default function ApplicationForm({ jobTitle }: { jobTitle: string }) {
   const [errors, setErrors] = useState<Errors>({});
   const [cvName, setCvName] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  /* True when the application went through but its CV did not. Worth saying:
+     an applicant who believes we have their CV will not send it again. */
+  const [cvMissing, setCvMissing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -101,23 +109,65 @@ export default function ApplicationForm({ jobTitle }: { jobTitle: string }) {
       return;
     }
 
-    const body = [
-      `Position: ${jobTitle}`,
-      "",
-      `Name: ${values.firstName} ${values.lastName}`,
-      `Email: ${values.email}`,
-      `Phone: ${values.phone}`,
-      `Qualification: ${values.qualification}`,
-      `Total work experience: ${values.experience}`,
-      `Current CTC: ${values.ctc}`,
-      `Location preference: ${values.preference}`,
-      "",
-      cvName ? `CV: ${cvName} — please attach it to this email.` : "Please attach your CV.",
-    ].join("\n");
+    setStatus("sending");
 
-    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
-      singleLine(`Application: ${jobTitle} — ${values.firstName} ${values.lastName}`),
-    )}&body=${encodeURIComponent(body)}`;
+    submitApplication(
+      { job: jobTitle, ...values },
+      cv instanceof File && cv.size > 0 ? cv : null,
+    ).then(
+      (result) => {
+        setStatus("sent");
+        setCvMissing(Boolean(cvName) && !result.cvStored);
+        formRef.current?.reset();
+        setCvName("");
+      },
+      () => {
+        /* Nothing received it. The draft is the fallback, as on the enquiry
+           form — and here it still has to ask for the CV by hand, because a
+           mailto cannot carry a file. */
+        setStatus("idle");
+        const body = [
+          `Position: ${jobTitle}`,
+          "",
+          `Name: ${values.firstName} ${values.lastName}`,
+          `Email: ${values.email}`,
+          `Phone: ${values.phone}`,
+          `Qualification: ${values.qualification}`,
+          `Total work experience: ${values.experience}`,
+          `Current CTC: ${values.ctc}`,
+          `Location preference: ${values.preference}`,
+          "",
+          cvName ? `CV: ${cvName} — please attach it to this email.` : "Please attach your CV.",
+        ].join("\n");
+
+        window.location.href = `mailto:${site.enquiryEmail}?subject=${encodeURIComponent(
+          singleLine(`Application: ${jobTitle} — ${values.firstName} ${values.lastName}`),
+        )}&body=${encodeURIComponent(body)}`;
+      },
+    );
+  }
+
+  /* Sent. The form is replaced rather than left on screen: an application
+     still sitting there invites a second one, and nobody is sure the first
+     worked. */
+  if (status === "sent") {
+    return (
+      <div
+        role="status"
+        className="rounded-2xl border border-brand-200 bg-brand-50/50 p-6 text-center sm:p-8"
+      >
+        <p className="font-display text-lg font-semibold">Thank you — we have your application.</p>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink-500">
+          We will be in touch if it is a fit for {jobTitle}.
+        </p>
+        {cvMissing && (
+          <p className="mt-3 text-[15px] leading-relaxed text-signal-500">
+            Your CV could not be uploaded. Please email it to {site.enquiryEmail} so we can read
+            it with the rest of your application.
+          </p>
+        )}
+      </div>
+    );
   }
 
   /** Ties a control to its message for assistive tech. */
@@ -262,16 +312,18 @@ export default function ApplicationForm({ jobTitle }: { jobTitle: string }) {
         />
         <FieldError name="cv" errors={errors} />
         <p className="mt-1.5 text-sm text-ink-500">
-          PDF or Word, up to 5 MB. Your details open in an email — attach the file there before
-          sending.
+          PDF or Word, up to 5 MB. It is sent with your application — nothing else to do.
         </p>
       </div>
 
       <button
         type="submit"
-        className="mt-6 inline-flex cursor-pointer items-center gap-2 rounded-full bg-brand-500 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-600 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+        disabled={status === "sending"}
+        className="mt-6 inline-flex cursor-pointer items-center gap-2 rounded-full bg-brand-500 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-600 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Apply Now
+        {/* A CV is up to 5 MB, so this can take a moment on a phone — long
+            enough that a button which only greys out reads as broken. */}
+        {status === "sending" ? "Sending…" : "Apply Now"}
         <ArrowIcon className="size-4" />
       </button>
     </form>
