@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { quote } from "@/lib/content";
+import EnquiryDialog from "./EnquiryDialog";
 import EnquiryForm from "./EnquiryForm";
-import { CloseIcon, PhoneIcon } from "./icons";
+import { PhoneIcon } from "./icons";
 
 /**
  * A tab pinned to the right edge of every page that slides the enquiry form out
@@ -56,7 +57,6 @@ export default function QuotePanel({
   const autoOpened = useRef(false);
   /** Below lg only: whether the tab has been slid out from the edge. */
   const [peek, setPeek] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
   const tabRef = useRef<HTMLButtonElement>(null);
 
   const close = () => {
@@ -92,27 +92,6 @@ export default function QuotePanel({
     }, AUTO_OPEN_AFTER_MS);
     return () => window.clearTimeout(idle);
   }, []);
-
-  // Escape, a scroll lock, and focus moved into the panel — only while it is up.
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
-    };
-    document.addEventListener("keydown", onKey);
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    /* Focus moves in only when the dialog was asked for. Stealing it from
-       whatever the visitor was doing is the cost of opening uninvited. */
-    if (!autoOpened.current) {
-      panelRef.current?.querySelector<HTMLElement>("input, textarea")?.focus();
-    }
-    autoOpened.current = false;
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previous;
-    };
-  }, [open]);
 
   return (
     <>
@@ -167,68 +146,34 @@ export default function QuotePanel({
         {quote.tab}
       </button>
 
-      {open !== null && (
-        /* A dialog in the middle of the screen, not a drawer off the right
-           edge. The drawer kept the page visible beside it, which sounds
-           generous and in practice meant a tall narrow column: six fields in
-           a strip the width of a phone, on a desktop with room for a proper
-           two-column form.
+      <EnquiryDialog
+        open={open !== null}
+        onClose={close}
+        /* The tab's own words, so the dialog answers the button that opened
+           it. The uninvited one needs a sentence instead: it has to say what
+           it is for, because nothing preceded it. */
+        title={open === "tab" ? quote.tab : quote.title}
+        /* A dialog that let itself in does not get the keyboard. See the
+           auto-open effect above. */
+        takeFocus={open === "tab"}
+      >
+        {/* Prefixed ids: the page underneath usually has this same form.
+            One shape for both ways in — `detailed` either way — so the tab and
+            the pop-up ask the same things and the office gets the same answers
+            however the visitor arrived.
 
-           items-start with overflow-y-auto, not items-center: centred, a form
-           taller than the viewport is clipped at both ends with no way to
-           reach the top. Starting at the top lets the backdrop scroll. */
-        <div className="fixed inset-0 z-100 flex items-start justify-center overflow-y-auto bg-secondary/50 p-4 backdrop-blur-sm sm:p-8">
-          <button
-            suppressHydrationWarning
-            type="button"
-            onClick={close}
-            aria-label="Close"
-            tabIndex={-1}
-            className="fixed inset-0 cursor-default"
-          />
-
-          <div
-            id="quote-panel"
-            ref={panelRef}
-            role="dialog"
-            aria-modal
-            aria-label={open === "tab" ? quote.tab : quote.title}
-            className="relative z-10 my-auto w-full max-w-2xl rounded-2xl bg-white p-6 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.35)] sm:p-8"
-          >
-            <div className="mb-6 flex items-start justify-between gap-4">
-              <h2 className="font-display text-xl leading-snug font-semibold sm:text-2xl">
-                {/* The tab's own words, so the dialog answers the button that
-                    opened it. The uninvited one needs a sentence instead: it
-                    has to say what it is for, because nothing preceded it. */}
-                {open === "tab" ? quote.tab : quote.title}
-              </h2>
-
-              <button
-                suppressHydrationWarning
-                type="button"
-                onClick={close}
-                aria-label="Close"
-                className="-mt-1 -mr-1 inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-500 transition hover:bg-surface hover:text-ink-900"
-              >
-                <CloseIcon className="size-5" />
-              </button>
-            </div>
-
-            {/* Prefixed ids: the page underneath usually has this same form.
-                One shape for both ways in — `detailed` either way — so the tab
-                and the pop-up ask for the same things and the office gets the
-                same answers however the visitor arrived.
-
-                `source` still separates them, since which one produced a lead
-                is worth knowing even when the form is identical. */}
-            <EnquiryForm
-              idPrefix="quote-"
-              detailed
-              source={open === "tab" ? "Get a Quote tab" : "Pop-up dialog"}
-            />
-          </div>
-        </div>
-      )}
+            `source` still separates them, since which one produced a lead is
+            worth knowing even when the form is identical. */}
+        <EnquiryForm
+          idPrefix="quote-"
+          detailed
+          /* Only the tab asks which product. The pop-up arrives uninvited, and
+             every field it adds before taking a message is one more reason to
+             close it. */
+          withProduct={open === "tab"}
+          source={open === "tab" ? "Get a Quote tab" : "Pop-up dialog"}
+        />
+      </EnquiryDialog>
     </>
   );
 }

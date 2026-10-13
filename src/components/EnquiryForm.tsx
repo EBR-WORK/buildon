@@ -25,6 +25,8 @@ export default function EnquiryForm({
   className = "",
   idPrefix = "",
   detailed = false,
+  withProduct = false,
+  defaultProduct,
   source,
 }: {
   className?: string;
@@ -32,10 +34,10 @@ export default function EnquiryForm({
   /**
    * What the desk sees as the origin of the enquiry.
    *
-   * A prop rather than something derived from `detailed`: the Get a Quote tab
-   * opens the SHORT form, so reading the shape to decide the label filed every
-   * quote request as an ordinary page enquiry — which is the one thing this
-   * field exists to tell apart.
+   * A prop rather than something derived from `detailed`: the tab and the
+   * pop-up now show the same form, so its shape no longer says anything about
+   * where the enquiry came from — and which of the two produced a lead is the
+   * one thing this field exists to tell apart.
    */
   source?: string;
   /**
@@ -47,6 +49,23 @@ export default function EnquiryForm({
    * those two are already doing their job.
    */
   detailed?: boolean;
+  /**
+   * Adds the product dropdown. Only the Get a Quote tab asks.
+   *
+   * Someone who pressed that button came to ask about something. The dialog
+   * that lets itself in 1.2 seconds after the page loads interrupted them
+   * instead, and every field it adds before it will take a message is one more
+   * reason to close it.
+   */
+  withProduct?: boolean;
+  /**
+   * Which product to start the dropdown on.
+   *
+   * Set when the form is opened from a product's own page: the visitor is
+   * already looking at the answer, and making them pick it from a list of ten
+   * is asking a question they have just answered by being there.
+   */
+  defaultProduct?: string;
 }) {
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
@@ -272,9 +291,10 @@ export default function EnquiryForm({
           autoComplete="organization"
         />
 
-        {/* Side by side: both are one-line choices, and stacked they pushed
-            the message box below the fold on a laptop. */}
-        <div className="gap-x-5 sm:grid sm:grid-cols-2">
+        {/* Side by side when both are here, full width when the product
+            dropdown is not: a lone select in a half-width column beside empty
+            space reads as a field that lost its partner. */}
+        <div className={withProduct ? "gap-x-5 sm:grid sm:grid-cols-2" : ""}>
           <Filled
             name="enquiryType"
             idPrefix={idPrefix}
@@ -282,13 +302,16 @@ export default function EnquiryForm({
             placeholder={contact.placeholders.enquiryType}
             options={contact.enquiryTypes}
           />
-          <Filled
-            name="product"
-            idPrefix={idPrefix}
-            label={contact.fields.product}
-            placeholder={contact.placeholders.product}
-            options={contact.productOptions}
-          />
+          {withProduct && (
+            <Filled
+              name="product"
+              idPrefix={idPrefix}
+              label={contact.fields.product}
+              placeholder={contact.placeholders.product}
+              options={contact.productOptions}
+              defaultValue={defaultProduct}
+            />
+          )}
         </div>
 
         <Filled
@@ -470,6 +493,7 @@ function Filled({
   autoComplete,
   multiline,
   options,
+  defaultValue,
 }: {
   name: string;
   idPrefix?: string;
@@ -481,6 +505,8 @@ function Filled({
   multiline?: boolean;
   /** Present for a select; the placeholder becomes its empty first option. */
   options?: readonly string[];
+  /** Preselected, for a form opened from the thing it is about. */
+  defaultValue?: string;
 }) {
   const id = `${idPrefix}${name}`;
   const errorId = `${id}-error`;
@@ -505,7 +531,11 @@ function Filled({
             suppressHydrationWarning
             id={id}
             name={name}
-            defaultValue=""
+            /* key, so React rebuilds the select when the preselection changes
+               — an uncontrolled field keeps its first defaultValue otherwise,
+               and the dialog is reused for every product on the page. */
+            key={defaultValue ?? ""}
+            defaultValue={defaultValue ?? ""}
             aria-invalid={Boolean(error)}
             className={`${box} cursor-pointer appearance-none pr-10`}
           >

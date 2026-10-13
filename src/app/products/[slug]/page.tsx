@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import EnquiryForm from "@/components/EnquiryForm";
+import ProductEnquiry from "@/components/ProductEnquiry";
 import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
@@ -584,9 +585,11 @@ export default async function ProductDetailPage({
               </Reveal>
             </div>
 
-            {/* The reference centres this button under the whole row */}
-            {product.catalogue && (
-              <Reveal className="mt-10 text-center sm:mt-12">
+            {/* The reference centres this button under the whole row. Two now,
+                so the three products with no catalogue sheet still have
+                something at the foot of the page to act on. */}
+            <Reveal className="mt-10 flex flex-wrap items-center justify-center gap-3 text-center sm:mt-12 sm:gap-4">
+              {product.catalogue && (
                 <a
                   href={product.catalogue.href}
                   target="_blank"
@@ -595,8 +598,9 @@ export default async function ProductDetailPage({
                 >
                   {product.catalogue.label}
                 </a>
-              </Reveal>
-            )}
+              )}
+              <ProductEnquiry product={product.name} />
+            </Reveal>
           </div>
         </section>
 
