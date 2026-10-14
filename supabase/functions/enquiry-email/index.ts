@@ -21,6 +21,7 @@
  */
 
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.47.10";
 
 type Application = {
   id: number;
@@ -54,6 +55,16 @@ type Enquiry = {
 
 const env = (key: string) => Deno.env.get(key) ?? "";
 
+/**
+ * How long the CV link in the email keeps working.
+ *
+ * A signed URL is a credential in a sentence — anyone holding the email can
+ * open the file, no sign-in. Thirty days is long enough to cover a hiring
+ * round and short enough that an old forwarded email stops being a way in.
+ * The admin panel can always make a fresh one.
+ */
+const CV_LINK_DAYS = 30;
+
 /** Addresses and names go into an email; both can contain anything typed. */
 const escapeHtml = (value: string) =>
   value
@@ -63,38 +74,103 @@ const escapeHtml = (value: string) =>
     .replace(/"/g, "&quot;");
 
 /**
- * A link to the CV that expires.
+ * Fetch the CV so it can ride along with the email.
  *
- * Made here rather than stored: the bucket is private and has no public URL by
- * design. A week is long enough to get to it after a weekend, and short enough
- * that a forwarded email stops working.
+ * An attachment rather than a link, which is what this did first. A link meant
+ * whoever opened the email had to be online, had to still be within the
+ * expiry, and could not forward the application to a colleague without
+ * forwarding a credential. HR wants the CV in the message.
+ *
+ * Read with the service key, because the bucket is private and has no public
+ * URL by design — which is the whole reason the file is safe sitting there.
+ * Through the client rather than a raw fetch to the sign endpoint: that
+ * endpoint wants a JWT and refuses the newer `sb_secret_…` key outright, with
+ * "Invalid Compact JWS", which is exactly how this failed silently before.
  */
-async function signCv(path: string): Promise<string | null> {
+async function signCv(path: string) {
   const url = env("SUPABASE_URL");
   const key = env("SUPABASE_SERVICE_ROLE_KEY");
   if (!url || !key) return null;
 
-  const response = await fetch(`${url}/storage/v1/object/sign/applications/${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ expiresIn: 60 * 60 * 24 * 7 }),
-  });
-  if (!response.ok) return null;
+  try {
+    const admin = createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data } = await admin.storage
+      .from("applications")
+      .createSignedUrl(path, CV_LINK_DAYS * 24 * 60 * 60);
+    return data?.signedUrl ?? null;
+  } catch {
+    /* No link is a worse email, never a lost application: the row is stored
+       and the CV is in the panel either way. */
+    return null;
+  }
+}
 
-  const { signedURL } = await response.json();
-  return signedURL ? `${url}/storage/v1${signedURL}` : null;
+/**
+ * ASCII only, and nothing else.
+ *
+ * An em-dash or a middot would otherwise have to be encoded, and a client that
+ * shows the part without decoding it prints `=e2=80=94` where the dash should
+ * be. Pure ASCII can be declared 7bit and sent exactly as written.
+ */
+const toAscii = (value: string) =>
+  value
+    .replace(/[\u2014\u2013]/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/\u00b7/g, "|")
+    .replace(/\u2026/g, "...")
+    /* Anything still outside printable ASCII is dropped rather than encoded: a
+       name in another script is worth less than an unreadable message, and it
+       survives in the panel either way. */
+    .replace(/[^\x20-\x7e\n]/g, "");
+
+/**
+ * Break a long single-line string into SMTP-safe lines.
+ *
+ * SMTP refuses a line over 1000 octets, and our HTML is one unbroken string.
+ * Breaking after a tag is always safe — whitespace between elements is not
+ * content — so the markup is split there and nowhere else.
+ */
+function wrap(html: string, limit = 500) {
+  const out: string[] = [];
+  let line = "";
+  for (const piece of html.split(/(?<=>)/)) {
+    if (line.length + piece.length > limit && line) {
+      out.push(line);
+      line = "";
+    }
+    line += piece;
+  }
+  if (line) out.push(line);
+  return out.join("\r\n");
 }
 
 /** The table of fields, the body under it, and the line at the foot. */
-function render(lines: [string, string | null][], body: string, footer: string) {
-  const text = [
-    ...lines.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`),
-    "",
-    body,
-    "",
-    "—",
-    footer,
-  ].join("\n");
+function render(
+  lines: [string, string | null][],
+  body: string,
+  footer: string,
+  /* Put on a line of its own rather than inside a field, so no client wraps a
+     several-hundred-character signed URL in the middle. */
+  linkLine?: string,
+) {
+  const text = toAscii(
+    [
+      /* Tags stripped: the CV row holds an anchor for the HTML the admin panel
+         shows, and this part must read as words rather than markup. */
+      ...lines
+        .filter(([, v]) => v)
+        .map(([k, v]) => `${k}: ${String(v).replace(/<[^>]*>/g, "")}`),
+      ...(linkLine ? ["", linkLine] : []),
+      "",
+      body,
+      "",
+      "--",
+      footer,
+    ].join("\n"),
+  );
 
   const rows = lines
     .filter(([, v]) => v)
@@ -113,11 +189,13 @@ function render(lines: [string, string | null][], body: string, footer: string) 
       : "") +
     `<p style="margin:24px 0 0;font-size:13px;color:#7d7d7d">${footer}</p></div>`;
 
-  return { text, html };
+  /* 7bit ASCII, both parts — see the send call for why. */
+  return { text, html: wrap(toAscii(html)) };
 }
 
 async function composeApplication(row: Application) {
-  const cv = row.cv_path ? await signCv(row.cv_path) : null;
+  const link = row.cv_path ? await signCv(row.cv_path) : null;
+  const name = row.cv_name ?? "CV";
 
   const lines: [string, string | null][] = [
     ["Position", row.job],
@@ -128,24 +206,18 @@ async function composeApplication(row: Application) {
     ["Experience", row.experience],
     ["Current CTC", row.ctc],
     ["Prefers", row.preference],
-    [
-      "CV",
-      cv
-        ? `${row.cv_name ?? "Download"} — ${cv}`
-        : row.cv_path
-          ? "uploaded; open it in the admin panel"
-          : "none sent",
-    ],
+    ["CV", row.cv_path ? name : "none sent"],
   ];
 
   return {
-    subject: `Application: ${row.job} — ${row.first_name} ${row.last_name}`,
+    subject: `Application: ${row.job} - ${row.first_name} ${row.last_name}`,
     ...render(
       lines,
       "",
-      cv
-        ? "Sent by the website. The CV link works for seven days; after that, open it in the admin panel."
+      link
+        ? `Sent by the website. The link works for ${CV_LINK_DAYS} days; after that, open the CV in the admin panel.`
         : "Sent by the website. Reply to this email to answer them directly.",
+      link ? `Open the CV: ${link}` : undefined,
     ),
   };
 }
@@ -201,9 +273,15 @@ Deno.serve(async (request) => {
     return new Response("Bad request", { status: 400 });
   }
 
-  const composed = isApplication
-    ? await composeApplication(record as Application)
-    : composeEnquiry(record as Enquiry);
+  let composed;
+  try {
+    composed = isApplication
+      ? await composeApplication(record as Application)
+      : composeEnquiry(record as Enquiry);
+  } catch (error) {
+    console.error("compose failed", error);
+    return new Response(`Compose failed: ${error}`, { status: 500 });
+  }
 
   const client = new SMTPClient({
     connection: {
@@ -222,15 +300,42 @@ Deno.serve(async (request) => {
          otherwise answering an enquiry emails ourselves. */
       replyTo: record.email,
       subject: composed.subject,
-      content: composed.text,
-      html: composed.html,
+      /* One part, plain text, 7bit ASCII — and no attachment.
+       *
+       * The CV goes as a signed link. Attaching it meant base64 through
+       * denomailer, which writes an attachment in 75-character chunks, one
+       * call each: a 4.6 MB CV came to 84,000 of them and the worker ran out
+       * of resources. The form allows 5 MB, so that is not an edge case.
+       *
+       * One part, not two, because an HTML alternative nests
+       * multipart/alternative inside multipart/mixed, and that nesting arrived
+       * in Gmail as raw text — boundary lines, part headers and markup all
+       * printed into the body.
+       *
+       * The library's own `content`/`html` fields were worse again — it
+       * quoted-printable encodes them, and its encoder's soft line breaks came
+       * through as a literal `=` at the end of every line.
+       *
+       * So: nothing to decode, nothing to nest, nothing to render. An
+       * application email is a list of fields and a file; it does not need
+       * typography, and the version that always arrives beats the version that
+       * looks better when it does.
+       */
+      mimeContent: [
+        {
+          mimeType: 'text/plain; charset="us-ascii"',
+          content: composed.text,
+          transferEncoding: "7bit",
+        },
+      ],
     });
+
     await client.close();
   } catch (error) {
     /* 500 on purpose: Supabase retries a failed webhook, and a transient SMTP
        failure should get another go. The enquiry is already saved regardless. */
     console.error("send failed", error);
-    return new Response("Send failed", { status: 500 });
+    return new Response(`Send failed: ${error}`, { status: 500 });
   }
 
   return new Response("Sent", { status: 200 });

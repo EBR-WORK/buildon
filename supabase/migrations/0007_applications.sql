@@ -164,11 +164,11 @@ set search_path = public, extensions
 as $$
 begin
   perform net.http_post(
-    url     := 'https://<PROJECT_REF>.supabase.co/functions/v1/enquiry-email',
+    url     := 'https://shhzbxaqbxgpqhgrhksf.supabase.co/functions/v1/enquiry-email',
     headers := jsonb_build_object(
       'Content-Type',     'application/json',
-      'Authorization',    'Bearer <PUBLISHABLE_KEY>',
-      'x-webhook-secret', '<WEBHOOK_SECRET>'
+      'Authorization',    'Bearer sb_publishable_qU22AHMaARicjxbK4-_1CQ_DsoBzE1Z',
+      'x-webhook-secret', 'hJ37NW5Ylx_Pk6TiESNreQpWdfjlefWM'
     ),
     body    := jsonb_build_object('record', to_jsonb(new))
   );
