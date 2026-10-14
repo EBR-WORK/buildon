@@ -181,6 +181,44 @@ export function PlusIcon(props: IconProps) {
 }
 
 /**
+ * A PDF file — one document in the catalogue grid.
+ *
+ * Drawn rather than borrowed: the reference's is a bitmap on a CDN, which
+ * breaks the day it moves and is soft at any size it was not exported at.
+ *
+ * Its own viewBox, portrait like a page, so the proportions do not depend on
+ * being placed in a square. The fold is two paths over one another — a light
+ * fill, then black at 6% — which keeps the shade related to the page colour
+ * instead of being a grey picked by hand.
+ *
+ * "PDF" is live text in the site's own font, so it sharpens on a retina screen
+ * and never arrives as a blurred raster.
+ */
+export function PdfIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 48 62" fill="none" aria-hidden {...props}>
+      <path
+        d="M5 1.6h25.4L45 16.2v42.4a2.6 2.6 0 0 1-2.6 2.6H5a2.6 2.6 0 0 1-2.6-2.6V4.2A2.6 2.6 0 0 1 5 1.6Z"
+        fill="#c62127"
+      />
+      <path d="M30.4 1.6 45 16.2H33a2.6 2.6 0 0 1-2.6-2.6Z" fill="#e9ecef" />
+      <path d="M30.4 1.6 45 16.2H33a2.6 2.6 0 0 1-2.6-2.6Z" fill="#000" opacity=".06" />
+      <text
+        x="23.7"
+        y="50"
+        textAnchor="middle"
+        fontSize="13.5"
+        fontWeight="700"
+        letterSpacing="1"
+        fill="#eef0f2"
+      >
+        PDF
+      </text>
+    </svg>
+  );
+}
+
+/**
  * A document wallet — one catalogue in the folder grid.
  *
  * Filled rather than stroked, unlike every other icon in this file: it is

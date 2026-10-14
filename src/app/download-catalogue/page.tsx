@@ -6,9 +6,8 @@ import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { DownloadIcon, FolderIcon } from "@/components/icons";
-import { cataloguePage, site } from "@/lib/content";
-import { productDetails } from "@/lib/productDetails";
+import { DownloadIcon, PdfIcon } from "@/components/icons";
+import { cataloguePage, productCatalogue, site } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: cataloguePage.title,
@@ -36,32 +35,52 @@ export const metadata: Metadata = {
  */
 
 /**
- * Read at build time from the file itself.
+ * Weigh a file in public/, or null when it is not there.
  *
- * A size written into the content would be a second copy of a fact the file
- * already states, and the one that goes stale the first time a sheet is
- * replaced. There is no server at request time, so this runs once, during the
- * build, and the number is baked into the HTML.
+ * The convention is the whole mechanism: a product's sheet lives at
+ * `public/products/<slug>/catalogue.pdf`, a standalone document in
+ * `public/catalogues/`. Dropping a file in puts it on this page, with no line
+ * to add anywhere. A path written into the content would be a second statement
+ * of what the filesystem already knows, and the one that goes stale the day
+ * somebody adds a PDF and forgets the code.
+ *
+ * The size is read off the file for the same reason. There is no server at
+ * request time, so both happen once, during the build.
  */
-function sizeOf(href: string) {
+function fileAt(href: string) {
   try {
     const bytes = statSync(join(process.cwd(), "public", href)).size;
-    return `${(bytes / 1_048_576).toFixed(1)} MB`;
+    return { href, size: `${(bytes / 1_048_576).toFixed(1)} MB` };
   } catch {
-    /* A missing file is a broken link, not a broken build — the <a> below
-       still renders and the 404 is the honest signal. */
+    /* Dropped rather than rendered: a tile that opens nothing is not a file,
+       however it is styled. */
     return null;
   }
 }
 
-const sheets = productDetails
-  .filter((product) => product.catalogue)
-  .map((product) => ({
-    slug: product.slug,
+/**
+ * Every document, in one grid.
+ *
+ * Product sheets first, in catalogue order, then the ones that belong to no
+ * single product. They were two lists for a while — a grid and a row below it
+ * — on the reasoning that a master brochure answers a different question from
+ * a product sheet. It does, but not differently enough to be somewhere else:
+ * somebody looking for a PDF wants to see the PDFs.
+ */
+const sheets = [
+  ...productCatalogue.map((product) => ({
+    key: product.slug,
     name: product.name,
-    href: product.catalogue!.href,
-    size: sizeOf(product.catalogue!.href),
-  }));
+    file: fileAt(`/products/${product.slug}/catalogue.pdf`),
+  })),
+  ...cataloguePage.brochures.map((entry) => ({
+    key: entry.file,
+    name: entry.name,
+    file: fileAt(`/catalogues/${entry.file}`),
+  })),
+].filter((item) => item.file !== null);
+
+const missing = productCatalogue.length - sheets.filter((i) => !i.key.includes(".")).length;
 
 export default function DownloadCataloguePage() {
   return (
@@ -108,22 +127,28 @@ export default function DownloadCataloguePage() {
                 is a set of identical things, and letting each tile size itself
                 to its own label would undo exactly that. */}
             <ul className="mt-10 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-3 sm:gap-5 lg:mt-14 lg:grid-cols-4 lg:gap-[30px]">
-              {sheets.map((sheet, i) => (
-                <Reveal as="li" key={sheet.slug} delay={Math.min(i % 4, 3) * 0.06} className="flex">
+              {sheets.map((item, i) => (
+                <Reveal as="li" key={item.key} delay={Math.min(i % 4, 3) * 0.06} className="flex">
+                  {/* A plain <a> for a file, not <Link>: prefetching a route is
+                      cheap, and prefetching a 12 MB PDF for a tile nobody has
+                      pressed is not. */}
                   <a
-                    href={sheet.href}
+                    href={item.file!.href}
                     target="_blank"
                     rel="noopener"
                     className="group flex h-[200px] w-full cursor-pointer flex-col items-center justify-center bg-surface px-5 py-6 text-center transition hover:bg-line/40 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:outline-none sm:h-[250px]"
                   >
-                    <FolderIcon className="h-auto w-[38%] transition-transform duration-300 group-hover:-translate-y-1 sm:w-1/2" />
+                    {/* Sized by height, not width: the page is portrait, and
+                        a width of half the tile would make it taller than the
+                        tile is. */}
+                    <PdfIcon className="h-[46%] w-auto transition-transform duration-300 group-hover:-translate-y-1 sm:h-[52%]" />
 
                     {/* The rule under the label is the reference's, and it is
                         what makes a tile read as a labelled folder rather than
                         a picture with a caption. */}
                     <span className="mt-2.5 w-full border-b-2 border-line pb-1">
                       <span className="block text-xs leading-[17px] font-semibold uppercase transition-colors group-hover:text-brand-500 sm:text-base sm:leading-[22px]">
-                        {sheet.name}
+                        {item.name}
                       </span>
                     </span>
 
@@ -131,25 +156,28 @@ export default function DownloadCataloguePage() {
                       <DownloadIcon className="size-3.5" />
                       PDF
                       {/* The weight before the press, not after it: these run
-                          from 0.9 MB to 5.1 MB, which matters on a phone. */}
-                      {sheet.size && <span className="font-normal">{sheet.size}</span>}
+                          from 0.9 MB to 12.5 MB, which matters on a phone. */}
+                      <span className="font-normal">{item.file!.size}</span>
                     </span>
                   </a>
                 </Reveal>
               ))}
             </ul>
 
-            <Reveal className="mt-10 text-center sm:mt-12">
-              <p className="text-[15px] text-ink-500">
-                {cataloguePage.rest}{" "}
-                <Link
-                  href={cataloguePage.restCta.href}
-                  className="font-semibold text-brand-500 transition hover:text-brand-600"
-                >
-                  {cataloguePage.restCta.label}
-                </Link>
-              </p>
-            </Reveal>
+            {missing > 0 && (
+              <Reveal className="mt-10 text-center sm:mt-12">
+                <p className="text-[15px] text-ink-500">
+                  {cataloguePage.rest}{" "}
+                  <Link
+                    href={cataloguePage.restCta.href}
+                    className="font-semibold text-brand-500 transition hover:text-brand-600"
+                  >
+                    {cataloguePage.restCta.label}
+                  </Link>
+                </p>
+              </Reveal>
+            )}
+
           </div>
         </section>
       </main>

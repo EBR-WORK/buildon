@@ -18,7 +18,8 @@
     "check:richdoc": "node scripts/check-richdoc.mjs",
     "check:editor": "node scripts/check-editor.mjs",
     "db:prune": "node scripts/db-prune.mjs",
-    "db:status": "node scripts/db-status.mjs"
+    "db:status": "node scripts/db-status.mjs",
+    "i18n:translate": "node scripts/i18n-translate.mjs"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",

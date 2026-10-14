@@ -407,6 +407,32 @@ export const cataloguePage = {
     "The rest of the range has its specifications on its own page.",
   restCta: { label: "See all products", href: "/products" },
   download: "Download PDF",
+  /**
+   * The documents that are not one product's sheet.
+   *
+   * Their own group below the grid, because they answer a different question:
+   * a product catalogue is for somebody who has chosen, the master brochure is
+   * for somebody who has not. Files live in public/catalogues/ and the sizes
+   * are read off them at build time, as the product sheets are.
+   */
+  brochuresTitle: "Brochures and leaflets",
+  brochures: [
+    {
+      name: "Master Brochure",
+      note: "The full range in one document",
+      file: "master-brochure.pdf",
+    },
+    {
+      name: "Joint Fibre Glass Tape",
+      note: "Leaflet",
+      file: "joint-fibre-glass-tape.pdf",
+    },
+    {
+      name: "Master Brochure — previous edition",
+      note: "Without the fibre glass tape section",
+      file: "master-brochure-previous.pdf",
+    },
+  ],
 } as const;
 
 export const newsletter = {
