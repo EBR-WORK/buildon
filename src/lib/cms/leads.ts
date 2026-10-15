@@ -43,6 +43,8 @@ export const STATUS_LABEL: Record<LeadStatus, string> = {
 export type Lead = {
   id: number;
   created_at: string;
+  /** When it last moved. Stamped by the trigger in 0014. */
+  updated_at: string | null;
   name: string;
   email: string;
   phone: string;

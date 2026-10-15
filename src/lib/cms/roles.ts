@@ -36,6 +36,8 @@ export type Capability =
   | "leads:mine"
   /** Hand a lead to a salesperson. */
   | "leads:assign"
+  /** The assignment tracker and the qualification tasks on it. */
+  | "tracker"
   /** Add notes and move a lead's status. */
   | "leads:work"
   /** Branches. */
@@ -61,6 +63,7 @@ export const ROLES: Record<AdminRole, RoleSpec> = {
       "leads:mine",
       "leads:assign",
       "leads:work",
+      "tracker",
       "places",
       "team",
     ],
@@ -73,7 +76,7 @@ export const ROLES: Record<AdminRole, RoleSpec> = {
   marketing: {
     label: "Marketing",
     summary: "Sees every lead from every place, and assigns each to a salesperson there.",
-    can: ["leads:all", "leads:assign", "leads:work"],
+    can: ["leads:all", "leads:assign", "leads:work", "tracker"],
   },
   sales: {
     label: "Sales",
@@ -86,7 +89,7 @@ export const ROLES: Record<AdminRole, RoleSpec> = {
        where that advice goes, which is why they can write those. */
     label: "Presales",
     summary: "Tracks who is assigned where and the live status; qualifies and supports leads.",
-    can: ["leads:all", "leads:work"],
+    can: ["leads:all", "leads:work", "tracker"],
   },
   content_editor: {
     label: "Content editor",
@@ -147,6 +150,7 @@ export type PanelLink = {
  */
 export const PANELS: readonly PanelLink[] = [
   { href: "/admin/leads", label: "Leads", note: "Enquiries to work", needs: "leads:mine" },
+  { href: "/admin/presales", label: "Presales", note: "Assignment tracker", needs: "tracker" },
   { href: "/admin/applications", label: "Applications", note: "Who has applied", needs: "applications" },
   { href: "/admin/career", label: "Careers", note: "Job postings", needs: "jobs" },
   { href: "/admin/home", label: "Home", note: "Hero · Testimonials", needs: "content" },
