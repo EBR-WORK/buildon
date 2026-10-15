@@ -111,9 +111,9 @@ export function validateProjects(content: SiteContent): Problem[] {
 export function validateJobs(content: SiteContent): Problem[] {
   const problems: Problem[] = [];
 
-  if (blank(content.career.openingsTitle)) {
-    problems.push({ id: "career", label: "The openings list", message: "needs a section heading." });
-  }
+  /* The section heading is no longer asked for in the panel — see
+     CareerEditor — so it cannot be blanked by anyone editing, and a rule
+     about it would only ever fire on content nobody can reach. */
   if (blank(content.career.moreLabel)) {
     problems.push({ id: "career", label: "The card link", message: "needs words on it." });
   }

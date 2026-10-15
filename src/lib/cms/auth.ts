@@ -12,27 +12,31 @@
  */
 
 import { supabase } from "./supabase";
+import { can, describeRole, type AdminRole, type Capability } from "./roles";
 
-export type AdminRole = "admin" | "super_admin";
+export type { AdminRole };
+export { describeRole };
 
 export type AdminProfile = {
   readonly id: string;
   readonly email: string;
   readonly role: AdminRole;
+  /** Which branch they belong to. Null for roles not tied to one. */
+  readonly place_id: number | null;
 };
 
-/** Managing the team is the one thing an ordinary admin cannot do. */
+/** What this profile may do. The single question every guard asks. */
+export function allows(profile: AdminProfile | null, capability: Capability) {
+  return can(profile?.role, capability);
+}
+
+/** Kept for the call sites that read better this way. */
 export function canManageTeam(profile: AdminProfile | null) {
-  return profile?.role === "super_admin";
+  return allows(profile, "team");
 }
 
-/** Editing content is what having a profile at all means. */
 export function canEditContent(profile: AdminProfile | null) {
-  return profile !== null;
-}
-
-export function describeRole(role: AdminRole) {
-  return role === "super_admin" ? "Super admin" : "Admin";
+  return allows(profile, "content");
 }
 
 /**
@@ -55,7 +59,7 @@ export async function loadProfile(): Promise<{
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, role")
+    .select("id, email, role, place_id")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -92,6 +96,9 @@ export async function signIn(email: string, password: string) {
   }
 }
 
+/** Thrown when the email was refused for being too soon, not for being wrong. */
+export class EmailRateLimited extends Error {}
+
 /** Where the link in the email lands. Must be allow-listed in Supabase. */
 export const RESET_PATH = "/admin/reset";
 
@@ -117,8 +124,14 @@ export async function requestPasswordReset(email: string) {
      pressing the button again because nothing arrived, and "try later" is the
      only thing that explains the silence. Everything else stays quiet, for the
      reason above. */
-  if (error && /rate|limit|too many/i.test(error.message)) {
-    throw new Error("Too many requests just now. Wait a minute and try again.");
+  /* The project-wide cap on auth emails, 30 an hour by default. Worth saying
+     out loud and distinguishing from a failure: nothing is wrong, the account
+     is fine, and the same email sends on its own later. Raised under
+     Authentication -> Rate Limits. */
+  if (error && (error.status === 429 || /rate|limit|too many/i.test(error.message))) {
+    throw new EmailRateLimited(
+      "Supabase is rate-limiting auth emails (30 an hour by default). Wait, or raise it under Authentication → Rate Limits.",
+    );
   }
 }
 
@@ -166,7 +179,13 @@ export class FunctionNotDeployed extends Error {}
 export async function createAdmin(
   email: string,
   role: AdminRole,
-): Promise<{ email: string; role: AdminRole; password: string }> {
+): Promise<{
+  email: string;
+  role: AdminRole;
+  password: string;
+  /** The login was already there; this gave it a role rather than making it. */
+  existing?: boolean;
+}> {
   if (!supabase) throw new Error("The database is not configured.");
 
   const { data: sessionData } = await supabase.auth.getSession();
@@ -201,7 +220,7 @@ export async function createAdmin(
     throw new Error(payload.error ?? `The account could not be created (${response.status}).`);
   }
 
-  return payload as { email: string; role: AdminRole; password: string };
+  return payload as { email: string; role: AdminRole; password: string; existing?: boolean };
 }
 
 /**

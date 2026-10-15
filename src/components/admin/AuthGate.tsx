@@ -19,6 +19,17 @@ import {
   type AdminProfile,
 } from "@/lib/cms/auth";
 import { EyeIcon, EyeOffIcon } from "@/components/icons";
+import { requestAccess } from "@/lib/cms/access";
+import AdminRail from "./AdminRail";
+import {
+  ASSIGNABLE_ROLES,
+  can,
+  capabilityForPath,
+  describeRole,
+  homeFor,
+  ROLES,
+  type AdminRole,
+} from "@/lib/cms/roles";
 import { isSupabaseConfigured, supabase } from "@/lib/cms/supabase";
 import { usePathname } from "next/navigation";
 
@@ -171,6 +182,40 @@ export default function AuthGate({ children }: { children: ReactNode }) {
     );
   }
 
+  /* The screen exists but is not this role's.
+     Checked here rather than in each page: one place covers every route, and a
+     route added later is covered the day it is added rather than the day
+     somebody remembers. The database refuses the writes regardless — this only
+     stops a panel looking usable to someone it will not serve. */
+  const needs = capabilityForPath(pathname);
+  if (needs && !can(profile?.role, needs) && !(needs === "leads:mine" && can(profile?.role, "leads:all"))) {
+    return (
+      <AuthContext.Provider value={value}>
+        <div className="min-h-svh bg-surface text-ink-900">
+          <div className="mx-auto flex min-h-svh w-full max-w-[90rem] flex-col lg:flex-row">
+            <AdminRail />
+            <main className="grid min-w-0 flex-1 place-items-center p-6">
+              <div className="max-w-md text-center">
+                <h1 className="font-display text-2xl font-semibold">This is not your panel</h1>
+                <p className="mt-2 text-[15px] leading-relaxed text-ink-500">
+                  You are signed in as a {describeRole(profile?.role).toLowerCase()}, and this
+                  screen belongs to another role. Nothing is missing — the menu shows
+                  everything you can open.
+                </p>
+                <Link
+                  href={homeFor(profile?.role)}
+                  className="mt-6 inline-flex cursor-pointer rounded-full bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600"
+                >
+                  Back to what you can edit
+                </Link>
+              </div>
+            </main>
+          </div>
+        </div>
+      </AuthContext.Provider>
+    );
+  }
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
@@ -191,6 +236,12 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
      page of its own: the address is usually already typed in above, and a
      navigation would throw it away. */
   const [forgot, setForgot] = useState<"no" | "asking" | "sent">("no");
+  /* Asking for an account, which replaces a super admin guessing an address
+     and pre-authorising it. See 0011_access_requests.sql. */
+  const [joining, setJoining] = useState<"no" | "asking" | "sent">("no");
+  const [joinName, setJoinName] = useState("");
+  const [joinRole, setJoinRole] = useState<AdminRole>("content_editor");
+  const [joinNote, setJoinNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -237,6 +288,135 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function sendRequest(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+
+    try {
+      await requestAccess({ email, name: joinName, role: joinRole, note: joinNote });
+      setJoining("sent");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (joining === "sent") {
+    return (
+      <Shell title="Request sent">
+        <p className="text-[15px] leading-relaxed text-ink-500">
+          A super admin will see it and set up your account. You will be sent a password
+          once they do.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setJoining("no");
+            setError("");
+          }}
+          className="mt-6 cursor-pointer rounded-full border border-line bg-white px-5 py-2.5 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500"
+        >
+          Back to sign in
+        </button>
+      </Shell>
+    );
+  }
+
+  if (joining === "asking") {
+    return (
+      <Shell title="Request access">
+        <form onSubmit={sendRequest} className="space-y-4">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-ink-900">Your name</span>
+            <input
+              type="text"
+              required
+              autoFocus
+              value={joinName}
+              onChange={(e) => setJoinName(e.target.value)}
+              className="w-full rounded-xl border border-line bg-white px-4 py-3 text-[15px] outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-ink-900">Work email</span>
+            <input
+              type="email"
+              required
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-xl border border-line bg-white px-4 py-3 text-[15px] outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            />
+          </label>
+
+          <div>
+            <label
+              htmlFor="join-role"
+              className="mb-1.5 block text-sm font-semibold text-ink-900"
+            >
+              Joining as
+            </label>
+            {/* What they do, not what they may do. The super admin sets the
+                real role on approval — this only says which team to ask. */}
+            <select
+              id="join-role"
+              value={joinRole}
+              onChange={(e) => setJoinRole(e.target.value as AdminRole)}
+              className="w-full cursor-pointer rounded-xl border border-line bg-white px-4 py-3 text-[15px] outline-none transition focus:border-brand-500"
+            >
+              {ASSIGNABLE_ROLES.filter((role) => role !== "super_admin").map((role) => (
+                <option key={role} value={role}>
+                  {ROLES[role].label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-ink-900">
+              Anything they should know{" "}
+              <span className="font-normal text-ink-500">(optional)</span>
+            </span>
+            <textarea
+              rows={2}
+              value={joinNote}
+              onChange={(e) => setJoinNote(e.target.value)}
+              className="w-full resize-none rounded-xl border border-line bg-white px-4 py-3 text-[15px] outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            />
+          </label>
+
+          {error && (
+            <p role="alert" className="text-sm font-medium text-signal-500">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={busy}
+            className="w-full cursor-pointer rounded-full bg-brand-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy ? "Sending…" : "Send request"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setJoining("no");
+              setError("");
+            }}
+            className="w-full cursor-pointer text-sm font-semibold text-ink-500 transition hover:text-brand-500"
+          >
+            Back to sign in
+          </button>
+        </form>
+      </Shell>
+    );
   }
 
   /* Sent. Deliberately not "we have emailed you": the message is the same for
@@ -392,9 +572,21 @@ function LoginScreen({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
         </button>
       </form>
 
-      <p className="mt-6 border-t border-line pt-4 text-sm leading-relaxed text-ink-500">
-        Accounts are created by a super admin. If you need one, ask them to issue it.
-      </p>
+      <div className="mt-6 border-t border-line pt-4">
+        <p className="text-sm leading-relaxed text-ink-500">
+          Accounts are created by a super admin.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setJoining("asking");
+            setError("");
+          }}
+          className="mt-1 cursor-pointer text-sm font-semibold text-brand-500 transition hover:text-brand-600"
+        >
+          Need one? Request access
+        </button>
+      </div>
     </Shell>
   );
 }

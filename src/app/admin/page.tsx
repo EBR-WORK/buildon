@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Overview from "@/components/admin/Overview";
+import Dashboard from "@/components/admin/Dashboard";
 
-export const metadata: Metadata = { title: "Overview" };
+export const metadata: Metadata = { title: "Dashboard" };
 
-/** /admin — the landing screen. The screen itself is a client component
-    because what it offers depends on who is signed in. */
-export default function AdminOverviewPage() {
-  return <Overview />;
+/** /admin — the landing screen. A client component, because what it counts
+    and what it offers both depend on who is signed in. */
+export default function AdminDashboardPage() {
+  return <Dashboard />;
 }

@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { getBuildHook, triggerDeploy } from "@/lib/cms/deploy";
-import { canManageTeam } from "@/lib/cms/auth";
-import { useAdmin } from "./AuthGate";
 import { useToast } from "./Toast";
 
 /**
@@ -27,7 +25,6 @@ import { useToast } from "./Toast";
 const COOLDOWN_MS = 60_000;
 
 export default function PublishButton({ className = "" }: { className?: string }) {
-  const { profile } = useAdmin();
   const { confirm, notify } = useToast();
   const [hook, setHook] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -50,16 +47,13 @@ export default function PublishButton({ className = "" }: { className?: string }
     return () => window.clearTimeout(timer);
   }, [sentAt]);
 
-  /* Nothing to show when no hook is set. A super admin is told where to put
-     one on the Team screen; an editor cannot act on it either way, so a
-     disabled button would only be a question they cannot answer. */
-  if (!hook) {
-    return canManageTeam(profile) ? (
-      <p className={`text-sm text-ink-500 ${className}`}>
-        No publish hook set — add one under Team.
-      </p>
-    ) : null;
-  }
+  /* Nothing at all when no hook is set.
+     It used to explain itself here — "no publish hook set, add one under
+     Team" — which put a paragraph of instructions in a 14rem column that is
+     otherwise two words per line, and wrapped to five. The Team screen says
+     the same thing where there is room for it and where the person who can
+     act on it is already standing. */
+  if (!hook) return null;
 
   async function publish() {
     const ok = await confirm({

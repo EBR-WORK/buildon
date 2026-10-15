@@ -102,16 +102,45 @@ Deno.serve(async (request) => {
     email_confirm: true,
   });
 
+  /**
+   * An address that already has a login is not a refusal.
+   *
+   * It happens more than it sounds: somebody signed up before any of this
+   * existed, or an earlier approval made the account and then failed before
+   * the profile was written. Either way the person has a login that can do
+   * nothing, and the super admin pressing Approve wants exactly what they
+   * asked for — give this person access as this role.
+   *
+   * So the account is found rather than rejected, and the profile below is
+   * written for it the same way. The password is left alone: whatever they
+   * already have keeps working, and the link they are sent replaces it.
+   */
+  let userId: string;
+  let existing = false;
+
   if (createError) {
     const taken = /already|registered|exists/i.test(createError.message);
-    return json(
-      {
-        error: taken
-          ? "An account already exists for that address."
-          : createError.message,
-      },
-      taken ? 409 : 400,
+    if (!taken) return json({ error: createError.message }, 400);
+
+    /* listUsers, because there is no get-by-email: the admin API indexes on
+       id. 200 is far more accounts than this panel will ever have, and the
+       alternative is a query against auth.users, which is not ours to make. */
+    const { data: list, error: listError } = await admin.auth.admin.listUsers({
+      page: 1,
+      perPage: 200,
+    });
+    const found = list?.users.find(
+      (user) => user.email?.toLowerCase() === email.toLowerCase(),
     );
+
+    if (listError || !found) {
+      return json({ error: "An account already exists for that address." }, 409);
+    }
+
+    userId = found.id;
+    existing = true;
+  } else {
+    userId = created!.user.id;
   }
 
   // Written directly rather than left to the sign-up trigger: that trigger only
@@ -119,16 +148,24 @@ Deno.serve(async (request) => {
   const { error: profileError } = await admin
     .from("profiles")
     .upsert(
-      { id: created.user.id, email, role, created_by: caller.user.id },
+      { id: userId, email, role, created_by: caller.user.id },
       { onConflict: "id" },
     );
 
   if (profileError) {
-    // Leaving a login with no profile behind would be a ghost account: able to
-    // sign in, able to do nothing, and invisible on the Team screen.
-    await admin.auth.admin.deleteUser(created.user.id);
-    return json({ error: `Account rolled back: ${profileError.message}` }, 500);
+    /* Leaving a login with no profile behind would be a ghost account: able to
+       sign in, able to do nothing, invisible on the Team screen. Rolled back
+       only when this call made it — an account that was already there is not
+       ours to delete, and deleting it would take somebody's login away for a
+       failure that has nothing to do with them. */
+    if (!existing) await admin.auth.admin.deleteUser(userId);
+    return json(
+      { error: existing ? profileError.message : `Account rolled back: ${profileError.message}` },
+      500,
+    );
   }
 
-  return json({ email, role, password, generated });
+  /* `existing` tells the panel not to offer a password: the account already
+     had one, and this call did not change it. */
+  return json({ email, role, password, generated, existing });
 });

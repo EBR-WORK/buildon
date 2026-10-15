@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Enquiries, both ends: the public form writes one, the admin panel reads them.
+ * Enquiries, as the website writes them. Reading them back is leads.ts.
  *
  * The write goes straight from the browser to Postgres with the publishable
  * key, which is what makes it portable — there is no server in this project,
@@ -83,69 +83,6 @@ export async function submitEnquiry(entry: NewEnquiry) {
   throw new Error(error.message);
 }
 
-/* ------------------------------------------------------------------ admin */
-
-export async function listEnquiries(): Promise<Enquiry[]> {
-  /* Thrown, not an empty list. A screen that cannot reach the database and one
-     with no enquiries in it look identical otherwise, and "No enquiries yet"
-     is a bad thing to tell somebody whose leads are simply unreachable. */
-  if (!supabase) throw new Error("not-configured");
-
-  const { data, error } = await supabase
-    .from("enquiries")
-    .select("*")
-    /* Unanswered first, then newest. Opening this list is almost always the
-       question "what have we not replied to", and sorting by date alone buries
-       that under everything already dealt with. */
-    .order("handled", { ascending: true })
-    .order("created_at", { ascending: false })
-    .limit(500);
-
-  if (error) throw new Error(error.message);
-  return (data ?? []) as Enquiry[];
-}
-
-/**
- * Mark one dealt with, or put it back. The trigger stamps who and when.
- *
- * The returned rows are counted, not just the error. An update that row level
- * security filters out is not an error — it is a success that changed nothing,
- * so without this an editor whose access had been revoked would watch the
- * button tick over and find it untouched on the next reload.
- */
-export async function setHandled(id: number, handled: boolean) {
-  if (!supabase) throw new Error("The database is not configured.");
-
-  const { data, error } = await supabase
-    .from("enquiries")
-    .update({ handled })
-    .eq("id", id)
-    .select("id");
-
-  if (error) throw new Error(error.message);
-  if (!data || data.length === 0) {
-    throw new Error("That did not save. Your account may no longer have permission to edit.");
-  }
-}
-
-/** Super admins only — the policy refuses everyone else. */
-export async function deleteEnquiry(id: number) {
-  if (!supabase) throw new Error("The database is not configured.");
-
-  const { data, error } = await supabase
-    .from("enquiries")
-    .delete()
-    .eq("id", id)
-    .select("id");
-
-  if (error) {
-    if (/row-level security|policy/i.test(error.message)) {
-      throw new Error("Only a super admin can delete an enquiry.");
-    }
-    throw new Error(error.message);
-  }
-  /* As above: a filtered delete reports no error and removes nothing. */
-  if (!data || data.length === 0) {
-    throw new Error("Nothing was deleted. Only a super admin can delete an enquiry.");
-  }
-}
+/* The admin half of this file moved to leads.ts when an enquiry became a
+   lead with an owner, a place and a status. What is left is the public write:
+   the only thing the website itself does. */

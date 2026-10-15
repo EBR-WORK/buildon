@@ -209,20 +209,13 @@ export default function CareerEditor() {
             </p>
           </header>
 
-          <div className="mb-6 grid gap-5 sm:grid-cols-2">
-            <TextField
-              label="Section heading"
-              required
-              value={career.openingsTitle}
-              onChange={(next) => edit((d) => void (d.career.openingsTitle = next))}
-            />
-            <TextField
-              label="Card link label"
-              hint="The words on each card's link."
-              value={career.moreLabel}
-              onChange={(next) => edit((d) => void (d.career.moreLabel = next))}
-            />
-          </div>
+          {/* "Section heading" and "Card link label" were here. They set the
+              h2 above this list and the words on each card's link, and neither
+              is something anyone changes — they have read "Career Openings"
+              and "More Details" since the site launched. Two required fields
+              in front of the thing people actually came to edit is a toll, not
+              a feature. The values still live in the content and still render;
+              they are simply not asked about. */}
 
           <ul className="space-y-3">
             {career.jobs.map((job, i) => {
@@ -261,6 +254,11 @@ export default function CareerEditor() {
                   <TextField
                         label="Job title"
                         required
+                        /* Placeholders throughout are taken from the openings
+                           already on the site, so an empty form shows the shape
+                           of a real answer rather than an empty box. They are
+                           not defaults: nothing is saved until it is typed. */
+                        placeholder="Business Development Manager"
                         value={job.title}
                         onChange={(next) =>
                           edit((d) => {
@@ -287,6 +285,7 @@ export default function CareerEditor() {
                       ) : (
                         <TextField
                           label="Web address"
+                          placeholder="business-development-manager-hyderabad"
                           hint={
                             slugError ?? "Lower case, words joined by hyphens. Becomes /career/…"
                           }
@@ -302,19 +301,21 @@ export default function CareerEditor() {
                       <div className="grid gap-5 sm:grid-cols-3">
                         <TextField
                           label="Category"
+                          placeholder="Sales"
                           hint="The job family."
                           value={job.category}
                           onChange={(next) => edit((d) => void (d.career.jobs[i].category = next))}
                         />
                         <TextField
                           label="Experience"
-                          hint="e.g. 5 years Experience"
+                          placeholder="5 years Experience"
                           value={job.type}
                           onChange={(next) => edit((d) => void (d.career.jobs[i].type = next))}
                         />
                         <TextField
                           label="Location"
                           required
+                          placeholder="Hyderabad"
                           hint="Also drives the filter on /career."
                           value={job.location}
                           onChange={(next) => edit((d) => void (d.career.jobs[i].location = next))}

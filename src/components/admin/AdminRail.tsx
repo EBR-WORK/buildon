@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { canManageTeam, describeRole } from "@/lib/cms/auth";
+import { describeRole } from "@/lib/cms/auth";
+import { panelsFor } from "@/lib/cms/roles";
 import { site } from "@/lib/content";
 import { RESET_PATH } from "@/lib/cms/auth";
 import { useAdminMaybe } from "./AuthGate";
@@ -29,20 +30,9 @@ import PublishButton from "./PublishButton";
  * so do the policies underneath it.
  */
 
-const PAGES = [
-  { href: "/admin/home", label: "Home", note: "Hero · Testimonials" },
-  { href: "/admin/products", label: "Products", note: "Grid · 9 products" },
-  { href: "/admin/projects", label: "Projects", note: "24 developments" },
-  { href: "/admin/blog", label: "Blog", note: "33 articles" },
-  { href: "/admin/faq", label: "FAQs", note: "3 sections · 18 questions" },
-  { href: "/admin/career", label: "Careers", note: "3 openings" },
-  /* Not a page of the site, but it belongs in the same list: it is the one
-     thing in here an editor opens to act rather than to edit. */
-  { href: "/admin/enquiries", label: "Enquiries", note: "From the forms" },
-  { href: "/admin/applications", label: "Applications", note: "Who has applied" },
-];
-
-const TEAM = { href: "/admin/team", label: "Team", note: "Who may edit" };
+/* The rail is whatever this role may open, from src/lib/cms/roles.ts. One
+   list for every role, so adding a role is an entry in that file rather than a
+   hunt through components. */
 
 export default function AdminRail() {
   const admin = useAdminMaybe();
@@ -55,7 +45,7 @@ export default function AdminRail() {
 
   const { profile, signOut } = admin;
 
-  const pages = canManageTeam(profile) ? [...PAGES, TEAM] : PAGES;
+  const pages = panelsFor(profile?.role);
 
   /* Defined once, rendered in both layouts. The two differ enough that sharing
      the surrounding markup would cost more in conditional classes than it
@@ -157,29 +147,18 @@ export default function AdminRail() {
             it the list pushes the footer off the bottom instead of scrolling
             inside the column. */}
         <nav className="-mx-2 min-h-0 flex-1 overflow-y-auto px-2 [scrollbar-width:thin]">
-          <p className="mb-2 text-xs font-semibold tracking-wide text-ink-500 uppercase">
-            Pages
-          </p>
+          {/* No "Pages" / "Settings" split any more. That made sense when every
+              account saw the same list and the only question was whether Team
+              was on the end of it. With six roles the list IS the role, and a
+              salesperson's one entry under a heading called Pages reads as a
+              page whose siblings have gone missing. */}
           <ul className="space-y-1">
-            {PAGES.map((page) => (
+            {pages.map((page) => (
               <li key={page.href}>
                 <RailLink {...page} active={pathname === page.href} />
               </li>
             ))}
           </ul>
-
-          {canManageTeam(profile) && (
-            <>
-              <p className="mt-6 mb-2 text-xs font-semibold tracking-wide text-ink-500 uppercase">
-                Settings
-              </p>
-              <ul className="space-y-1">
-                <li>
-                  <RailLink {...TEAM} active={pathname === TEAM.href} />
-                </li>
-              </ul>
-            </>
-          )}
         </nav>
 
         <div className="shrink-0 border-t border-line pt-4">

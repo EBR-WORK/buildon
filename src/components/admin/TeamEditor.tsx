@@ -7,12 +7,16 @@ import {
   canManageTeam,
   createAdmin,
   describeRole,
+  EmailRateLimited,
   FunctionNotDeployed,
+  requestPasswordReset,
   type AdminRole,
 } from "@/lib/cms/auth";
+import { ASSIGNABLE_ROLES, ROLES } from "@/lib/cms/roles";
 import { supabase } from "@/lib/cms/supabase";
 import { PlusIcon, TrashIcon } from "@/components/icons";
 import { useAdmin } from "./AuthGate";
+import AccessRequests from "./AccessRequests";
 import PublishSetting from "./PublishSetting";
 import { useToast } from "./Toast";
 
@@ -47,12 +51,17 @@ export default function TeamEditor() {
   const [error, setError] = useState("");
 
   const [newEmail, setNewEmail] = useState("");
-  const [newRole, setNewRole] = useState<AdminRole>("admin");
+  const [newRole, setNewRole] = useState<AdminRole>("content_editor");
   const [busy, setBusy] = useState(false);
   /* Shown once, in the panel, and never stored: the Edge Function returns it
      and nothing else ever can. Dismissing it is deliberate, so it cannot be
      scrolled past by accident. */
-  const [created, setCreated] = useState<{ email: string; password: string } | null>(null);
+  /* `emailed` is the normal case: the person is sent a link and chooses their
+     own password. The password is only carried here for when that mail could
+     not be sent, which is the one time anybody should be reading one out. */
+  const [created, setCreated] = useState<
+    { email: string; password: string; emailed: boolean; limited: boolean } | null
+  >(null);
   /* Set when the Edge Function is missing, so the screen can explain rather
      than repeat a failure the super admin cannot act on. */
   const [needsFunction, setNeedsFunction] = useState(false);
@@ -162,9 +171,24 @@ export default function TeamEditor() {
     setBusy(true);
     try {
       const result = await createAdmin(email, newRole);
-      setCreated({ email: result.email, password: result.password });
+
+      /* The account is created with a password nobody is meant to use, then
+         replaced by whatever they choose from the link. A password a super
+         admin reads out is one that lives in a chat thread afterwards. */
+      /* An account that already existed keeps the password it had, so there
+         is none to fall back to — the link is the only route in either way. */
+      let emailed = true;
+      let limited = false;
+      try {
+        await requestPasswordReset(result.email);
+      } catch (e) {
+        emailed = false;
+        limited = e instanceof EmailRateLimited;
+      }
+
+      setCreated({ email: result.email, password: result.password, emailed, limited });
       setNewEmail("");
-      setNewRole("admin");
+      setNewRole("content_editor");
       setNeedsFunction(false);
       await load();
     } catch (error) {
@@ -183,38 +207,8 @@ export default function TeamEditor() {
     }
   }
 
-  /**
-   * Pre-authorise an address.
-   *
-   * It does not make an account — nothing here can, without the secret key.
-   * It records which role the address should get, so whoever creates the
-   * account next does not have to remember.
-   */
-  async function invite() {
-    if (!supabase) return;
-    const email = newEmail.trim().toLowerCase();
-    if (!email) return;
-
-    setBusy(true);
-    const { error: inviteError } = await supabase
-      .from("admin_invites")
-      .upsert({ email, role: newRole, accepted_at: null }, { onConflict: "email" });
-    setBusy(false);
-
-    if (inviteError) {
-      notify("Could not invite", inviteError.message, "danger");
-      return;
-    }
-
-    setNewEmail("");
-    setNewRole("admin");
-    await load();
-    notify(
-      "Invited",
-      `${email} is pre-authorised as a ${describeRole(newRole).toLowerCase()}. ` +
-        "Create the account for them and the role is applied automatically.",
-    );
-  }
+  /* The pre-authorise helper lived here. See the note by the button it used
+     to sit behind, and 0011_access_requests.sql for what replaced it. */
 
   async function changeRole(person: Person, role: AdminRole) {
     if (!supabase) return;
@@ -327,8 +321,16 @@ export default function TeamEditor() {
                 onChange={(event) => setNewRole(event.target.value as AdminRole)}
                 className="cursor-pointer rounded-xl border border-line bg-white px-4 py-3 text-[15px] outline-none transition focus:border-brand-500"
               >
-                <option value="admin">Admin &mdash; edits content</option>
-                <option value="super_admin">Super admin &mdash; also manages the team</option>
+                {/* From ROLES, so a role added there appears here without an
+                    edit. `admin` is deliberately absent: it is the original
+                    role, kept so existing rows stay valid, and offering it
+                    again would keep creating accounts under a name that means
+                    the same as content_editor. */}
+                {ASSIGNABLE_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {ROLES[role].label} &mdash; {ROLES[role].summary}
+                  </option>
+                ))}
               </select>
             </label>
 
@@ -341,52 +343,77 @@ export default function TeamEditor() {
               {busy ? "Working…" : "Create account"}
             </button>
 
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void invite()}
-              className="cursor-pointer rounded-full border border-line bg-white px-5 py-3 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Pre-authorise only
-            </button>
+            {/* "Pre-authorise only" was here. It wrote an address into a
+                list and waited for that person to sign themselves up — through
+                a route the login screen does not have, so nothing could ever
+                consume it. People ask for access from the login screen now,
+                and the requests appear above. */}
           </form>
 
-          {/* The password, shown once. Dismissed deliberately rather than on a
-              timer or the next render: this is the only time it exists. */}
           {created && (
             <div className="mt-5 rounded-2xl border border-brand-200 bg-brand-50 p-5">
-              <p className="text-[15px] font-semibold text-ink-900">
-                {created.email} can now sign in.
-              </p>
-              <p className="mt-1 text-sm leading-relaxed text-ink-500">
-                This password is shown once and is stored nowhere. Copy it now &mdash; if it
-                is lost, create a new one from this screen.
-              </p>
+              {created.emailed ? (
+                <>
+                  <p className="text-[15px] font-semibold text-ink-900">
+                    {created.email} has been emailed a link to set their password.
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-500">
+                    Nothing to pass on. The link is good for an hour; if it expires they
+                    can ask for another from the sign-in screen.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setCreated(null)}
+                    className="mt-3 cursor-pointer rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-ink-900 transition hover:border-brand-200 hover:text-brand-500"
+                  >
+                    Done
+                  </button>
+                </>
+              ) : (
+                /* Only when the mail did not go. Shown once and stored nowhere:
+                   this is the only moment the password is readable. */
+                <>
+                  <p className="text-[15px] font-semibold text-ink-900">
+                    {created.limited
+                      ? "The account exists. The email is rate-limited."
+                      : "The account exists, but the email could not be sent."}
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-500">
+                    {created.limited
+                      ? "Supabase sends 30 auth emails an hour by default and that is used up. Give them this password, or have them press “Forgot your password?” later."
+                      : "Give " + created.email + " this password instead."}{" "}
+                    It is shown once and stored nowhere &mdash; if it is lost, they can
+                    reset it from the sign-in screen.
+                  </p>
 
-              <div className="mt-3 flex flex-wrap items-center gap-3">
-                <code className="rounded-lg border border-line bg-white px-4 py-2.5 font-mono text-[15px] tracking-wide text-ink-900 select-all">
-                  {created.password}
-                </code>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void navigator.clipboard
-                      ?.writeText(created.password)
-                      .then(() => notify("Copied", "The password is on your clipboard."))
-                      .catch(() => notify("Could not copy", "Select it and copy by hand.", "danger"));
-                  }}
-                  className="cursor-pointer rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-ink-900 transition hover:border-brand-500 hover:text-brand-500"
-                >
-                  Copy
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCreated(null)}
-                  className="cursor-pointer px-2 text-sm font-semibold text-ink-500 transition hover:text-ink-900"
-                >
-                  Done
-                </button>
-              </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <code className="rounded-lg border border-line bg-white px-4 py-2.5 font-mono text-[15px] tracking-wide text-ink-900 select-all">
+                      {created.password}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void navigator.clipboard
+                          ?.writeText(created.password)
+                          .then(() => notify("Copied", "The password is on your clipboard."))
+                          .catch(() =>
+                            notify("Could not copy", "Select it and copy by hand.", "danger"),
+                          );
+                      }}
+                      className="cursor-pointer rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-ink-900 transition hover:border-brand-500 hover:text-brand-500"
+                    >
+                      Copy
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCreated(null)}
+                      className="cursor-pointer px-2 text-sm font-semibold text-ink-500 transition hover:text-ink-900"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -455,8 +482,20 @@ export default function TeamEditor() {
                       aria-label={`Role for ${person.email}`}
                       className="cursor-pointer rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none transition focus:border-brand-500"
                     >
-                      <option value="admin">Admin</option>
-                      <option value="super_admin">Super admin</option>
+                      {/* Labels only here: the row is narrow, and the summary
+                          belongs where someone is choosing a role rather than
+                          reading one back. A person already on `admin` keeps
+                          it as an option so the select can show their current
+                          value — a select whose value is not among its
+                          options renders blank. */}
+                      {(person.role === "admin"
+                        ? ([...ASSIGNABLE_ROLES, "admin"] as AdminRole[])
+                        : ASSIGNABLE_ROLES
+                      ).map((role) => (
+                        <option key={role} value={role}>
+                          {ROLES[role].label}
+                        </option>
+                      ))}
                     </select>
 
                     <button
@@ -474,6 +513,11 @@ export default function TeamEditor() {
             </ul>
           )}
         </section>
+
+        {/* Waiting to be answered, so it goes above the form rather than
+            below the list: somebody opening this screen is usually opening it
+            because of one of these. */}
+        <AccessRequests onApproved={() => void load()} />
 
         {/* ------------------------------------------------------ invites */}
         {invites.length > 0 && (
