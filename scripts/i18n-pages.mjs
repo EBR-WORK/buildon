@@ -282,13 +282,22 @@ if (!applyOnly && todo.length > 0) {
         continue;
       }
 
-      const rows = batch.map((item, index) => ({
-        source_hash: hashes.get(item.text),
-        locale,
-        source: item.text,
-        translated: out[index],
-        provider: provider.name,
-      }));
+      /* A gap is a string the model skipped. It stays uncached, so the next
+         run picks it up — the alternative, caching a hole, would leave it
+         English for ever because the upsert never overwrites. */
+      const rows = batch
+        .map((item, index) => ({
+          source_hash: hashes.get(item.text),
+          locale,
+          source: item.text,
+          translated: out[index],
+          provider: provider.name,
+        }))
+        .filter((row) => typeof row.translated === "string");
+
+      if (out.missing) {
+        console.warn(`   ${out.missing} string(s) skipped by the model — they stay queued`);
+      }
 
       const { error } = await supabase
         .from("translations")
@@ -303,10 +312,13 @@ if (!applyOnly && todo.length > 0) {
       }
 
       for (const [index, item] of batch.entries()) {
-        cached.get(locale).set(item.text, out[index]);
+        if (typeof out[index] === "string") cached.get(locale).set(item.text, out[index]);
       }
 
-      done += batch.length;
+      /* What was actually stored, not what was asked for — a skipped string is
+         still to do, and counting it as done would make the run look complete
+         while leaving English on the page. */
+      done += rows.length;
       /* `done` is both locales, so the locale goes in parentheses as the batch
          that just landed — not as a label for the number, which it is not. */
       console.log(
@@ -335,6 +347,35 @@ if (!applyOnly && todo.length > 0) {
   }
 
   console.log(`\n\n   ${done.toLocaleString()} translated${failed ? `, ${failed} failed` : ""}.\n`);
+}
+
+/* Leave the size of the backlog somewhere a scheduled job can read it.
+
+   The daily workflow in .github/workflows needs to know whether another build
+   is worth starting, and it has no built site to count from — only the
+   database. This run does know, exactly, so it writes the number down rather
+   than making something else guess it.
+
+   Written on every run, including the ones that finish the job, because 0 is
+   the answer that stops the workflow rebuilding for nothing. */
+{
+  const have = await readCache();
+  const pending = LOCALES.reduce(
+    (n, locale) => n + all.filter((text) => !have.get(locale).has(text)).length,
+    0,
+  );
+
+  const { error } = await supabase
+    .from("settings")
+    .upsert({ key: "translation_backlog", value: String(pending) }, { onConflict: "key" });
+
+  if (error) {
+    /* Not fatal: the pages are translated either way, and a stale number only
+       means the scheduled job starts one build it did not need. */
+    console.warn(`   (could not record the backlog: ${error.message})`);
+  } else if (pending > 0) {
+    console.log(`   ${pending.toLocaleString()} strings still to translate — the daily job will pick them up.\n`);
+  }
 }
 
 /**

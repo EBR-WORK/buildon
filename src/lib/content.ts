@@ -400,7 +400,7 @@ export const cataloguePage = {
   title: "Download Catalogue",
   heading: "Product catalogues",
   intro:
-    "Technical sheets for the Buildon range — coverage, mixing, application and packing. Open one to read it, or save it to send on.",
+    "Technical sheets for the Buildon range coverage, mixing, application and packing. Open one to read it, or save it to send on.",
   /* Three of the nine products publish no sheet. Saying so beats a grid that
      quietly omits them, which reads as "we only make six". */
   rest:

@@ -94,10 +94,12 @@ Rules:
 - Preserve leading and trailing whitespace, and any punctuation that carries meaning (a trailing ">" or "*" or ":").
 - Do not add anything. Do not explain. Do not translate a name, an address, a phone number or an email.
 
-Return ONLY a JSON array of strings, the same length and order as the input. No markdown fence, no commentary.
+Return ONLY a JSON object whose keys are the index numbers below, as strings, and whose values are the translations. Include every index. No markdown fence, no commentary.
+
+Example shape: {"0": "...", "1": "...", "2": "..."}
 
 Input:
-${JSON.stringify(items, null, 0)}`;
+${JSON.stringify(Object.fromEntries(items.map((text, index) => [index, text])), null, 0)}`;
 }
 
 /**
@@ -245,34 +247,52 @@ async function geminiTranslate(items, locale, key) {
     throw new Error(`Gemini returned something that is not JSON: ${text.slice(0, 200)}`);
   }
 
-  /* Length mismatch means the model dropped or merged an item, and silently
-     writing those to the cache would misalign every string after it. */
-  if (!Array.isArray(out) || out.length !== items.length) {
-    throw new Error(`Gemini returned ${out?.length} strings for ${items.length}`);
+  /* Keyed by index, so a dropped item costs ONE string instead of the batch.
+
+     This used to ask for a bare array and require out.length === items.length,
+     because position was the only thing tying a translation to its source. The
+     model drops an item now and then — it returned 499 for 500 on the first
+     real run — and with a positional array there is no way to know WHICH one
+     went missing, so everything after it is misaligned and the only safe
+     response is to discard all 500. On a budget of 20 requests a day that is
+     5% of the day's capacity lost to one missing string.
+
+     An index key removes the ambiguity: whatever comes back is placed where it
+     belongs, and a gap is just a gap. The missing string stays uncached and is
+     picked up by the next run. */
+  if (!out || typeof out !== "object" || Array.isArray(out)) {
+    throw new Error(`Gemini returned ${Array.isArray(out) ? "an array" : typeof out}, expected an object keyed by index`);
   }
 
-  /* Every element checked, not just the count.
+  /* A value is taken only if it is a non-empty string. The cache is write-once
+     — the upsert uses ignoreDuplicates so a hand-corrected translation is
+     never overwritten — which makes a bad value permanent:
 
-     The cache is write-once — the upsert uses ignoreDuplicates so that a
-     translation someone corrected by hand is never overwritten by the machine.
-     That makes a bad element permanent, and there are two ways to get one:
+       null  becomes the literal "null" if stringified, and the page renders
+             the word null where a heading was.
+       ""    apply() treats as a miss and leaves the page English, but the row
+             exists, so the string is never queued again. English for ever,
+             with nothing to show why.
 
-       null  `out.map(String)` turns it into the literal string "null", and the
-             page renders the word null where a heading was.
-       ""    apply() treats an empty translation as a miss and leaves the page
-             in English, but the row exists, so the string is never queued
-             again. It stays English for ever, with nothing to show why.
-
-     Rejecting the whole batch costs one retry. Accepting it costs a wrong page
-     that no later run will fix. */
-  const bad = out.findIndex((value) => typeof value !== "string" || value.trim() === "");
-  if (bad !== -1) {
-    throw new Error(
-      `Gemini returned ${JSON.stringify(out[bad])} for ${JSON.stringify(items[bad].slice(0, 60))}`,
-    );
+     Dropping it here means it is simply retried next time. */
+  const result = new Array(items.length);
+  let got = 0;
+  for (let i = 0; i < items.length; i += 1) {
+    const value = out[String(i)];
+    if (typeof value === "string" && value.trim() !== "") {
+      result[i] = value;
+      got += 1;
+    }
   }
 
-  return out;
+  /* Nothing usable means something is wrong with the request itself, not with
+     one stray item — worth failing loudly rather than silently caching none. */
+  if (got === 0) {
+    throw new Error(`Gemini returned no usable translations for ${items.length} strings`);
+  }
+
+  result.missing = items.length - got;
+  return result;
 }
 
 /* ------------------------------------------------------------------ azure */

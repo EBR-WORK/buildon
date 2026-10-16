@@ -199,7 +199,77 @@ export function apply(html, lookup) {
     });
   });
 
-  return { html: unmask(out, holes), hits, misses };
+  const applied = applyPayload(unmask(out, holes), lookup);
+  return { html: applied.html, hits: hits + applied.hits, misses, skipped: applied.skipped };
+}
+
+/**
+ * Translate React's hydration payload too, or the page speaks English a
+ * heartbeat after it loads.
+ *
+ * This is the step whose absence made everything above look like it worked and
+ * not work. A static export ships the rendered markup AND the data React needs
+ * to take the page over — the `self.__next_f.push([...])` blocks. mask() blanks
+ * those out, correctly, because they are code. But they also carry every string
+ * the page renders, in English.
+ *
+ * So the browser painted the Hindi heading from the markup, React hydrated a
+ * moment later, found "Guaranteed Quality" in the payload where the DOM said
+ * "गारंटीशुदा क्वालिटी", and put the English back. Visibly: the page loads
+ * translated and reverts. Checking the built file showed the Hindi present and
+ * correct, which is exactly why this survived every check I made.
+ *
+ * ONLY whole JSON string values are replaced — `\"text\"` as it appears inside
+ * the payload's JS string literal — so this keeps the same exact-match promise
+ * as the markup pass and cannot corrupt a class name or a prop.
+ *
+ * Strings containing a quote or a backslash are skipped rather than escaped.
+ * Getting the escaping wrong here does not produce a wrong word, it produces a
+ * payload React cannot parse — a blank page. The count comes back so the
+ * caller can say how many were left behind.
+ */
+function applyPayload(html, lookup) {
+  let hits = 0;
+  let skipped = 0;
+
+  const out = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (whole, body) => {
+    if (!body.includes("self.__next_f.push")) return whole;
+
+    /* One pass over the payload rather than one pass per cached string: the
+       cache holds thousands, the payload is ~60KB, and the product of those
+       across 188 pages is minutes of work for the same answer.
+
+       The lookbehind and lookahead are what make this correct, and leaving
+       them out is a bug that hides. `\\"` is both the opening and the closing
+       delimiter, so a bare /\\"([^"\\]+)\\"/ has no way to tell one from the
+       other: given
+
+         \"$1\",\"Company Overview\",{\"children\"
+
+       it pairs the quote that CLOSES "$1" with the one that OPENS the next
+       string and captures `,` — then every pairing after it is off by one, so
+       the values are never seen. It still appeared to work, because the
+       occasional string whose alignment happened to come out right did get
+       replaced.
+
+       Anchoring on the JSON structure around the quotes removes the ambiguity:
+       a value is preceded by one of [ { , : and followed by one of ] } , :.
+       Punctuation between two strings is not. */
+    const next = body.replace(/(?<=[[{,:])\\"([^"\\]+)\\"(?=[\]},:])/g, (match, text) => {
+      const translated = lookup.get(text);
+      if (!translated) return match;
+      if (/["\\]/.test(translated)) {
+        skipped += 1;
+        return match;
+      }
+      hits += 1;
+      return '\\"' + translated + '\\"';
+    });
+
+    return next === body ? whole : whole.replace(body, next);
+  });
+
+  return { html: out, hits, skipped };
 }
 
 /**

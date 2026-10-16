@@ -1,0 +1,67 @@
+# Finish the translation backlog without anyone remembering to.
+#
+# The Gemini free tier allows 20 requests a day. A site this size needs more
+# than that the first time, and a day of heavy editing can need more again — so
+# a run can end with strings still untranslated. Those strings are not lost:
+# the cache is keyed by the English sentence, so the next build carries on
+# exactly where the last one stopped.
+#
+# "The next build" was the problem. Builds happen when an admin presses
+# Publish, so a backlog would sit there until somebody happened to publish
+# something — and the person who would notice (a Marathi-speaking visitor
+# reading an English paragraph) is not the person who can fix it.
+#
+# This closes that loop: once a day, shortly after the quota resets, check
+# whether anything is still untranslated and start a build if it is. The build
+# translates what it can and deploys. Repeat until the backlog is gone, then
+# stop doing anything.
+#
+# WHY IT CHECKS FIRST
+#
+# Netlify's free tier includes 300 build minutes a month and a build here takes
+# a few. Rebuilding every morning to discover there is nothing to do would
+# spend a third of that allowance producing identical output. The check costs
+# one HTTPS request.
+
+name: Translate backlog
+
+on:
+  schedule:
+    # 00:30 UTC = 06:00 IST, half an hour after the Gemini daily quota resets.
+    - cron: "30 0 * * *"
+  # So it can be run by hand from the Actions tab without waiting for tomorrow.
+  workflow_dispatch:
+
+jobs:
+  check-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Is anything still untranslated?
+        id: backlog
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: node .github/scripts/translation-backlog.mjs >> "$GITHUB_OUTPUT"
+
+      - name: Start a Netlify build
+        if: steps.backlog.outputs.pending != '0'
+        env:
+          HOOK: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "NETLIFY_BUILD_HOOK_URL is not set — add it in Settings → Secrets."
+            exit 1
+          fi
+          echo "${{ steps.backlog.outputs.pending }} strings pending; starting a build."
+          curl -fsS -X POST -d '{}' "$HOOK" > /dev/null
+          echo "Build requested."
+
+      - name: Nothing to do
+        if: steps.backlog.outputs.pending == '0'
+        run: echo "Everything is translated. No build needed."
