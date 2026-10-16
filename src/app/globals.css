@@ -57,8 +57,8 @@
      @font-face rules that load it sit just below @theme. The fallbacks are
      system grotesks of similar width, so text keeps roughly its shape until the
      font arrives. */
-  --font-display: "TT Hoves Pro", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-sans: "TT Hoves Pro", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "TT Hoves Pro", "Noto Sans Devanagari", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "TT Hoves Pro", "Noto Sans Devanagari", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --shadow-card: 0 1px 2px rgb(22 24 29 / 0.04), 0 8px 24px -12px rgb(22 24 29 / 0.14);
   --shadow-lift: 0 2px 4px rgb(22 24 29 / 0.05), 0 24px 48px -20px rgb(22 24 29 / 0.28);
@@ -114,6 +114,35 @@
   font-weight: 450 900;
   font-style: normal;
   font-display: swap;
+}
+
+/*
+  Marathi and Hindi.
+
+  TT Hoves Pro has no Devanagari glyphs, so without this the /mr and /hi pages
+  fall through the stack to whatever the operating system happens to have —
+  Nirmala UI on Windows, something else on Android, and on a machine with no
+  Devanagari font at all, empty boxes. That is the difference between looking
+  translated and looking broken, and it is not something a visitor forgives.
+
+  The unicode-range is what makes this free for English readers: a browser
+  downloads a face only when the page actually contains codepoints it covers.
+  An English page never asks for these 118KB; a Marathi page asks once and
+  caches it. The range is Google's own subset definition, so it includes the
+  rupee sign, the ZWJ/ZWNJ that Devanagari conjuncts need, and the dotted
+  circle that renders a broken cluster visibly rather than silently.
+
+  One file covers both weights because the subset Google serves is variable, so
+  the weight range here is the whole usable span rather than two faces.
+*/
+@font-face {
+  font-family: "Noto Sans Devanagari";
+  src: url("/fonts/NotoSansDevanagari-subset.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0900-097F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8,
+    U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A;
 }
 
 @layer base {

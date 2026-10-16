@@ -6,8 +6,35 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { nav, site } from "@/lib/content";
 import { CloseIcon, MenuIcon } from "./icons";
+import LanguageSwitch from "./LanguageSwitch";
+import { getDictionary } from "@/lib/i18n";
+import { localeOf, localePath } from "@/lib/i18n/config";
 
 export default function SiteHeader() {
+  /* The language is in the path, so it is read from the path rather than
+     held in a context: every page already knows which language it is, and a
+     provider would be a second source of the same fact. */
+  const locale = localeOf(usePathname() ?? "/");
+  const t = getDictionary(locale);
+
+  /* Matched by the English label, because that is what `nav` is keyed on and
+     the href is where a link actually goes. A missing key renders the English,
+     which is the whole point of the merge in getDictionary. */
+  const NAV_KEYS: Record<string, keyof typeof t.nav> = {
+    Home: "home",
+    "About Us": "about",
+    Products: "products",
+    Clientele: "clientele",
+    Projects: "projects",
+    Careers: "careers",
+    Blog: "blog",
+    "Contact Us": "contact",
+    FAQs: "faqs",
+  };
+  const label = (english: string) => {
+    const key = NAV_KEYS[english];
+    return key ? t.nav[key] : english;
+  };
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -18,8 +45,14 @@ export default function SiteHeader() {
    * Home only matches exactly; every other entry also owns its sub-paths, so a
    * future /blog/<slug> still lights up "Blog".
    */
-  const isCurrent = (href: string) =>
-    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  const isCurrent = (href: string) => {
+    /* Compared without the language prefix, so /mr/products lights up
+       Products rather than nothing. The nav is the same nine links in every
+       language; which language you are reading them in is not what decides
+       which one you are on. */
+    const here = localePath(pathname ?? "/", "en");
+    return href === "/" ? here === "/" : here === href || here.startsWith(`${href}/`);
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -84,10 +117,10 @@ export default function SiteHeader() {
                 const style =
                   "block rounded-md px-2 py-2 font-display text-[15px] font-normal whitespace-nowrap xl:px-3 xl:text-base";
                 return (
-                  <li key={item.label}>
+                  <li key={label(item.label)}>
                     {item.href ? (
                       <Link
-                        href={item.href}
+                        href={localePath(item.href, locale)}
                         aria-current={isCurrent(item.href) ? "page" : undefined}
                         className={`${style} transition hover:bg-brand-50 hover:text-brand-500 ${
                           isCurrent(item.href)
@@ -95,14 +128,14 @@ export default function SiteHeader() {
                             : "text-ink-700"
                         }`}
                       >
-                        {item.label}
+                        {label(item.label)}
                       </Link>
                     ) : (
                       <span
                         aria-disabled
                         className={`${style} cursor-default text-ink-500`}
                       >
-                        {item.label}
+                        {label(item.label)}
                       </span>
                     )}
                   </li>
@@ -112,6 +145,12 @@ export default function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-2">
+            {/* Beside the menu button at every width: a language choice that
+                hides inside a drawer is one most visitors never find, and the
+                people who need it are exactly the ones least likely to go
+                looking in English. */}
+            <LanguageSwitch />
+
             <button
               suppressHydrationWarning
               ref={toggleRef}
@@ -165,10 +204,10 @@ export default function SiteHeader() {
             <nav aria-label="Mobile">
               <ul className="divide-y divide-line">
                 {nav.map((item) => (
-                  <li key={item.label}>
+                  <li key={label(item.label)}>
                     {item.href ? (
                       <Link
-                        href={item.href}
+                        href={localePath(item.href, locale)}
                         onClick={() => setOpen(false)}
                         aria-current={isCurrent(item.href) ? "page" : undefined}
                         className={`block py-3.5 font-display text-lg ${
@@ -177,14 +216,14 @@ export default function SiteHeader() {
                             : "font-normal text-ink-900"
                         }`}
                       >
-                        {item.label}
+                        {label(item.label)}
                       </Link>
                     ) : (
                       <span
                         aria-disabled
                         className="block py-3.5 font-display text-lg font-normal text-ink-500"
                       >
-                        {item.label}
+                        {label(item.label)}
                       </span>
                     )}
                   </li>

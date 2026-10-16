@@ -2,8 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { chat, site } from "@/lib/content";
+import { getDictionary } from "@/lib/i18n";
+import { localeOf } from "@/lib/i18n/config";
 
 type ChatTopic = (typeof chat.options)[number]["topics"] extends
   | readonly (infer T)[]
@@ -56,6 +59,15 @@ export default function ChatWidget({
   /** Lets the page move anything else that lives in this corner out of the way. */
   onOpenChange?: (open: boolean) => void;
 }) {
+  /* The panel's own controls, in the language of the page it is sitting on.
+     
+     Only the controls: the greeting, the menu and the answers come from `chat`
+     in content.ts and are still English. Those are worth doing through the
+     translation cache rather than by hand, and the controls are not — they are
+     three labels a screen reader reads out, and announcing them in English on
+     a Marathi page is the kind of thing nobody notices and everybody feels. */
+  const t = getDictionary(localeOf(usePathname() ?? "/"));
+
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
@@ -279,7 +291,7 @@ export default function ChatWidget({
               suppressHydrationWarning
               type="button"
               onClick={() => show(false)}
-              aria-label="Close chat"
+              aria-label={t.chat.closeChat}
               className="-mr-1 inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition hover:bg-white/15"
             >
               <CloseIcon className="size-4" />
@@ -388,7 +400,7 @@ export default function ChatWidget({
                   : "text-ink-500 hover:text-brand-500"
               }`}
             >
-              {enquiry ? "Cancel this enquiry" : "Show the menu"}
+              {enquiry ? t.chat.cancelEnquiry : t.chat.showMenu}
             </button>
           )}
 
@@ -406,7 +418,7 @@ export default function ChatWidget({
               suppressHydrationWarning
               type="submit"
               disabled={!draft.trim()}
-              aria-label="Send"
+              aria-label={t.actions.send}
               className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-brand-500 text-white transition hover:bg-brand-600 disabled:cursor-default disabled:opacity-40"
             >
               <SendIcon className="size-4" />
@@ -423,7 +435,7 @@ export default function ChatWidget({
         onClick={() => show(!open)}
         aria-expanded={open}
         aria-controls="chat-panel"
-        aria-label={open ? "Close chat" : chat.launcher}
+        aria-label={open ? t.chat.closeChat : chat.launcher}
         className={`fixed right-4 bottom-4 z-50 grid size-14 cursor-pointer place-items-center rounded-full text-white shadow-lift transition sm:right-5 ${
           open ? "bg-accent-500 hover:bg-accent-600" : "bg-brand-500 hover:bg-brand-600"
         }`}

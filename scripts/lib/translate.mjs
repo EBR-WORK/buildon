@@ -51,6 +51,12 @@ export const hashOf = (text) => createHash("sha256").update(text, "utf8").digest
  * A URL, a path, a number or a lone symbol costs money to send and comes back
  * either identical or wrong. "Read More >" is worth translating; "/products"
  * is not.
+ *
+ * NOT the same function as the one in html-text.mjs, which is stricter: that
+ * one also requires a Latin letter and rejects anything already in Devanagari.
+ * This one is used by i18n-translate.mjs over the CMS JSON; html-text.mjs's is
+ * used over built HTML. If you are changing the rules, check whether both need
+ * it — the names being identical is the trap here.
  */
 export function translatable(text) {
   const value = String(text ?? "").trim();
@@ -65,7 +71,9 @@ export function translatable(text) {
 
 /* ----------------------------------------------------------------- gemini */
 
-const GEMINI_MODEL = "gemini-2.0-flash";
+/* 2.5, not 2.0: a key issued today lists 2.5-flash and not 2.0, so naming the
+   older one fails with a model-not-found that reads like a key problem. */
+const GEMINI_MODEL = "gemini-2.5-flash";
 
 /**
  * The instructions are the reason this is worth more than a translation API.
@@ -92,6 +100,95 @@ Input:
 ${JSON.stringify(items, null, 0)}`;
 }
 
+/**
+ * The free tier is rate-limited by the minute, and a run of this size will
+ * meet it. A 429 is "later", not "no": waiting and retrying is the difference
+ * between a translated site and 80 strings.
+ */
+export async function withRetry(run, attempts = 5) {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await run();
+    } catch (error) {
+      const message = String(error?.message ?? "");
+
+      /* A DAILY quota is not "later", it is tomorrow. Waiting 20, 40, 80 then
+         160 seconds for it achieves nothing but five wasted minutes, and with
+         a queue of batches behind it that is the difference between a run that
+         reports the problem and one that appears to hang. quotaError() has
+         already read Google's own quotaId and retryDelay, so this is a flag
+         rather than another guess at the text. */
+      if (error?.daily) throw error;
+
+      /* Worth another go: a per-minute rate limit, or the server having a bad
+         moment. 2.5 Flash returns 503 "model is overloaded" routinely, and that
+         used to end the batch on the first attempt — 500 strings discarded and
+         one of the day's 20 requests spent on a condition that a 20-second
+         wait would have cleared. On a 20-a-day budget that is 5% of capacity
+         thrown away for nothing. */
+      const retryable =
+        /429|quota|rate/i.test(message) || /Gemini (500|502|503|504)\b/.test(message);
+      if (!retryable || attempt >= attempts) throw error;
+
+      /* 20s, 40s, 80s, 160s. The per-minute window is what is being waited
+         out, so the first wait is already most of one. */
+      const wait = 20_000 * 2 ** (attempt - 1);
+      process.stdout.write(`
+   ${/429|quota|rate/i.test(message) ? "rate limited" : "server busy"}, waiting ${wait / 1000}s...`);
+      await new Promise((resolve) => setTimeout(resolve, wait));
+    }
+  }
+}
+
+/**
+ * A Gemini error, with the one fact that decides what to do about it.
+ *
+ * A 429 is either "you are going too fast" or "you are done for today", and
+ * those need opposite responses — wait a moment, or stop and come back
+ * tomorrow. Google distinguishes them clearly, but only in the structured part
+ * of the body: a quotaId of "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+ * and a retryDelay in the tens of thousands of seconds.
+ *
+ * This used to throw `body.slice(0, 300)` and the caller looked for "PerDay" in
+ * the text. That could never work: the quotaId sits roughly 900 characters into
+ * the response, so the slice cut it off and every daily-quota error was treated
+ * as a momentary one — four pointless waits totalling five minutes, per batch.
+ * Hence reading the fields rather than searching the prose.
+ */
+function quotaError(status, body) {
+  let parsed;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    /* Not JSON — nothing to read, so report it as it came. */
+    const error = new Error(`Gemini ${status}: ${body.slice(0, 300)}`);
+    error.daily = false;
+    return error;
+  }
+
+  const detail = parsed?.error?.details ?? [];
+  const violation = detail
+    .flatMap((entry) => entry.violations ?? [])
+    .find((v) => v.quotaId);
+  const retryDelay = detail.find((entry) => entry.retryDelay)?.retryDelay ?? "";
+  const seconds = Number.parseFloat(retryDelay) || 0;
+
+  /* Either signal is enough. The quotaId is the explicit one; the delay is the
+     fallback for a quota Google names differently in future — anything asking
+     for more than an hour is not something a run should sit and wait for. */
+  const daily = /PerDay/i.test(violation?.quotaId ?? "") || seconds > 3600;
+
+  const error = new Error(
+    `Gemini ${status}: ${(parsed?.error?.message?.split(". ")[0] || "quota exceeded")}` +
+      (violation?.quotaId ? ` [${violation.quotaId}` : "") +
+      (violation?.quotaValue ? `, limit ${violation.quotaValue}]` : violation?.quotaId ? "]" : "") +
+      (seconds ? ` — retry in ${Math.round(seconds / 3600)}h` : ""),
+  );
+  error.daily = daily;
+  error.retryAfterSeconds = seconds;
+  return error;
+}
+
 async function geminiTranslate(items, locale, key) {
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`,
@@ -106,6 +203,15 @@ async function geminiTranslate(items, locale, key) {
              years. Creativity here is drift. */
           temperature: 0,
           responseMimeType: "application/json",
+
+          /* 2.5 Flash thinks by default, and thinking tokens come out of the
+             SAME output budget the translations need. A batch of 500 strings
+             sized against the 65k cap can be pushed over it by a thinking-heavy
+             response, which truncates the JSON, fails the parse below, and
+             loses the batch along with one of the day's 20 requests. There is
+             nothing to reason about here — it is translation against a fixed
+             glossary — so the budget is spent on output instead. */
+          thinkingConfig: { thinkingBudget: 0 },
         },
       }),
     },
@@ -113,11 +219,24 @@ async function geminiTranslate(items, locale, key) {
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Gemini ${response.status}: ${body.slice(0, 300)}`);
+    throw quotaError(response.status, body);
   }
 
   const data = await response.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  const candidate = data?.candidates?.[0];
+  const text = candidate?.content?.parts?.[0]?.text ?? "";
+
+  /* Why the response stopped, before trying to parse it. A MAX_TOKENS or
+     SAFETY stop produces text that is not JSON, and reporting that as "not
+     JSON" sends whoever reads the log looking for a prompt bug instead of a
+     truncated answer. */
+  const reason = candidate?.finishReason;
+  if (reason && reason !== "STOP") {
+    throw new Error(
+      `Gemini stopped with finishReason ${reason} after ${items.length} strings` +
+        (reason === "MAX_TOKENS" ? " — lower BATCH in i18n-pages.mjs" : ""),
+    );
+  }
 
   let out;
   try {
@@ -132,7 +251,28 @@ async function geminiTranslate(items, locale, key) {
     throw new Error(`Gemini returned ${out?.length} strings for ${items.length}`);
   }
 
-  return out.map(String);
+  /* Every element checked, not just the count.
+
+     The cache is write-once — the upsert uses ignoreDuplicates so that a
+     translation someone corrected by hand is never overwritten by the machine.
+     That makes a bad element permanent, and there are two ways to get one:
+
+       null  `out.map(String)` turns it into the literal string "null", and the
+             page renders the word null where a heading was.
+       ""    apply() treats an empty translation as a miss and leaves the page
+             in English, but the row exists, so the string is never queued
+             again. It stays English for ever, with nothing to show why.
+
+     Rejecting the whole batch costs one retry. Accepting it costs a wrong page
+     that no later run will fix. */
+  const bad = out.findIndex((value) => typeof value !== "string" || value.trim() === "");
+  if (bad !== -1) {
+    throw new Error(
+      `Gemini returned ${JSON.stringify(out[bad])} for ${JSON.stringify(items[bad].slice(0, 60))}`,
+    );
+  }
+
+  return out;
 }
 
 /* ------------------------------------------------------------------ azure */
@@ -201,9 +341,11 @@ export function readProvider(env) {
 
 /** Translate a batch. Throws rather than returning half an answer. */
 export async function translateBatch(items, locale, provider) {
-  if (provider.name === "gemini") return geminiTranslate(items, locale, provider.key);
+  if (provider.name === "gemini") {
+    return withRetry(() => geminiTranslate(items, locale, provider.key));
+  }
   if (provider.name === "azure") {
-    return azureTranslate(items, locale, provider.key, provider.region);
+    return withRetry(() => azureTranslate(items, locale, provider.key, provider.region));
   }
   throw new Error(provider.reason ?? "No translation provider configured.");
 }

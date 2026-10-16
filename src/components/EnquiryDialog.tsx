@@ -1,6 +1,9 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
+import { getDictionary } from "@/lib/i18n";
+import { localeOf } from "@/lib/i18n/config";
 import { CloseIcon } from "./icons";
 
 /**
@@ -28,6 +31,10 @@ export default function EnquiryDialog({
   takeFocus?: boolean;
   children: ReactNode;
 }) {
+  /* "Close" is read aloud by a screen reader, so it follows the page's
+     language like the rest of the chrome. */
+  const t = getDictionary(localeOf(usePathname() ?? "/"));
+
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -65,7 +72,7 @@ export default function EnquiryDialog({
         suppressHydrationWarning
         type="button"
         onClick={onClose}
-        aria-label="Close"
+        aria-label={t.actions.close}
         tabIndex={-1}
         className="fixed inset-0 cursor-default"
       />
@@ -91,7 +98,7 @@ export default function EnquiryDialog({
             suppressHydrationWarning
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t.actions.close}
             className="-mt-1 -mr-1 inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-500 transition hover:bg-surface hover:text-ink-900"
           >
             <CloseIcon className="size-5" />
