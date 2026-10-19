@@ -3,8 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
-/* Cards are derived from the posts themselves — see publishedBlog. */
-import { publishedBlog, type PublishedPostCard } from "@/lib/cms/published";
+/* Cards are derived from the posts themselves — see publishedBlog. Type only:
+   a value import here pulls the ENTIRE published blog into the browser bundle,
+   which is both ~500KB a visitor never needed and English that cannot be
+   translated for /mr and /hi. One string was doing that. */
+import type { PublishedPostCard } from "@/lib/cms/published";
 import { blogHref } from "@/lib/blogDetails";
 
 type Item = PublishedPostCard;
@@ -17,7 +20,13 @@ type Item = PublishedPostCard;
  * with the matches once a search runs in the browser. That is what keeps every
  * card in the static HTML for crawlers and for anyone without JavaScript.
  */
-export default function BlogCards({ items }: { items: readonly Item[] }) {
+export default function BlogCards({
+  items,
+  readMore,
+}: {
+  items: readonly Item[];
+  readMore: string;
+}) {
   return (
       <ul className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {items.map((post, i) => {
@@ -53,7 +62,7 @@ export default function BlogCards({ items }: { items: readonly Item[] }) {
                   aria-hidden
                   className="mt-4 inline-flex items-center self-start text-sm font-semibold text-brand-500 transition group-hover:text-brand-600 sm:mt-5"
                 >
-                  {publishedBlog.readMore}
+                  {readMore}
                 </span>
               </div>
             </>

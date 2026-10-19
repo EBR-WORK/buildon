@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import About from "@/components/About";
 import Clients from "@/components/Clients";
+import { publishedTestimonials } from "@/lib/cms/published";
+import { products } from "@/lib/content";
 import ContactDetails from "@/components/ContactDetails";
 import Hero from "@/components/Hero";
 import Products from "@/components/Products";
@@ -48,13 +50,16 @@ export default function GypsumPlasterIndiaPage() {
       <main id="main">
         <Hero />
         <WhyUs phrase={PHRASE} />
-        <Products phrase={PHRASE} />
+        <Products
+          copy={products}
+          title={`Get Introduced To The Best gypsum plaster ${PHRASE}`}
+        />
         {/* No ContactForm: the reference drops it from these landing pages,
             running the product grid straight into About. */}
         <About />
         <Clients />
         <Projects />
-        <Testimonials />
+        <Testimonials copy={publishedTestimonials} />
         <ContactDetails />
       </main>
       <SiteFooter />

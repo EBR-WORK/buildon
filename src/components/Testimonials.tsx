@@ -1,7 +1,9 @@
 "use client";
 
-/* The published file — see Hero. */
-import { publishedTestimonials as testimonials } from "@/lib/cms/published";
+/* The published file — see Hero. Type only: the values arrive as props,
+   because anything a client component imports is compiled into the shared JS
+   bundle, where it cannot be translated per language. */
+import type { publishedTestimonials } from "@/lib/cms/published";
 import { useSnapCarousel } from "@/lib/useSnapCarousel";
 import CarouselButton from "./CarouselButton";
 import CtaLink from "./CtaLink";
@@ -15,7 +17,17 @@ import Reveal from "./Reveal";
  * one-at-a-time quote carousel on the right two thirds, on white. Stacks below
  * lg — a third of a tablet is not enough room for the video.
  */
-export default function Testimonials() {
+export default function Testimonials({
+  /* The quotes and the heading, handed down by the page rather than imported.
+     An import here would be compiled into the JavaScript bundle, and that
+     bundle is shared by /, /mr and /hi — so the Hindi page arrived translated
+     and React redrew this section in English a moment later. Props travel in
+     the hydration payload, which is per-page and translatable. */
+  copy,
+}: {
+  copy: typeof publishedTestimonials;
+}) {
+  const testimonials = copy;
   const { trackRef, index, atStart, atEnd, goTo } = useSnapCarousel<HTMLUListElement>();
   const count = testimonials.items.length;
 

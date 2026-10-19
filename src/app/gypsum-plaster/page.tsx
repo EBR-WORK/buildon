@@ -373,7 +373,7 @@ export default function GypsumPlasterPage() {
             </Reveal>
 
             <div className="mt-8 sm:mt-10">
-              <BlogCards items={latest} />
+              <BlogCards items={latest} readMore={publishedBlog.readMore} />
             </div>
           </div>
         </section>

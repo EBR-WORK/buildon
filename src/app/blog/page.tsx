@@ -48,7 +48,7 @@ export default function BlogPage() {
             {/* No rail on the listing: the whole blog is already on this page,
                 so search, categories and tags only take a reader away from what
                 they came to browse. The post pages carry all three. */}
-            <BlogCards items={publishedBlog.cards} />
+            <BlogCards items={publishedBlog.cards} readMore={publishedBlog.readMore} />
           </div>
         </section>
       </main>

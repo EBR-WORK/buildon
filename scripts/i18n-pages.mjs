@@ -191,12 +191,26 @@ async function readCache() {
   const byLocale = new Map(LOCALES.map((locale) => [locale, new Map()]));
 
   /* In pages: PostgREST caps a response, and asking for six thousand rows in
-     one go silently returns the first thousand. */
+     one go silently returns the first thousand.
+
+     The order() is not decoration — without it this reads the cache WRONG.
+     Postgres makes no promise about row order absent an ORDER BY, so each
+     range() is free to return a different slice of the same set: pages overlap,
+     other rows never appear, and the result is an incomplete lookup with no
+     error anywhere. Measured on this project: 2,158 Hindi rows read as 2,000.
+
+     The damage is invisible in the worst way. Every missing row is a string
+     that stays English on the page while sitting translated in the database,
+     and WHICH strings go missing changes between runs — so a page can look
+     fine, then lose a paragraph on the next build for no reason a person could
+     see. source_hash is the primary key, so ordering by it is stable and
+     unique, which is what makes the paging total. */
   for (let from = 0; ; from += 1000) {
     const { data, error } = await supabase
       .from("translations")
       .select("source, translated, locale")
       .in("locale", LOCALES)
+      .order("source_hash", { ascending: true })
       .range(from, from + 999);
 
     if (error) {

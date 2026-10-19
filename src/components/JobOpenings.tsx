@@ -3,10 +3,15 @@
 import { useMemo, useState } from "react";
 import CtaLink from "@/components/CtaLink";
 import Reveal from "@/components/Reveal";
-import { publishedCareer, publishedJobHref } from "@/lib/cms/published";
+/* Type only: a value import pulls every opening and the whole career
+   content into the browser bundle, which is shared by /, /mr and /hi and
+   therefore cannot be translated. The page passes the data down. */
+import type { publishedCareer } from "@/lib/cms/published";
 import { ArrowIcon, ChevronDownIcon, PinIcon, ShieldIcon } from "./icons";
 
-const ALL = "All Job Location";
+/* The filter's "everything" option. A prop rather than a constant here,
+   because a constant in a client component is compiled into the bundle
+   in English and would stay English on the Marathi and Hindi pages. */
 
 /**
  * The openings list, filtered by location.
@@ -24,20 +29,29 @@ const ALL = "All Job Location";
  * static HTML for crawlers and for anyone without JavaScript — who also never
  * sees the control, since it would do nothing for them.
  */
-export default function JobOpenings() {
+export default function JobOpenings({
+  jobs,
+  moreLabel,
+  allLabel,
+}: {
+  jobs: typeof publishedCareer.jobs;
+  moreLabel: string;
+  allLabel: string;
+}) {
+  const ALL = allLabel;
   const [location, setLocation] = useState(ALL);
 
   /* Built from the openings themselves rather than a fixed list, so a new city
      appears in the filter as soon as a job in it is added. */
   const locations = useMemo(
-    () => [ALL, ...Array.from(new Set(publishedCareer.jobs.map((job) => job.location)))],
-    [],
+    () => [ALL, ...Array.from(new Set(jobs.map((job) => job.location)))],
+    [jobs, ALL],
   );
 
   const items =
     location === ALL
-      ? publishedCareer.jobs
-      : publishedCareer.jobs.filter((job) => job.location === location);
+      ? jobs
+      : jobs.filter((job) => job.location === location);
 
   return (
     <>
@@ -105,10 +119,10 @@ export default function JobOpenings() {
               </div>
 
               <CtaLink
-                href={publishedJobHref(job.title, job.location)}
+                href={`/career/${job.slug}`}
                 className="inline-flex shrink-0 cursor-pointer items-center gap-2 self-start text-sm font-semibold text-brand-500 transition hover:text-brand-600 sm:self-auto"
               >
-                {publishedCareer.moreLabel}
+                {moreLabel}
                 <ArrowIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
               </CtaLink>
             </article>

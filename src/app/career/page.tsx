@@ -55,7 +55,11 @@ export default function CareerPage() {
             {/* The list and its location filter — a client component, since
                 the filter is interactive; the unfiltered list still renders on
                 the server, so every opening is in the static HTML. */}
-            <JobOpenings />
+            <JobOpenings
+              jobs={publishedCareer.jobs}
+              moreLabel={publishedCareer.moreLabel}
+              allLabel="All Job Location"
+            />
           </div>
         </section>
 

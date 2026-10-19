@@ -2,31 +2,44 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { products } from "@/lib/content";
+/* `import type` is erased at compile time, so the shape is still checked
+   against content.ts while nothing from it reaches the browser bundle. The
+   values arrive as props. */
+import type { products as ProductsContent } from "@/lib/content";
 import { useCoverflow } from "@/lib/useCoverflow";
 import CarouselButton from "./CarouselButton";
 import SectionHeading from "./SectionHeading";
 import Reveal from "./Reveal";
 
 /**
- * `city` swaps the heading and the first line of the intro, as the reference's
- * city landing pages do — lower-case "gypsum plaster" in the heading is theirs,
- * not a slip.
+ * The city pages pass their own `title` and `intro` — lower-case "gypsum
+ * plaster" in those headings is the reference's wording, not a slip.
  */
 export default function Products({
-  city,
-  phrase,
+  copy,
+  title,
+  intro,
 }: {
-  city?: string;
-  phrase?: string;
-} = {}) {
-  const suffix = phrase ?? (city ? `in ${city}` : null);
-  const title = suffix ? `Get Introduced To The Best gypsum plaster ${suffix}` : products.title;
-  /* Only a city changes the intro line; the national page keeps "Being
-     India’s largest", which is what the reference does. */
-  const intro = city
-    ? [`Being ${city}’s largest and leading manufacturer & importer of`, products.intro[1]]
-    : products.intro;
+  /* The section's text, handed down by the page.
+
+     Not imported here, because this is a client component: whatever it imports
+     is compiled into the JavaScript bundle, and that bundle is shared by /,
+     /mr and /hi. English baked into it cannot be translated for one language
+     without breaking the other two — the page arrived in Hindi and React
+     redrew this carousel in English a moment later, from its own copy. Props
+     travel in the hydration payload, which is per-page and translatable. */
+  copy: typeof ProductsContent;
+  /* The city pages vary the heading and the first intro line. Those used to be
+     built here from a `city` prop — which put the English template literal in
+     the bundle just as surely as an import would, and it survived the first
+     pass of this fix for exactly that reason. The caller is a server
+     component, so it builds the sentence and passes the finished string. */
+  title?: string;
+  intro?: readonly string[];
+}) {
+  const products = copy;
+  const heading = title ?? products.title;
+  const introLines = intro ?? products.intro;
 
   /* Depth, not just a turn.
      Read off the reference: the cards beside the centre are not only angled,
@@ -43,7 +56,7 @@ export default function Products({
     >
       <div className="container-page">
         <Reveal>
-          <SectionHeading title={title} intro={intro} align="center" />
+          <SectionHeading title={heading} intro={introLines} align="center" />
         </Reveal>
 
         <div className="mt-10 sm:mt-12 lg:mt-14">

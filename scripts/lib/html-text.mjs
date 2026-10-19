@@ -228,43 +228,84 @@ export function apply(html, lookup) {
  * payload React cannot parse — a blank page. The count comes back so the
  * caller can say how many were left behind.
  */
+/* Built from a string rather than written as a literal: U+2028 and U+2029
+   are line terminators, so typing them inside a /regex/ ends the literal. */
+const PAYLOAD_ESCAPE = new RegExp("[&<>\\u2028\\u2029]", "g");
+
+const escapeForPayload = (text) =>
+  text.replace(PAYLOAD_ESCAPE, (c) => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0"));
+
 function applyPayload(html, lookup) {
   let hits = 0;
   let skipped = 0;
 
+  /* The payload is parsed rather than pattern-matched, and that is the whole
+     lesson of this function.
+
+     Three regexes were tried here, each one correct about the case that broke
+     the last and wrong about the next:
+
+       \\"([^"\\]+)\\"           paired a CLOSING quote with the next OPENING one
+                                and captured the punctuation between them
+       anchored on [[{,:]       fixed that, but stopped dead at any backslash,
+                                so every sentence containing & — which React
+                                writes as \\u0026 — was invisible
+       plus \\uXXXX             fixed that, and still could not see a string
+                                containing a literal " , which is how every
+                                testimonial on this site begins
+
+     Each round translated a few more sentences and left a different few in
+     English, which is the worst possible failure: it looks like progress. The
+     escaping has four levels — JS string literal, JSON, React's own \\uXXXX,
+     and HTML — and a regex that handles three of them is simply a slower way
+     of being wrong.
+
+     JSON.parse knows all four. The literal is unwrapped once, the flight text
+     inside it is walked as JSON strings, and the whole thing is re-serialised
+     by JSON.stringify. Nothing is escaped by hand. */
   const out = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (whole, body) => {
     if (!body.includes("self.__next_f.push")) return whole;
 
-    /* One pass over the payload rather than one pass per cached string: the
-       cache holds thousands, the payload is ~60KB, and the product of those
-       across 188 pages is minutes of work for the same answer.
+    /* self.__next_f.push([1,"...the flight text..."]) — the second argument is
+       a JS string literal, which is also valid JSON, so JSON.parse unwraps it
+       exactly. */
+    const next = body.replace(
+      /(self\.__next_f\.push\(\[\d+,)("(?:[^"\\]|\\[\s\S])*")(\]\))/g,
+      (call, open, literal, close) => {
+        let flight;
+        try {
+          flight = JSON.parse(literal);
+        } catch {
+          /* Not a literal this understands. Left exactly as it was: a payload
+             that fails to parse here would also fail in the browser, and
+             guessing at it would turn a translation gap into a blank page. */
+          return call;
+        }
 
-       The lookbehind and lookahead are what make this correct, and leaving
-       them out is a bug that hides. `\\"` is both the opening and the closing
-       delimiter, so a bare /\\"([^"\\]+)\\"/ has no way to tell one from the
-       other: given
+        const translatedFlight = flight.replace(
+          /"(?:[^"\\]|\\[\s\S])*"/g,
+          (jsonString) => {
+            let text;
+            try {
+              text = JSON.parse(jsonString);
+            } catch {
+              return jsonString;
+            }
+            const translated = lookup.get(text);
+            if (!translated) return jsonString;
+            hits += 1;
+            /* JSON.stringify leaves < > & raw, and this JSON is going back
+               inside a <script>: a translation containing "</script" would end
+               the tag early and break the page. The \\uXXXX forms are still
+               valid JSON, so the browser reads the same characters. */
+            return escapeForPayload(JSON.stringify(translated));
+          },
+        );
 
-         \"$1\",\"Company Overview\",{\"children\"
-
-       it pairs the quote that CLOSES "$1" with the one that OPENS the next
-       string and captures `,` — then every pairing after it is off by one, so
-       the values are never seen. It still appeared to work, because the
-       occasional string whose alignment happened to come out right did get
-       replaced.
-
-       Anchoring on the JSON structure around the quotes removes the ambiguity:
-       a value is preceded by one of [ { , : and followed by one of ] } , :.
-       Punctuation between two strings is not. */
-    const next = body.replace(/(?<=[[{,:])\\"([^"\\]+)\\"(?=[\]},:])/g, (match, text) => {
-      const translated = lookup.get(text);
-      if (!translated) return match;
-      if (/["\\]/.test(translated)) {
-        skipped += 1;
-        return match;
-      }
-      hits += 1;
-      return '\\"' + translated + '\\"';
-    });
+        if (translatedFlight === flight) return call;
+        return open + JSON.stringify(translatedFlight) + close;
+      },
+    );
 
     return next === body ? whole : whole.replace(body, next);
   });

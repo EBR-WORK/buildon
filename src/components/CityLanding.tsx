@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import About from "@/components/About";
 import Clients from "@/components/Clients";
+import { publishedTestimonials } from "@/lib/cms/published";
 import ContactDetails from "@/components/ContactDetails";
 import Hero from "@/components/Hero";
 import Products from "@/components/Products";
@@ -10,7 +11,7 @@ import SiteHeader from "@/components/SiteHeader";
 import Testimonials from "@/components/Testimonials";
 import WhyUs from "@/components/WhyUs";
 import { getCityPage } from "@/lib/cityPages";
-import { site } from "@/lib/content";
+import { site, products } from "@/lib/content";
 
 /**
  * One city landing page: the home page with the city's name in three headings
@@ -58,13 +59,21 @@ export default function CityLanding({ slug }: { slug: string }) {
       <main id="main">
         <Hero />
         <WhyUs city={city} />
-        <Products city={city} />
+        <Products
+          copy={products}
+          title={`Get Introduced To The Best gypsum plaster in ${city}`}
+          /* Only the first line changes; the second is the national one. */
+          intro={[
+            `Being ${city}’s largest and leading manufacturer & importer of`,
+            products.intro[1],
+          ]}
+        />
         {/* No ContactForm: the reference drops it from these pages, running
             the product grid straight into About. */}
         <About />
         <Clients city={city} />
         <Projects />
-        <Testimonials />
+        <Testimonials copy={publishedTestimonials} />
         <ContactDetails />
       </main>
       <SiteFooter />

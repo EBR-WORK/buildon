@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { counters } from "@/lib/content";
 import Reveal from "./Reveal";
 
 /**
@@ -99,7 +98,38 @@ function Counter({ value, suffix, label }: { value: number; suffix: string; labe
   );
 }
 
-export default function Counters() {
+/** One figure. Shape mirrors `counters.items` in content.ts. */
+export type CounterItem = {
+  readonly id: string;
+  readonly value: number;
+  readonly suffix: string;
+  readonly label: string;
+};
+
+/**
+ * The text arrives as props rather than being imported here, and that is the
+ * whole point of this signature.
+ *
+ * This is a client component. Anything it imports is compiled into the
+ * JavaScript the browser downloads — and that bundle is shared by /, /mr and
+ * /hi alike, so English baked into it cannot be translated for one language
+ * without breaking the other two. When this file imported `counters` directly,
+ * the page arrived correctly in Hindi and React then redrew this section in
+ * English a moment later, from its own copy.
+ *
+ * Props come through React's hydration payload instead, which is per-page and
+ * therefore translatable. The server reads content.ts; the browser never sees
+ * it.
+ */
+export default function Counters({
+  title,
+  intro,
+  items,
+}: {
+  title: string;
+  intro: string;
+  items: readonly CounterItem[];
+}) {
   return (
     /* Brand blue, between two white bands: the figures are the one thing on
        this page that should stop the scroll, and a white band between two
@@ -108,15 +138,15 @@ export default function Counters() {
       <div className="container-page">
         <Reveal className="text-center">
           <h2 className="font-display text-2xl leading-snug font-semibold text-white sm:text-3xl">
-            {counters.title}
+            {title}
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-[15px] leading-relaxed text-white/70">
-            {counters.intro}
+            {intro}
           </p>
         </Reveal>
 
         <ul className="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 sm:mt-12 lg:grid-cols-4">
-          {counters.items.map((item, i) => (
+          {items.map((item, i) => (
             <Reveal as="li" key={item.id} delay={Math.min(i, 3) * 0.08}>
               <Counter value={item.value} suffix={item.suffix} label={item.label} />
             </Reveal>
