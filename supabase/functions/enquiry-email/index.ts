@@ -1,10 +1,23 @@
 /**
- * Email an enquiry to the office, the moment its row is written.
+ * What happens the moment a submission's row is written.
  *
- * Called by a database webhook on insert into public.enquiries — so the
- * trigger is the row, not the form. That matters: the enquiry is already
- * stored before this runs, so a mail failure loses a notification, never a
- * lead. The row is still in the panel either way.
+ *   an enquiry      -> forwarded to Odoo, where it becomes a CRM lead
+ *   an application  -> emailed to the office, if MAIL_TO is set
+ *
+ * Both used to be emailed. Enquiries are not any more: they already appear on
+ * the Leads screen in the admin panel and in the sales team's own CRM, and a
+ * third copy in an inbox is one more place to miss one.
+ *
+ * Applications are emailed only while MAIL_TO holds an address. Unset that
+ * secret and they are silent — which means the Applications screen in the
+ * panel is the ONLY place a CV will ever appear, and nobody is told it
+ * arrived. That is a deliberate choice, not an oversight; set MAIL_TO again to
+ * undo it.
+ *
+ * Called by a database webhook on insert — so the trigger is the row, not the
+ * form. That matters: the submission is already stored before this runs, so a
+ * failure here loses a notification, never a lead. The row is in the panel
+ * either way.
  *
  * Why this exists rather than Netlify Forms: Netlify Forms only works while
  * the site is on Netlify. This works wherever the site is hosted, because the
@@ -54,6 +67,67 @@ type Enquiry = {
 };
 
 const env = (key: string) => Deno.env.get(key) ?? "";
+
+/**
+ * Hand the enquiry to Odoo as well, so it appears in the sales team's CRM.
+ *
+ * Called from the server and never from the browser. The URL is a credential:
+ * anyone holding it can create records in the CRM, so a page that contained it
+ * would be an open door for whoever reads the source — which is everyone.
+ *
+ * Deliberately cannot fail the function. The enquiry is already in the
+ * database and the office has already been emailed by the time this runs, so
+ * an Odoo outage must not turn into a retry that emails the office twice. A
+ * push that fails is logged and the lead is still in the panel, where it can
+ * be sent again by hand.
+ *
+ * Only enquiries go. A job application is recruitment, not a sales lead, and
+ * putting applicants in the CRM pipeline would corrupt the sales figures.
+ */
+async function pushToOdoo(row: Enquiry) {
+  const url = env("ODOO_WEBHOOK_URL");
+  if (!url) return; /* Not configured — forwarding is optional. */
+
+  /* Flat, with names that read the same in Odoo's automation rule as they do
+     here. The rule maps these onto crm.lead; keeping the shape obvious is what
+     makes that mapping something a person can check. */
+  const payload = {
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    message: row.message,
+    company: row.company ?? "",
+    enquiry_type: row.enquiry_type ?? "",
+    product: row.product ?? "",
+    /* Where it came from, so website leads can be told from phone calls. */
+    source: row.source ?? "website",
+    page: row.page ?? "",
+    /* Ours, so a duplicate push can be recognised rather than guessed at. */
+    reference: `buildon-enquiry-${row.id}`,
+    submitted_at: row.created_at,
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      /* Odoo Online can be slow to wake. Long enough to be fair, short enough
+         that this never holds the function open. */
+      signal: AbortSignal.timeout(15_000),
+    });
+
+    if (!response.ok) {
+      console.error(
+        `odoo push failed for enquiry ${row.id}: ${response.status} ${(await response.text()).slice(0, 200)}`,
+      );
+      return;
+    }
+    console.log(`odoo push ok for enquiry ${row.id}`);
+  } catch (error) {
+    console.error(`odoo push failed for enquiry ${row.id}:`, error);
+  }
+}
 
 /**
  * How long the CV link in the email keeps working.
@@ -273,6 +347,40 @@ Deno.serve(async (request) => {
     return new Response("Bad request", { status: 400 });
   }
 
+  /* An enquiry is no longer emailed to the office.
+
+     It lands in two places a person already looks: the Leads screen in the
+     admin panel, and the sales team's own CRM in Odoo. A third copy in an
+     inbox is one more place to miss it and one more thing to keep in sync, so
+     it was asked for and removed rather than left on "just in case".
+
+     Job applications still send, because they have nowhere else to go —
+     applicants are deliberately kept OUT of the sales pipeline, so for those
+     the mail is the only notification HR gets. */
+  if (!isApplication) {
+    await pushToOdoo(record as Enquiry);
+    /* 200 even if Odoo refused it. The enquiry is already stored, and a 500
+       here would make Supabase retry — which, now that nothing dedupes on the
+       Odoo side, would put the same lead in the pipeline twice. A failed push
+       is in the log above and the lead is still in the panel. */
+    return new Response("Forwarded", { status: 200 });
+  }
+
+  /* MAIL_TO is the off switch for application emails.
+
+     Unset the secret and nothing is sent; set it again and sending resumes, no
+     deploy either way. The mail code below is kept rather than deleted for
+     that reason — "stop emailing HR" is a decision someone may reverse the
+     first time a CV is missed, and a secret is a cheaper way back than a code
+     change.
+
+     With it unset, an application exists ONLY on the Applications screen in
+     the admin panel. Nothing else will tell anyone it arrived. */
+  if (!env("MAIL_TO")) {
+    console.log(`mail disabled (no MAIL_TO) — application ${record.id} is in the panel only`);
+    return new Response("Stored", { status: 200 });
+  }
+
   let composed;
   try {
     composed = isApplication
@@ -338,5 +446,7 @@ Deno.serve(async (request) => {
     return new Response(`Send failed: ${error}`, { status: 500 });
   }
 
+  /* Only applications reach here. An enquiry returned earlier, forwarded
+     to Odoo and deliberately not emailed. */
   return new Response("Sent", { status: 200 });
 });
