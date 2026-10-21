@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { quote } from "@/lib/content";
+/* Type only. The words arrive as props, because a client component's
+   imports are compiled into the shared JS bundle — one copy for /, /mr
+   and /hi alike — so English baked in there cannot become Hindi on the
+   Hindi page. The server HTML said "कोटेशन पाएं" and the bundle said
+   "Get a Quote", which is the text mismatch React reported as #418. */
+import type { quote as QuoteContent } from "@/lib/content";
 import EnquiryDialog from "./EnquiryDialog";
 import EnquiryForm from "./EnquiryForm";
 import { PhoneIcon } from "./icons";
@@ -38,9 +43,12 @@ export default function QuotePanel({
    * is the one the visitor just opened.
    */
   tabHidden = false,
+  copy,
 }: {
   tabHidden?: boolean;
+  copy: typeof QuoteContent;
 }) {
+  const quote = copy;
   /**
    * Closed, or open as one of two different dialogs.
    *

@@ -55,6 +55,8 @@ export const en = {
     language: "Language",
     searchPlaceholder: "Search",
     backToTop: "Back to top",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
   },
   /* The chat widget's own controls.
      
@@ -122,6 +124,8 @@ export const mr: DeepPartial<Dictionary> = {
     language: "भाषा",
     searchPlaceholder: "शोधा",
     backToTop: "वर जा",
+    openMenu: "मेनू उघडा",
+    closeMenu: "मेनू बंद करा",
   },
   chat: {
     closeChat: "चॅट बंद करा",
@@ -168,6 +172,8 @@ export const hi: DeepPartial<Dictionary> = {
     language: "भाषा",
     searchPlaceholder: "खोजें",
     backToTop: "ऊपर जाएँ",
+    openMenu: "मेनू खोलें",
+    closeMenu: "मेनू बंद करें",
   },
   chat: {
     closeChat: "चैट बंद करें",

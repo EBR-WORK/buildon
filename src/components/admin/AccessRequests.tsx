@@ -99,24 +99,27 @@ export default function AccessRequests({ onApproved }: { onApproved: () => void 
       setRows((all) => all.map((r) => (r.id === row.id ? { ...r, status: "approved" } : r)));
       onApproved();
 
-      /* The account is made with a password nobody is meant to use: it exists
-         because an account must have one, and it is replaced by the link below
-         before anyone signs in. Sending someone their own password to type is
-         a password that lives in a chat thread afterwards. */
-      /* An account that already existed keeps the password it had, so there
-         is none to fall back to — the link is the only route in either way. */
+      /* create-admin invites a brand-new address itself, and that invite IS
+         the set-password link. Sending a reset on top would deliver a second,
+         contradictory email. Only an address that already had a login needs
+         one from here, because an invite cannot be sent to an existing
+         account. */
       let emailed = true;
       let limited = false;
-      try {
-        await requestPasswordReset(row.email);
-      } catch (e) {
-        emailed = false;
-        limited = e instanceof EmailRateLimited;
+      if (!made?.invited) {
+        try {
+          await requestPasswordReset(row.email);
+        } catch (e) {
+          emailed = false;
+          limited = e instanceof EmailRateLimited;
+        }
       }
 
       notify(
         emailed
-          ? `${row.email} can set their password`
+          ? made.existing
+            ? `${row.email} already had a login`
+            : `${row.email} can set their password`
           : limited
             ? `${row.email} has access — the email is rate-limited`
             : `Account created for ${row.email}`,

@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import type { quote as QuoteContent } from "@/lib/content";
 import { useState } from "react";
 import BackToTop from "./BackToTop";
 import ChatWidget from "./ChatWidget";
@@ -19,7 +20,13 @@ import QuotePanel from "./QuotePanel";
  * only the chat's business: the panel fills the bottom-right corner, which is
  * also where back-to-top lives, and that button has to get out of the way.
  */
-export default function SiteChrome() {
+export default function SiteChrome({
+  /* Passed through to QuotePanel. SiteChrome is a client component too, so
+     importing the words here would put them in the bundle just the same. */
+  quote,
+}: {
+  quote: typeof QuoteContent;
+}) {
   const pathname = usePathname();
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -28,7 +35,7 @@ export default function SiteChrome() {
   return (
     <>
       <BackToTop hidden={chatOpen} />
-      <QuotePanel tabHidden={chatOpen} />
+      <QuotePanel tabHidden={chatOpen} copy={quote} />
       <ChatWidget onOpenChange={setChatOpen} />
     </>
   );

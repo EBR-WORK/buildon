@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { newsletter, site } from "@/lib/content";
+/* `site` holds an address and a name, which are not translated and are the
+   same in every language. The newsletter COPY is translated, so it arrives
+   as props: a client component's imports are compiled into the shared JS
+   bundle, where English cannot be made Hindi for one page and not another. */
+import { site } from "@/lib/content";
+import type { newsletter as NewsletterContent } from "@/lib/content";
 import { ArrowIcon, MailIcon } from "./icons";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -13,7 +18,12 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * No mailing-list backend is wired up yet, so a valid address opens a
  * pre-filled subscribe mail. Swap the handler for a POST when one exists.
  */
-export default function NewsletterForm() {
+export default function NewsletterForm({
+  copy,
+}: {
+  copy: Pick<typeof NewsletterContent, "placeholder" | "submit">;
+}) {
+  const newsletter = copy;
   const [error, setError] = useState("");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {

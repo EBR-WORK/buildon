@@ -60,7 +60,17 @@ export default function TeamEditor() {
      own password. The password is only carried here for when that mail could
      not be sent, which is the one time anybody should be reading one out. */
   const [created, setCreated] = useState<
-    { email: string; password: string; emailed: boolean; limited: boolean } | null
+    {
+      email: string;
+      password: string;
+      emailed: boolean;
+      limited: boolean;
+      /* True when the address already had a login. A different thing
+         happened, so the screen has to say a different thing: no account was
+         made, and the password they already use still works. */
+      existing: boolean;
+      role: AdminRole;
+    } | null
   >(null);
   /* Set when the Edge Function is missing, so the screen can explain rather
      than repeat a failure the super admin cannot act on. */
@@ -172,21 +182,30 @@ export default function TeamEditor() {
     try {
       const result = await createAdmin(email, newRole);
 
-      /* The account is created with a password nobody is meant to use, then
-         replaced by whatever they choose from the link. A password a super
-         admin reads out is one that lives in a chat thread afterwards. */
-      /* An account that already existed keeps the password it had, so there
-         is none to fall back to — the link is the only route in either way. */
+      /* create-admin invites a brand-new address itself, and that invite IS
+         the set-password link. Sending a reset on top would deliver a second,
+         contradictory email. Only an address that already had a login needs
+         one from here, because an invite cannot be sent to an existing
+         account. */
       let emailed = true;
       let limited = false;
-      try {
-        await requestPasswordReset(result.email);
-      } catch (e) {
-        emailed = false;
-        limited = e instanceof EmailRateLimited;
+      if (!result.invited) {
+        try {
+          await requestPasswordReset(result.email);
+        } catch (e) {
+          emailed = false;
+          limited = e instanceof EmailRateLimited;
+        }
       }
 
-      setCreated({ email: result.email, password: result.password, emailed, limited });
+      setCreated({
+        email: result.email,
+        password: result.password,
+        emailed,
+        limited,
+        existing: Boolean(result.existing),
+        role: result.role,
+      });
       setNewEmail("");
       setNewRole("content_editor");
       setNeedsFunction(false);
@@ -351,8 +370,42 @@ export default function TeamEditor() {
           </form>
 
           {created && (
-            <div className="mt-5 rounded-2xl border border-brand-200 bg-brand-50 p-5">
-              {created.emailed ? (
+            <div
+              className={`mt-5 rounded-2xl border p-5 ${
+                created.existing
+                  ? "border-signal-200 bg-signal-50"
+                  : "border-brand-200 bg-brand-50"
+              }`}
+            >
+              {/* An address that already had a login is not a failure, and not
+                  the same success either. Saying "account created" would be a
+                  lie, and saying "could not create" would send a super admin
+                  looking for a problem that is not there — the person now has
+                  the role they were given. So it is its own message, in its own
+                  colour, stating exactly what changed and what did not. */}
+              {created.existing ? (
+                <>
+                  <p className="text-[15px] font-semibold text-ink-900">
+                    {created.email} already had a login — no new account was made.
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-500">
+                    Their role is now <strong>{describeRole(created.role)}</strong>.
+                    The password they already use still works
+                    {created.emailed
+                      ? ", and a link to choose a new one has been sent."
+                      : created.limited
+                        ? ". A reset link could not be sent — Supabase is rate-limiting auth emails. They can ask for one from the sign-in screen."
+                        : ". No reset link was sent; they can ask for one from the sign-in screen."}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setCreated(null)}
+                    className="mt-4 cursor-pointer rounded-full border border-line bg-white px-4 py-1.5 text-sm font-medium text-ink-900 transition hover:bg-surface"
+                  >
+                    Done
+                  </button>
+                </>
+              ) : created.emailed ? (
                 <>
                   <p className="text-[15px] font-semibold text-ink-900">
                     {created.email} has been emailed a link to set their password.

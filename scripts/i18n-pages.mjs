@@ -19,7 +19,7 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { alternates, apply, collect, setLang } from "./lib/html-text.mjs";
+import { alternates, apply, collect, setLang, translateFlight } from "./lib/html-text.mjs";
 import { hashOf, LOCALE_NAMES, readProvider, translateBatch } from "./lib/translate.mjs";
 
 const OUT = "out";
@@ -405,6 +405,45 @@ if (!applyOnly && todo.length > 0) {
 const localeFile = (page, locale) =>
   page === "index.html" ? `${locale}.html` : join(locale, page);
 
+/**
+ * Every React navigation payload belonging to a locale.
+ *
+ * Next writes these as .txt files beside the routes: out/hi.txt for the home
+ * page, out/hi/about-us.txt and the __next._*.txt variants beneath it. They
+ * are what a clicked link fetches, so a locale whose .html is translated and
+ * whose .txt is not reads correctly until the visitor goes anywhere.
+ */
+function flightFilesFor(locale) {
+  const found = [];
+
+  /* The home page's, which sits beside the directory rather than in it — the
+     same quirk that localeFile exists for. */
+  const home = join(OUT, `${locale}.txt`);
+  if (existsSync(home)) found.push(home);
+
+  const walk = (dir) => {
+    if (!existsSync(dir)) return;
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (entry.endsWith(".txt")) found.push(full);
+    }
+  };
+  walk(join(OUT, locale));
+
+  /* A page left out of SKIP must be left out here too.
+
+     These are the payloads a CLICKED link fetches. Translating one whose .html
+     was deliberately skipped would hand the browser Hindi for a page whose
+     markup is English — the same mismatch the skip exists to avoid, arriving
+     by a different road. */
+  return found.filter((file) => {
+    const page = relative(join(OUT, locale), file).split(sep).join("/");
+    const asEnglish = page === `../${locale}.txt` ? "index.html" : page.replace(/\.txt$/, ".html");
+    return !SKIP.some((re) => re.test(asEnglish));
+  });
+}
+
 /* -------------------------------------------------------------- applying */
 
 for (const locale of LOCALES) {
@@ -434,10 +473,34 @@ for (const locale of LOCALES) {
     written += 1;
   }
 
+  /* And the navigation payloads.
+     
+     Next writes a .txt beside every route holding the React payload it fetches
+     when a link is clicked, instead of reloading the document. Translating
+     only the .html left those in English, so the pages were right on arrival
+     and reverted the moment anyone navigated — switch to Hindi and it worked;
+     click "About Us" and you were reading English again. Refreshing fixed it,
+     which is exactly what made it look like a caching problem.
+     
+     Same content, same lookup; only the wrapper differs. A .txt IS the flight
+     text, where in the HTML it arrives inside a JS string literal. */
+  let navFiles = 0;
+  let navHits = 0;
+
+  for (const file of flightFilesFor(locale)) {
+    const before = readFileSync(file, "utf8");
+    const result = translateFlight(before, lookup);
+    if (result.hits === 0) continue;
+    writeFileSync(file, result.flight, "utf8");
+    navFiles += 1;
+    navHits += result.hits;
+  }
+
   const share = hits + misses > 0 ? Math.round((hits / (hits + misses)) * 100) : 0;
   console.log(
     `   ${LOCALE_NAMES[locale].padEnd(8)} ${written} pages, ${hits.toLocaleString()} strings replaced (${share}%)` +
-      (absent ? `, ${absent} page(s) have no ${locale} copy` : ""),
+      (absent ? `, ${absent} page(s) have no ${locale} copy` : "") +
+      `, ${navHits.toLocaleString()} in ${navFiles} navigation payloads`,
   );
 }
 

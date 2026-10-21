@@ -59,7 +59,7 @@ export default function SiteFooter() {
         <p className="mx-auto mt-2 max-w-xl text-[15px]">{newsletter.intro}</p>
 
         <div className="mt-7">
-          <NewsletterForm />
+          <NewsletterForm copy={{ placeholder: newsletter.placeholder, submit: newsletter.submit }} />
         </div>
       </div>
 

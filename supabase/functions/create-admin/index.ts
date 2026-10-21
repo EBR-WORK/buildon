@@ -18,7 +18,20 @@
 //
 // Or paste this into Dashboard -> Edge Functions -> Deploy a new function.
 
-import { createClient } from "jsr:@supabase/supabase-js@2";
+/* Pinned, not "@2".
+ *
+ * An unpinned range is resolved at DEPLOY time, so a function that has not
+ * been touched for weeks can come back with a different library than the one
+ * it was written against. That is what happened here: a redeploy picked up a
+ * newer v2 in which `auth.getUser(jwt)` no longer reads the token it is handed
+ * and throws "Auth session missing!" instead. Nothing in this file had
+ * changed, and the error pointed at the caller's sign-in rather than at the
+ * dependency.
+ *
+ * Same version as enquiry-email, so both functions move together and only when
+ * somebody decides to move them.
+ */
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.47.10";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -45,18 +58,65 @@ Deno.serve(async (request) => {
   if (request.method !== "POST") return json({ error: "Use POST." }, 405);
 
   const url = Deno.env.get("SUPABASE_URL")!;
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+  /* SUPABASE_SERVICE_ROLE_KEY is injected into every function. SECRET_KEY is
+     the name the newer key scheme uses, taken as a fallback so that disabling
+     the legacy keys does not silently leave this reading an empty string and
+     failing further down, where the message would say nothing about why. */
+  const serviceKey =
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEY") ?? "";
+
+  if (!serviceKey) {
+    /* Said plainly, because this is a deployment problem and no amount of
+       signing in again will change it. */
+    return json(
+      { error: "The function has no service key. Set SUPABASE_SERVICE_ROLE_KEY as a function secret." },
+      500,
+    );
+  }
 
   // --- who is asking -------------------------------------------------------
+  //
+  // These two used to return the same sentence, and that cost a round of
+  // guessing: "Not signed in." was shown both when the panel sent no token and
+  // when the token was sent but could not be verified. They are different
+  // faults with different fixes, so they say different things.
   const token = request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return json({ error: "Not signed in." }, 401);
+  if (!token) {
+    return json({ error: "No sign-in token reached the function." }, 401);
+  }
 
   const admin = createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: caller, error: callerError } = await admin.auth.getUser(token);
-  if (callerError || !caller.user) return json({ error: "Not signed in." }, 401);
+  /* The caller is identified by a SECOND client, one that carries their token
+     as a request header, rather than by handing the token to getUser().
+
+     getUser(jwt) is the call that broke: in newer releases it reads the
+     client's own stored session and ignores the argument, so on a server —
+     where there is no stored session — it throws "Auth session missing!"
+     whatever token you pass. Setting the Authorization header is how a server
+     has always been meant to act as a user, and it behaves the same across
+     versions.
+
+     Deliberately not the `admin` client: that one holds the service key and
+     must never be given a user's identity, or the role check below would be
+     asking the wrong question. */
+  const asCaller = createClient(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+
+  const { data: caller, error: callerError } = await asCaller.auth.getUser();
+  if (callerError || !caller.user) {
+    return json(
+      {
+        error: `Your sign-in could not be verified${callerError?.message ? `: ${callerError.message}` : "."}`,
+      },
+      401,
+    );
+  }
 
   // The role comes from the database, never from the request.
   const { data: profile } = await admin
@@ -78,7 +138,41 @@ Deno.serve(async (request) => {
   }
 
   const email = (body.email ?? "").trim().toLowerCase();
-  const role = body.role === "super_admin" ? "super_admin" : "admin";
+
+  /* Every role the panel offers, matching the CHECK on profiles.role.
+
+     This used to read:
+
+       const role = body.role === "super_admin" ? "super_admin" : "admin";
+
+     written when there were two roles and never revisited when 0009 added
+     six. It silently turned every other choice into "admin": picking "Content
+     editor" or "Marketing" in the panel created somebody with full admin
+     rights, the panel reported the role it had asked for, and the Team screen
+     showed what the database held — so the only place the truth appeared was
+     the row itself.
+
+     Rejected rather than defaulted, now. A role this does not recognise is a
+     panel and a function that disagree, and quietly picking one of them is how
+     the bug above lasted this long. */
+  const ROLES = [
+    "super_admin",
+    "content_editor",
+    "hr",
+    "marketing",
+    "sales",
+    "presales",
+    /* The original role, kept because existing rows still carry it. */
+    "admin",
+  ];
+
+  const role = body.role ?? "";
+  if (!ROLES.includes(role)) {
+    return json(
+      { error: `Unknown role "${role}". Expected one of: ${ROLES.join(", ")}.` },
+      400,
+    );
+  }
 
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return json({ error: "That is not a valid email address." }, 400);
@@ -96,6 +190,19 @@ Deno.serve(async (request) => {
   // email_confirm skips the confirmation mail. A project without SMTP cannot
   // deliver one, and an unconfirmed account simply cannot sign in — which
   // looks to the new admin like a wrong password rather than a missing email.
+  //
+  // This was briefly inviteUserByEmail, so that Supabase would send its
+  // "Invite user" template instead of a password-reset letter. It is back,
+  // because the invite sets NO password: when the email failed to send — which
+  // on the built-in mail service it does readily, the free tier allows very
+  // few an hour — the account existed with no way into it at all. No password
+  // to hand over, no link delivered, and a super admin who could only try
+  // again and get the same.
+  //
+  // Creating with a password keeps a working fallback: if the mail does not
+  // arrive, the panel shows a password that can be read out. The wording of
+  // the letter is fixed in the template instead, where getting it wrong cannot
+  // lock anybody out.
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
     password,
@@ -167,5 +274,9 @@ Deno.serve(async (request) => {
 
   /* `existing` tells the panel not to offer a password: the account already
      had one, and this call did not change it. */
-  return json({ email, role, password, generated, existing });
+  /* `invited` stays false: this function no longer sends any mail, so the
+     panel is the one that does. Kept in the response rather than removed
+     because the panel reads it, and a missing field would silently become
+     "not invited" anyway — better to say so on purpose. */
+  return json({ email, role, password, generated, existing, invited: false });
 });

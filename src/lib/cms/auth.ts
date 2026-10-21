@@ -185,6 +185,8 @@ export async function createAdmin(
   password: string;
   /** The login was already there; this gave it a role rather than making it. */
   existing?: boolean;
+  /** True when create-admin already sent the invite email itself. */
+  invited?: boolean;
 }> {
   if (!supabase) throw new Error("The database is not configured.");
 
@@ -220,7 +222,13 @@ export async function createAdmin(
     throw new Error(payload.error ?? `The account could not be created (${response.status}).`);
   }
 
-  return payload as { email: string; role: AdminRole; password: string; existing?: boolean };
+  return payload as {
+    email: string;
+    role: AdminRole;
+    password: string;
+    existing?: boolean;
+    invited?: boolean;
+  };
 }
 
 /**

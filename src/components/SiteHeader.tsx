@@ -160,7 +160,7 @@ export default function SiteHeader() {
               aria-controls="mobile-nav"
               className="inline-flex size-11 items-center justify-center rounded-md border border-line text-ink-700 lg:hidden"
             >
-              <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
+              <span className="sr-only">{open ? t.misc.closeMenu : t.misc.openMenu}</span>
               {open ? <CloseIcon className="size-6" /> : <MenuIcon className="size-6" />}
             </button>
           </div>
