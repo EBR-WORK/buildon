@@ -1,0 +1,63 @@
+# Apache rules, so this site also serves correctly from cPanel or any other
+# Apache host. Netlify ignores this file; it costs nothing to ship.
+#
+# WHY IT IS NEEDED
+#
+# A Next static export writes a route as a FILE, not a folder:
+#
+#   /about-us   ->  about-us.html          not  about-us/index.html
+#   /mr         ->  mr.html                and  mr/ exists beside it
+#
+# Netlify tries the .html sibling on its own. Apache does not, so without
+# these rules every page on the site except the home page returns 404 — and it
+# would look like the upload failed rather than like a server setting.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # A trailing slash first, so /about-us/ and /about-us are the same page.
+  # Done as a redirect rather than a rewrite so there is one canonical URL
+  # rather than two that serve identical content.
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+  # Then the .html sibling, which is the rule that makes the site work.
+  # Skipped when the request already names a real file or directory, so
+  # /_next/... assets and the locale folders are served directly.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.*)$ /$1.html [L]
+</IfModule>
+
+# Next's own error page, so a wrong URL looks like the site rather than like
+# Apache.
+ErrorDocument 404 /404.html
+
+<IfModule mod_mime.c>
+  AddType application/json .json
+  AddType font/woff2 .woff2
+  # The React navigation payloads. Served as plain text; without this some
+  # Apache builds send them as application/octet-stream and the browser
+  # downloads them instead of the router reading them.
+  AddType text/plain .txt
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Hashed asset filenames change whenever their contents change, so they can
+  # be cached hard and for a long time.
+  <FilesMatch "\.(js|css|woff2|png|jpe?g|webp|avif|svg|mp4)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # HTML must not be. A page cached for a year is a page that never shows the
+  # admin's edit, and the whole publishing flow depends on a rebuild being
+  # visible.
+  <FilesMatch "\.(html|txt)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript application/json image/svg+xml
+</IfModule>

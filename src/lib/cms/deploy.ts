@@ -18,8 +18,21 @@ import { supabase } from "./supabase";
 
 export const BUILD_HOOK_KEY = "netlify_build_hook";
 
-/** Netlify's own shape, so a pasted URL that cannot work is refused early. */
-export const BUILD_HOOK_PATTERN = /^https:\/\/api\.netlify\.com\/build_hooks\/[A-Za-z0-9]+$/;
+/**
+ * Any host's build hook, not just Netlify's.
+ *
+ * This used to demand `https://api.netlify.com/build_hooks/…` exactly, which
+ * meant the site could not be moved without a code change — the panel would
+ * refuse the new host's URL and Publish would simply stop working. Nothing
+ * else here is Netlify-specific: the site is a folder of HTML files, and every
+ * host that builds from a repository offers the same thing under its own name
+ * (Deploy Hook, Build Hook, Build Trigger).
+ *
+ * So the rule is only what has to be true: an https URL. http is refused
+ * because the hook is a credential — anyone who sees it can trigger builds —
+ * and sending it in clear is how it stops being secret.
+ */
+export const BUILD_HOOK_PATTERN = /^https:\/\/[^\s]+$/;
 
 /** The hook, or null when none is set or the account may not read it. */
 export async function getBuildHook(): Promise<string | null> {
@@ -45,7 +58,7 @@ export async function setBuildHook(url: string) {
   const trimmed = url.trim();
   if (trimmed && !BUILD_HOOK_PATTERN.test(trimmed)) {
     throw new Error(
-      "That is not a Netlify build hook. It looks like https://api.netlify.com/build_hooks/… — copy it from Site configuration → Build & deploy → Build hooks.",
+      "That is not a build hook URL. It must start with https:// — on Netlify copy it from Site configuration → Build & deploy → Build hooks; other hosts call it a Deploy Hook or Build Trigger.",
     );
   }
 

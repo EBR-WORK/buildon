@@ -58,11 +58,12 @@ export default function PublishSetting() {
         keeps showing the last build until a new one runs — that is what Publish starts.
       </p>
       <p className="mt-3 text-[15px] leading-relaxed text-ink-500">
-        Paste the build hook from Netlify:{" "}
+        Paste the build hook from wherever the site is hosted. On Netlify:{" "}
         <strong className="font-semibold text-ink-900">
           Site configuration → Build &amp; deploy → Build hooks → Add build hook
         </strong>
-        . Leave it empty to hide the Publish button.
+        . Other hosts call it a Deploy Hook or Build Trigger. Leave it empty to
+        hide the Publish button.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -72,7 +73,7 @@ export default function PublishSetting() {
           disabled={!loaded}
           onChange={(event) => setValue(event.target.value)}
           placeholder="https://api.netlify.com/build_hooks/…"
-          aria-label="Netlify build hook"
+          aria-label="Build hook URL"
           className="min-w-0 flex-1 rounded-xl border border-line bg-white px-4 py-2.5 text-[15px] outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 disabled:opacity-60"
         />
         <button
