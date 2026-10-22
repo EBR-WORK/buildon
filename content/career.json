@@ -84,11 +84,555 @@
     },
     {
       "id": "5439a392-6ffb-4f2f-9bdf-5d628f6ceeb9",
-      "body": [],
+      "body": [
+        {
+          "id": "51b0a263-507d-4b9d-bc3d-34bcba4dd61e",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "India’s impact on the global economy has increased at an exponential rate and Deloitte presents an opportunity to unleash and realise your potential amongst cutting edge leaders, and organisations shaping the future of the region, and indeed, the world beyond."
+            }
+          ]
+        },
+        {
+          "id": "2fab783a-2b85-48fb-b3ff-46eaa4d8dba2",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "At Deloitte, your whole self to work, every day. Combine that with our drive to propel with purpose and you have the perfect playground to collaborate, innovate, grow, and make an impact that matters."
+            }
+          ]
+        },
+        {
+          "id": "ac331382-41ad-448b-96eb-ca8993fe3f97",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "The team"
+            }
+          ]
+        },
+        {
+          "id": "422b96a9-9061-4f75-8a41-48c24a4dc5af",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "The Digital Excellence Centre is responsible for building products and platforms for Deloitte India that focuses on providing extraordinary customer experience by putting design thinking with trailblazing technology in the center of what they do. The diverse team consists of subject matter experts, technology specialists, quality engineers, user experience researchers & designers, data scientists and product managers."
+            }
+          ]
+        },
+        {
+          "id": "cac3609b-8ace-491e-966d-1cbec72a31cc",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Your work profile"
+            }
+          ]
+        },
+        {
+          "id": "e4805e06-6337-40ff-b20a-6f6a72753b2b",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "As an "
+            },
+            {
+              "bold": true,
+              "text": "Executive/Senior Executive"
+            },
+            {
+              "text": " in our "
+            },
+            {
+              "bold": true,
+              "text": "Digital Excellence Center"
+            },
+            {
+              "text": " Team you’ll build and nurture positive working relationships with teams and clients with the intention to exceed client expectations: -"
+            }
+          ]
+        },
+        {
+          "id": "b9229951-0633-489d-9f22-6777282b0922",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "The ideal candidate will be part of the Digital excellence team in Deloitte, which builds Assets for various stakeholders."
+            }
+          ]
+        },
+        {
+          "id": "1eaf9303-cc6f-497e-8131-aa597a23923f",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Responsibilities:"
+            }
+          ]
+        },
+        {
+          "id": "28fade36-b580-4e1f-b36c-7805b7cb7226",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Front-End Development:"
+              }
+            ],
+            [
+              {
+                "text": "Develop and maintain responsive and interactive user interfaces using JavaScript frameworks (React, Angular, or Vue.js)."
+              }
+            ],
+            [
+              {
+                "text": "Write clean, efficient, and reusable code."
+              }
+            ],
+            [
+              {
+                "text": "Implement UI/UX design mockups into functional web pages."
+              }
+            ],
+            [
+              {
+                "text": "Back-End Development:"
+              }
+            ],
+            [
+              {
+                "text": "Develop and maintain server-side logic and integrate with front-end components."
+              }
+            ],
+            [
+              {
+                "text": "Write high-quality, maintainable, and scalable code using Node.js and related technologies."
+              }
+            ],
+            [
+              {
+                "text": "Design and implement RESTful APIs."
+              }
+            ],
+            [
+              {
+                "text": "Database Management:"
+              }
+            ],
+            [
+              {
+                "text": "Design and manage databases using SQL and NoSQL technologies."
+              }
+            ],
+            [
+              {
+                "text": "Optimize database queries for performance and scalability."
+              }
+            ],
+            [
+              {
+                "text": "Version Control:"
+              }
+            ],
+            [
+              {
+                "text": "Use Git for version control and collaborate with other developers."
+              }
+            ],
+            [
+              {
+                "text": "Participate in code reviews and provide constructive feedback."
+              }
+            ],
+            [
+              {
+                "text": "Testing and Debugging:"
+              }
+            ],
+            [
+              {
+                "text": "Write unit tests and integration tests to ensure code quality."
+              }
+            ],
+            [
+              {
+                "text": "Debug and troubleshoot issues in both front-end and back-end components."
+              }
+            ],
+            [
+              {
+                "text": "Continuous Integration/Continuous Deployment (CI/CD):"
+              }
+            ],
+            [
+              {
+                "text": "Implement CI/CD pipelines to automate testing and deployment processes."
+              }
+            ],
+            [
+              {
+                "text": "Ensure smooth and efficient deployment of applications."
+              }
+            ],
+            [
+              {
+                "text": "Collaboration:"
+              }
+            ],
+            [
+              {
+                "text": "Work closely with cross-functional teams, including designers, product managers, and back-end developers."
+              }
+            ],
+            [
+              {
+                "text": "Participate in team meetings and contribute to project planning and execution."
+              }
+            ]
+          ]
+        },
+        {
+          "id": "16d19009-730b-4ca4-a041-ac66718ec7a8",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Desired qualifications:"
+            }
+          ]
+        },
+        {
+          "id": "ae2338d4-fff6-4cf4-8a02-beefd750d79d",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Bachelor's degree in Computer Science, Software Engineering, or a related field."
+              }
+            ],
+            [
+              {
+                "text": "Advanced degree preferred but not required"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "15d1fbd6-0b9c-4b8c-905c-f120b0bceea7",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Location and way of working:"
+            }
+          ]
+        },
+        {
+          "id": "1a8383a9-c49c-46f1-8321-3cad13b46ed6",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Base location: Bangalore"
+              }
+            ],
+            [
+              {
+                "text": "This profile does not involve extensive travel for work."
+              }
+            ],
+            [
+              {
+                "text": "Hybrid is our default way of working. Each domain has customised the hybrid approach to their unique needs."
+              }
+            ]
+          ]
+        },
+        {
+          "id": "4388344f-2ebc-40b7-a2d8-daddba4185f5",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Your role as a Executive/Senior Executive"
+            }
+          ]
+        },
+        {
+          "id": "bf7c7550-f821-4b4c-b7fe-f88f193b9ef7",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "We expect our people to embrace and live our purpose by challenging themselves to identify issues that are most important for our clients, our people, and for society."
+            }
+          ]
+        },
+        {
+          "id": "71ca02bc-c71e-4b92-9c3a-749d9f530a79",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "In addition to living our purpose, AM across our organization must strive to be:"
+            }
+          ]
+        },
+        {
+          "id": "d6e6c60b-f8ed-44ee-9904-030ea0e0010b",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Inspiring - Leading with integrity to build inclusion and motivation"
+              }
+            ],
+            [
+              {
+                "text": "Committed to creating purpose - Creating a sense of vision and purpose"
+              }
+            ],
+            [
+              {
+                "text": "Agile - Achieving high-quality results through collaboration and Team unity"
+              }
+            ],
+            [
+              {
+                "text": "Skilled at building diverse capability - Developing diverse capabilities for the future"
+              }
+            ],
+            [
+              {
+                "text": "Persuasive / Influencing - Persuading and influencing stakeholders"
+              }
+            ],
+            [
+              {
+                "text": "Collaborating - Partnering to build new solutions"
+              }
+            ],
+            [
+              {
+                "text": "Delivering value - Showing commercial acumen"
+              }
+            ],
+            [
+              {
+                "text": "Committed to expanding business - Leveraging new business opportunities"
+              }
+            ],
+            [
+              {
+                "text": "Analytical Acumen - Leveraging data to recommend impactful approach and solutions through the power of analysis and visualization"
+              }
+            ],
+            [
+              {
+                "text": "Effective communication – Must be well abled to have well-structured and well-articulated conversations to achieve win-win possibilities"
+              }
+            ],
+            [
+              {
+                "text": "Engagement Management / Delivery Excellence - Effectively managing engagement(s) to ensure timely and proactive execution as well as course correction for the success of engagement(s)"
+              }
+            ],
+            [
+              {
+                "text": "Managing change - Responding to changing environment with resilience"
+              }
+            ],
+            [
+              {
+                "text": "Managing Quality & Risk - Delivering high quality results and mitigating risks with utmost integrity and precision"
+              }
+            ],
+            [
+              {
+                "text": "Strategic Thinking & Problem Solving - Applying strategic mindset to solve business issues and complex problems"
+              }
+            ],
+            [
+              {
+                "text": "Tech Savvy - Leveraging ethical technology practices to deliver high impact for clients and for Deloitte"
+              }
+            ],
+            [
+              {
+                "text": "Empathetic leadership and inclusivity - creating a safe and thriving environment where everyone's valued for who they are, use empathy to understand others to adapt our behaviours and attitudes to become more inclusive."
+              }
+            ]
+          ]
+        },
+        {
+          "id": "b87d4077-b596-4b09-8064-78a689bcc932",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "How you’ll grow"
+            }
+          ]
+        },
+        {
+          "id": "d9c660f4-9fc0-4eb8-abaa-d7b25aa16440",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Connect for impact"
+            }
+          ]
+        },
+        {
+          "id": "f3262598-ee11-45d6-9893-2d5e789e6741",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "Our exceptional team of professionals across the globe are solving some of the world’s most complex business problems, as well as directly supporting our communities, the planet, and each other. Know more in our "
+            },
+            {
+              "href": "https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Edeloitte%2Ecom%2Fglobal%2Fen%2Fabout%2Fgovernance%2Fglobal-impact-report%2Ehtml&urlhash=XpuG&mt=_28ESkrJbQaHx6XS1HvyvGfeF-70a4suRTxOufah8RnJwXO7sdlk4QudMF02SKvkzsG3-V4e8awT8WEIKheOpA-w7Kg&isSdui=true",
+              "text": "Global Impact Report"
+            },
+            {
+              "text": " and our "
+            },
+            {
+              "href": "https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww2%2Edeloitte%2Ecom%2Fin%2Fen%2Fpages%2Fabout-deloitte%2Farticles%2FIndia-impact-report-2022%2Ehtml&urlhash=9XZF&mt=e4bHC4D5eC_d0Onjy-Kul971Tb-8hnKbk9rkHfE_DYsioJbGcy0rTpHz5xtOeCurmZPjlVSTf5vUTvJM8Ss9GVY94LY&isSdui=true",
+              "text": "India Impact Report"
+            },
+            {
+              "text": "."
+            }
+          ]
+        },
+        {
+          "id": "b9398e32-8baa-418b-b05e-179f18a847cb",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Empower to lead"
+            }
+          ]
+        },
+        {
+          "id": "264de3d6-1638-4cc2-9fe9-26404dadad21",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "You can be a leader irrespective of your career level. Our colleagues are characterised by their ability to inspire, support, and provide opportunities for people to deliver their best and grow both as professionals and human beings. Know more about "
+            },
+            {
+              "href": "https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Edeloitte%2Ecom%2Fglobal%2Fen%2Fabout%2Fpeople%2Fsocial-responsibility%2Fdeloitte-one-young-world%2Ehtml&urlhash=iBmm&mt=iFgOly47rQthgtQwlFGC_ToVbosoIPdwzfzqoCxKSjdl481I6_Qe6cmZ2qdTq0mB9siUe8AWxbAWn8RHcQWzZdkY1xw&isSdui=true",
+              "text": "Deloitte and our One Young World partnership."
+            }
+          ]
+        },
+        {
+          "id": "46249aef-4779-441c-bc36-12934340f327",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Inclusion for all"
+            }
+          ]
+        },
+        {
+          "id": "ac54348f-6fd9-4a26-be3b-26028cf27d64",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "At Deloitte, people are valued and respected for who they are and are trusted to add value to their clients, teams and communities in a way that reflects their own unique capabilities. "
+            },
+            {
+              "href": "https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww2%2Edeloitte%2Ecom%2Fin%2Fen%2Fpages%2Fabout-deloitte%2Farticles%2Fdi-inclusion%2Ehtml&urlhash=YkHW&mt=xlaH6bAgAtn26-J8YUHXNd0NXnMtOBW0vMgrbu2BDstRhfXEcT_fdIm_Tq9B3o1CcdLwAso-RvrZedlWraB7_CQwD5I&isSdui=true",
+              "text": "Know more about everyday steps that you can take to be more inclusive."
+            },
+            {
+              "text": " At Deloitte, we believe in the unique skills, attitude and potential each and every one of us brings to the table to make an impact that matters."
+            }
+          ]
+        },
+        {
+          "id": "1a027348-0f16-43ea-a1f3-9e89ccabdc8a",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Drive your career"
+            }
+          ]
+        },
+        {
+          "id": "aa51e11f-9e4f-4a0a-a22d-2f53005efc31",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "At Deloitte, you are encouraged to take ownership of your career. We recognise there is no one size fits all career path, and global, cross-business mobility and up / re-skilling are all within the range of possibilities to shape a unique and fulfilling career. Know more about "
+            },
+            {
+              "href": "https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww2%2Edeloitte%2Ecom%2Fin%2Fen%2Fpages%2Fabout-deloitte%2Farticles%2FLife-at-Deloitte-2%2Ehtml%3Ficid%3Dtop_Life-at-Deloitte-2&urlhash=YeEa&mt=BVz7yjR9jeELDGbFOJc3KUwb-WGNynaQKK1bgRhJzhRFZHC-MqcQnMGUxKw15zI38heXmMs2WtROnBUV0RpG9g6slC4&isSdui=true",
+              "text": "Life at Deloitte."
+            }
+          ]
+        },
+        {
+          "id": "a0d3ff68-6dd5-490b-b44c-b9cf27919161",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Everyone’s welcome… entrust your happiness to us"
+            }
+          ]
+        },
+        {
+          "id": "a52380fc-2fbb-4b8d-b670-008a6ec9deac",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "Our workspaces and initiatives are geared towards your 360-degree happiness. This includes specific needs you may have in terms of accessibility, flexibility, safety and security, and caregiving. Here’s a glimpse of things that are in store for you."
+            }
+          ]
+        },
+        {
+          "id": "1cc7f370-83b1-4e47-9e54-2a753d8ce12a",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Requirements added by the job poster"
+            }
+          ]
+        },
+        {
+          "id": "7013596e-11a0-4709-9b6c-50f42a81f6b9",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "• 2+ years of work experience with Node.js"
+            }
+          ]
+        },
+        {
+          "id": "6e3f9ca0-c25c-4f72-9000-ee18cb0560b4",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "• 2+ years of work experience with React.js"
+            }
+          ]
+        }
+      ],
       "live": true,
-      "slug": "executive-officer",
+      "slug": "full-stack-developer-mumbai",
       "type": "2",
-      "title": "executive Officer",
+      "title": "Full stack Developer",
       "category": "Sales",
       "location": "Mumbai"
     }

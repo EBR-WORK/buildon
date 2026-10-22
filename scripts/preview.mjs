@@ -93,7 +93,7 @@ function resolveFile(pathname) {
   return null;
 }
 
-createServer((request, response) => {
+const server = createServer((request, response) => {
   const { pathname } = new URL(request.url, "http://localhost");
 
   /* No caching anywhere below: the whole point of this server is to see a
@@ -122,7 +122,37 @@ createServer((request, response) => {
 
   response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
   response.end("Not found");
-}).listen(PORT, () => {
+});
+
+/* A port already in use is the commonest way to run this wrong, not a crash.
+   
+   Node's default is an unhandled 'error' event, which prints fifteen lines of
+   net.js internals — true, and useless. The reason is almost always a preview
+   server still running in another terminal, and the fix is either to use that
+   one or to stop it. Saying so beats the stack trace. */
+server.on("error", (error) => {
+  if (error.code !== "EADDRINUSE") throw error;
+
+  console.error(`
+  Port ${PORT} is already in use.
+
+  A preview server is probably running in another terminal — open
+  http://localhost:${PORT}/ and see. If that is this site, just use it: it
+  reads out/ on every request, so a rebuild shows up without restarting.
+
+  To run on a different port instead:
+
+    $env:PORT=3002; npm run preview     (PowerShell)
+    PORT=3002 npm run preview           (bash)
+
+  To stop the one already running:
+
+    npx kill-port ${PORT}
+`);
+  process.exitCode = 1;
+});
+
+server.listen(PORT, () => {
   console.log(`
   Serving out/ exactly as Netlify will.
 
