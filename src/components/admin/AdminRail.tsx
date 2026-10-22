@@ -8,7 +8,6 @@ import { panelsFor } from "@/lib/cms/roles";
 import { site } from "@/lib/content";
 import { RESET_PATH } from "@/lib/cms/auth";
 import { useAdminMaybe } from "./AuthGate";
-import PublishButton from "./PublishButton";
 
 /**
  * The admin's navigation, and the way out of it.
@@ -52,10 +51,13 @@ export default function AdminRail() {
      saves, but these two controls must not drift apart. */
   const actions = (
     <>
-      {/* First, and the only filled control here: on a static site a save is
-          not a publish, and this is the half an editor would otherwise never
-          know about. */}
-      <PublishButton />
+      {/* The Publish button was here.
+          
+          It was removed because publishing is no longer something a person
+          does: a change to the content now triggers the rebuild by itself —
+          see supabase/migrations/0017_autopublish.sql. A button that says
+          "Publish" beside a site that publishes itself is a button people
+          press to find out whether it is needed. */}
 
       {/* A new tab: an editor checking how a change looks should not lose the
           form they are halfway through filling in. */}
