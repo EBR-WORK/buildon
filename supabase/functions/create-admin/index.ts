@@ -345,6 +345,39 @@ Deno.serve(async (request) => {
     userId = created!.user.id;
   }
 
+  /* An existing login with NO role is not somebody's working account.
+     
+     People can sign themselves up before a super admin approves them, so by
+     the time Approve is pressed the login often already exists — and it can do
+     nothing at all, because a role is what grants anything here.
+     
+     That case used to be treated as "their password is theirs, leave it", so
+     no credentials were sent and the panel fell back to a Supabase reset link
+     — which is capped at 30 an hour and is what produced the rate-limit
+     warning on approval. There is no password worth protecting on an account
+     that has never had access, so it is given the generated one and told
+     about it like any other new admin.
+     
+     An account that already HAS a role is left alone: that is a working
+     admin, and changing their password because somebody re-approved them
+     would lock them out of a session they are in the middle of. */
+  let adopted = false;
+  if (existing) {
+    const { data: priorProfile } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (!priorProfile) {
+      const { error: setError } = await admin.auth.admin.updateUserById(userId, { password });
+      if (setError) {
+        return json({ error: `Could not set a password: ${setError.message}` }, 500);
+      }
+      adopted = true;
+    }
+  }
+
   // Written directly rather than left to the sign-up trigger: that trigger only
   // fires for an invited address, and this account was made, not invited.
   const { error: profileError } = await admin
@@ -374,7 +407,10 @@ Deno.serve(async (request) => {
      An existing account keeps the password it already has — this call did not
      change it — so sending "your password is …" would be a lie and would lock
      nobody in or out. Those still get a reset link from the panel instead. */
-  const mail = existing
+  /* Sent for a brand-new account, and for an existing login that had no role
+     and has just been given the generated password above. Not sent to a
+     working admin, whose password was deliberately left untouched. */
+  const mail = existing && !adopted
     ? { ok: false, error: "" }
     : await emailCredentials(email, password, role);
   const emailed = mail.ok;
@@ -388,7 +424,11 @@ Deno.serve(async (request) => {
     role,
     password,
     generated,
-    existing,
+    /* `existing` now means "was a working admin already" — an unroled login
+       that was adopted reports as new, because from the panel's point of view
+       that is what happened: somebody who had no access now has it, with a
+       password they were just sent. */
+    existing: existing && !adopted,
     invited: emailed,
     emailed,
     /* Empty when nothing went wrong, or when there was nothing to send. */
