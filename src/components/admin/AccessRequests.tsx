@@ -104,7 +104,10 @@ export default function AccessRequests({ onApproved }: { onApproved: () => void 
          contradictory email. Only an address that already had a login needs
          one from here, because an invite cannot be sent to an existing
          account. */
-      let emailed = true;
+      /* create-admin emails the credentials itself for a new account; an
+         address that already had a login gets a reset link from here instead,
+         because its password was not changed. */
+      let emailed = Boolean(made?.emailed);
       let limited = false;
       if (!made?.invited) {
         try {
@@ -126,7 +129,7 @@ export default function AccessRequests({ onApproved }: { onApproved: () => void 
         emailed
           ? made.existing
             ? "That address already had a login; it now has this role, and they have been emailed a link to set a password."
-            : "They have been emailed a link to choose one. Nothing else to send them."
+            : "They have been emailed their username, password and role. Nothing else to send them."
           : /* Only when the mail did not go. Shown once and never again, because
                this is the only moment it exists anywhere readable. */
             limited

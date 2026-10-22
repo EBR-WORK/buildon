@@ -32,6 +32,11 @@
  * somebody decides to move them.
  */
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.47.10";
+/* Same mailer and the same Gmail credentials the enquiry function uses.
+   Supabase's own templates cannot carry a password — they send a link and
+   nothing else — so an email that states the credentials has to be sent
+   from here. */
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -47,10 +52,100 @@ const json = (body: unknown, status = 200) =>
 
 /** Readable, and strong enough to be the only thing guarding the panel.
     i/l/1/O/0 are left out: this gets read off a screen and retyped. */
+/** Shorthand, so a missing secret reads as "" rather than undefined. */
+const env = (key: string) => Deno.env.get(key) ?? "";
+
 function generatePassword() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
   const bytes = crypto.getRandomValues(new Uint8Array(24));
   return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
+}
+
+
+/**
+ * Email somebody the account that was just made for them.
+ *
+ * A PLAINTEXT PASSWORD, deliberately, and it is worth being clear about the
+ * trade: a set-password link is safer, because nothing reusable is ever
+ * written down. A password in an inbox stays there, and travels with every
+ * forward of that message.
+ *
+ * It is sent anyway because this is an internal panel for a small team, and a
+ * link that expires in an hour has repeatedly been the thing that stops a new
+ * person getting in at all. The mail says to change it, and they can.
+ *
+ * Returns whether it went. A failure is not fatal: the panel falls back to
+ * showing the password on screen for the super admin to pass on, which is the
+ * same place it was before any of this.
+ */
+async function emailCredentials(to: string, password: string, roleLabel: string) {
+  const user = env("GMAIL_USER");
+  const pass = env("GMAIL_APP_PASSWORD");
+  if (!user || !pass) {
+    return { ok: false, error: "GMAIL_USER or GMAIL_APP_PASSWORD is not set on the function." };
+  }
+
+  const lines = [
+    "You have been given access to the Buildon admin panel.",
+    "",
+    `  Sign in at:  ${env("SITE_URL") || "https://buildon.co.in"}/admin`,
+    `  Username:    ${to}`,
+    `  Password:    ${password}`,
+    `  Role:        ${roleLabel}`,
+    "",
+    "Please change this password after signing in: use Forgot password on",
+    "the sign-in screen and choose your own.",
+    "",
+    "If you were not expecting this, tell whoever manages the website.",
+  ].join("\n");
+
+  const client = new SMTPClient({
+    connection: {
+      hostname: "smtp.gmail.com",
+      port: 465,
+      tls: true,
+      auth: { username: user, password: pass },
+    },
+  });
+
+  try {
+    await client.send({
+      from: user,
+      to,
+      /* A copy to the sending mailbox, for two reasons.
+         
+         It is an audit trail — who was given access, when, with which role —
+         and it is the only way to tell "the mail was never sent" apart from
+         "the mail was sent and did not arrive". Without it a silent failure
+         and a spam folder look identical from here, and Edge Function logs
+         cannot be read from the CLI. */
+      bcc: user,
+      subject: "Your Buildon admin account",
+      /* One plain-text part, 7bit. The enquiry function learned this the hard
+         way: denomailer quoted-printable encodes its `content` field, and the
+         soft line breaks arrive in Gmail as a literal "=" at the end of every
+         line. */
+      mimeContent: [
+        {
+          mimeType: 'text/plain; charset="us-ascii"',
+          content: lines,
+          transferEncoding: "7bit",
+        },
+      ],
+    });
+    await client.close();
+    return { ok: true, error: "" };
+  } catch (error) {
+    /* Returned, not only logged.
+       
+       Edge Function logs are not reachable from the CLI, so a failure here was
+       invisible: the panel said the password had been emailed and nothing
+       arrived, with no way to find out why. The super admin is the only one
+       who sees this, and they are the person who can act on it. */
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("could not email the credentials:", message);
+    return { ok: false, error: message.slice(0, 300) };
+  }
 }
 
 Deno.serve(async (request) => {
@@ -274,9 +369,29 @@ Deno.serve(async (request) => {
 
   /* `existing` tells the panel not to offer a password: the account already
      had one, and this call did not change it. */
-  /* `invited` stays false: this function no longer sends any mail, so the
-     panel is the one that does. Kept in the response rather than removed
-     because the panel reads it, and a missing field would silently become
-     "not invited" anyway — better to say so on purpose. */
-  return json({ email, role, password, generated, existing, invited: false });
+  /* Email the credentials, unless the address already had a login.
+     
+     An existing account keeps the password it already has — this call did not
+     change it — so sending "your password is …" would be a lie and would lock
+     nobody in or out. Those still get a reset link from the panel instead. */
+  const mail = existing
+    ? { ok: false, error: "" }
+    : await emailCredentials(email, password, role);
+  const emailed = mail.ok;
+
+  /* `invited` tells the panel whether an email has ALREADY gone, so it does not
+     send a second one on top. `emailed` says which kind: credentials, not a
+     link. When the send failed, both are false and the panel falls back to
+     showing the password for the super admin to pass on by hand. */
+  return json({
+    email,
+    role,
+    password,
+    generated,
+    existing,
+    invited: emailed,
+    emailed,
+    /* Empty when nothing went wrong, or when there was nothing to send. */
+    mailError: mail.error,
+  });
 });

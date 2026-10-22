@@ -185,8 +185,11 @@ export async function createAdmin(
   password: string;
   /** The login was already there; this gave it a role rather than making it. */
   existing?: boolean;
-  /** True when create-admin already sent the invite email itself. */
+  /** True when create-admin already emailed the person — the panel must not
+      send a second message on top. */
   invited?: boolean;
+  /** True when that email carried the credentials rather than a reset link. */
+  emailed?: boolean;
 }> {
   if (!supabase) throw new Error("The database is not configured.");
 
@@ -228,6 +231,7 @@ export async function createAdmin(
     password: string;
     existing?: boolean;
     invited?: boolean;
+    emailed?: boolean;
   };
 }
 

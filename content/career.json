@@ -635,6 +635,214 @@
       "title": "Full stack Developer",
       "category": "Sales",
       "location": "Mumbai"
+    },
+    {
+      "id": "ed88ac91-ed2f-43a0-8395-a5983c3fe6d9",
+      "body": [
+        {
+          "id": "6f0ab602-c95c-4972-a699-bf4abe8017dd",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "To fully grasp the job of a web developer, you can divide it into several steps. Each of them stands for successive missions"
+            }
+          ]
+        },
+        {
+          "id": "dc5a00c0-b13b-42ce-9f0b-984b5235f199",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Run a technical analysis, to identify, understand and analyse the needs of the end user;"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "6bf1b23b-1979-4f17-b76e-532c023bb8e8",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Design a website, its architecture and its components;"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "a6c9367e-5c1e-4d35-93fc-7f50fd8c42be",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Program a website, which means turn the customer’s requirements (the expectations of the client, of the direction, of the project manager) into technical requirements, using code to integrate them;"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "fd798d8d-9d47-4f81-bb80-b01030d1b9e7",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Run tests to check the different features are working well ;"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "3b9ac3e3-1f06-4f37-9ddc-507c0210aa53",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Report the technical and functional documents to the client;"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "fba1d3a2-fd4f-4cf3-b597-20c1270b0aa2",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Monitor and fix the problems encountered during the process. "
+              }
+            ]
+          ]
+        },
+        {
+          "id": "70c8de97-0db2-4075-bc8c-8b4ffaff92a0",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "The responsibilities can be more or less varied and numerous depending on the organisation of the team, the production requirements and the technical challenges. Hence there are three types of web developers:"
+            }
+          ]
+        },
+        {
+          "id": "785ccb60-bbe6-4783-bbb9-e7d62c6d0016",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Back-end developer: focused on the server. The back-end developer creates code and programs to power the server of the website, the databases and all the website’s applications."
+              }
+            ]
+          ]
+        },
+        {
+          "id": "b4569546-9e3a-4ce1-9ed7-f3e2c88d3270",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Front-end developer: works on the visual design of the website and writes the code to integrate it on the web. The front-end developer also works on organic traffic (SEO), runs various tests (user, access...) and is responsible for a website’s performances."
+              }
+            ]
+          ]
+        },
+        {
+          "id": "38fc6422-9855-412e-9a87-636710409a88",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "href": "https://careers.societegenerale.com/en/jobs/it/full-stack-developer",
+                "text": "Full-stack developer"
+              },
+              {
+                "text": " :combining the tasks mentioned above, the full-stack developer takes part in the creation and the maintenance of a website or an application. Skilled in all these missions, the full-stack developer may intervene on every creation stage of a website or an application, from development to production."
+              }
+            ]
+          ]
+        },
+        {
+          "id": "b8c56103-ea74-41a8-9855-1174ed055857",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "Finally, the web developer needs to stay up to date with the latest IT innovations, both technical and technological. The web developer can lead to choose the appropriate technologies to solve a specific problem."
+            }
+          ]
+        },
+        {
+          "id": "fbe5df7e-8c35-4691-892c-7ca8980b7eb7",
+          "kind": "h2",
+          "text": "3. What are the skills of a web developer?"
+        },
+        {
+          "id": "47e1b974-c4c4-4ee4-bb02-81aa78f97d59",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "A web developer must master:"
+            }
+          ]
+        },
+        {
+          "id": "c1a69d8d-7fd1-4e60-b43c-e4c3a2571359",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "One or more scripting or programming languages (PHP, SQL, Java, etc.);"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "29f0004d-a4ff-4e8f-8eac-2962a84e74b4",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Content management systems (CMS);"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "3d6e4225-11bc-472e-8739-b17194c3f3e5",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Versioning tools like Git;"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "6aa889c5-3183-4b24-b620-2b946397ca43",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Basic web technologies (JS, HTML, CSS)."
+              }
+            ]
+          ]
+        },
+        {
+          "id": "c348322d-d785-4e49-9d31-ee036a790610",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "As you can see, a web developer needs to have a substantial web culture!"
+            }
+          ]
+        }
+      ],
+      "live": true,
+      "slug": "junior-webdeveloper",
+      "type": "3",
+      "title": "Junior webdeveloper",
+      "category": "IT",
+      "location": "Mumbai"
     }
   ],
   "moreLabel": "More Details",

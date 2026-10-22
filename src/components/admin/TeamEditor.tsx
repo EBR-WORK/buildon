@@ -187,7 +187,10 @@ export default function TeamEditor() {
          contradictory email. Only an address that already had a login needs
          one from here, because an invite cannot be sent to an existing
          account. */
-      let emailed = true;
+      /* create-admin emails the credentials itself when it makes a new
+         account. Only an address that already had a login needs a reset link
+         from here — for that one, nothing was sent and nothing was changed. */
+      let emailed = Boolean(result.emailed);
       let limited = false;
       if (!result.invited) {
         try {
@@ -408,11 +411,11 @@ export default function TeamEditor() {
               ) : created.emailed ? (
                 <>
                   <p className="text-[15px] font-semibold text-ink-900">
-                    {created.email} has been emailed a link to set their password.
+                    {created.email} has been emailed their sign-in details.
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-ink-500">
-                    Nothing to pass on. The link is good for an hour; if it expires they
-                    can ask for another from the sign-in screen.
+                    Nothing to pass on — the message has their username, password and
+                    role, and tells them to change the password once they are in.
                   </p>
                   <button
                     type="button"
