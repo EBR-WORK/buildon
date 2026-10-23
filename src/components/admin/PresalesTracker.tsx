@@ -271,7 +271,7 @@ export default function PresalesTracker() {
                   </tr>
                 )}
                 {tracked.map((lead) => (
-                  <tr key={lead.id} className="hover:bg-surface/60">
+                  <tr key={lead.id} className="hover:bg-row-hover">
                     <td className="px-3 py-2.5 font-semibold">{lead.name}</td>
                     <td className="px-3 py-2.5">{placeName(lead.place_id)}</td>
                     <td className="px-3 py-2.5">
@@ -381,7 +381,7 @@ export default function PresalesTracker() {
                     const lead = leadById(task.enquiry_id);
                     const overdue = !task.done && task.due_on && task.due_on < today();
                     return (
-                      <tr key={task.id} className={task.done ? "opacity-50" : "hover:bg-surface/60"}>
+                      <tr key={task.id} className={task.done ? "opacity-50" : "hover:bg-row-hover"}>
                         <td className="px-3 py-2.5">
                           <input
                             type="checkbox"

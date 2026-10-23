@@ -43,6 +43,30 @@ export default function ApplicationsList() {
   const [showHandled, setShowHandled] = useState(false);
   const [saving, setSaving] = useState<ReadonlySet<number>>(new Set());
 
+  /* The card a notification pointed at. Same reasoning as the leads table:
+     the hash arrives before the list exists, so it is read afterwards. */
+  const [flash, setFlash] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (status !== "ready") return;
+
+    const id = Number(window.location.hash.match(/^#application-(\d+)$/)?.[1]);
+    if (!Number.isFinite(id) || id === 0) return;
+
+    const timer = window.setTimeout(() => {
+      document
+        .getElementById(`application-${id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setFlash(id);
+    }, 60);
+    const done = window.setTimeout(() => setFlash(null), 4000);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(done);
+    };
+  }, [status]);
+
   useEffect(() => {
     let alive = true;
 
@@ -172,7 +196,7 @@ export default function ApplicationsList() {
             id={`application-${row.id}`}
             className={`rounded-2xl border bg-white p-4 transition sm:p-5 ${
               row.handled ? "border-line opacity-60" : "border-brand-200"
-            }`}
+            } ${flash === row.id ? "application-found" : ""}`}
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">

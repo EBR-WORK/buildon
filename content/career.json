@@ -81,6 +81,130 @@
       "title": "Sales Associate",
       "category": "Sales Associate",
       "location": "Kolkata"
+    },
+    {
+      "id": "a7e280d5-15d3-4e7e-8cff-eb14eca62d4b",
+      "body": [
+        {
+          "id": "ffdb43a5-cbdf-4bfc-ade9-9a84e49208c3",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Core Roles and Specializations"
+            }
+          ]
+        },
+        {
+          "id": "03ea5a8f-40a6-4255-9b63-25b81a9658fe",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "bold": true,
+                "text": "Front-End Developer:"
+              },
+              {
+                "text": " Focuses on the client-side of the website—what users see and interact with in their web browsers. Uses "
+              },
+              {
+                "bold": true,
+                "text": "HTML"
+              },
+              {
+                "text": " for structure, "
+              },
+              {
+                "bold": true,
+                "text": "CSS"
+              },
+              {
+                "text": " for styling, and "
+              },
+              {
+                "bold": true,
+                "text": "JavaScript"
+              },
+              {
+                "text": " for interactivity. ["
+              },
+              {
+                "href": "https://ca.indeed.com/hire/job-description/web-developer",
+                "text": "1"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://en.wikipedia.org/wiki/Web_developer",
+                "text": "2"
+              },
+              {
+                "text": "]"
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Back-End Developer:"
+              },
+              {
+                "text": " Focuses on the server-side, databases, and application logic. Uses server-side languages like "
+              },
+              {
+                "bold": true,
+                "text": "PHP, Python, Java, or C#"
+              },
+              {
+                "text": ", alongside databases like "
+              },
+              {
+                "bold": true,
+                "text": "MySQL, PostgreSQL, or MongoDB"
+              },
+              {
+                "text": ". ["
+              },
+              {
+                "href": "https://bizhub.tcsion.com/job-descriptions/web-developer",
+                "text": "1"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.wecreateproblems.com/job-descriptions/web-developer-job-description",
+                "text": "2"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://en.wikipedia.org/wiki/Web_developer",
+                "text": "3"
+              },
+              {
+                "text": "]"
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Full-Stack Developer:"
+              },
+              {
+                "text": " Handles both front-end and back-end development"
+              }
+            ]
+          ]
+        }
+      ],
+      "live": true,
+      "slug": "webdeveloper",
+      "type": "3 year experience",
+      "title": "Webdeveloper",
+      "category": "IT",
+      "location": "WFH"
     }
   ],
   "moreLabel": "More Details",

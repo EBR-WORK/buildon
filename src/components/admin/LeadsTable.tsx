@@ -85,6 +85,15 @@ export default function LeadsTable() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+
+  /* The row a notification pointed at.
+     
+     This was CSS alone — an id on the row and `tr:target` in globals.css —
+     which works on a fresh page load and not at all here. Next navigates
+     client-side, so by the time the URL carries #lead-42 the table is still
+     loading and there is no such element: nothing to match, nothing to scroll
+     to. The hash is read once the rows exist instead. */
+  const [flash, setFlash] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   const [view, setView] = useState<ViewKey>("all");
@@ -150,6 +159,31 @@ export default function LeadsTable() {
       alive = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (status !== "ready") return;
+
+    const id = Number(window.location.hash.match(/^#lead-(\d+)$/)?.[1]);
+    if (!Number.isFinite(id) || id === 0) return;
+
+    /* A beat, so the row is painted before it is scrolled to. */
+    const timer = window.setTimeout(() => {
+      document
+        .getElementById(`lead-${id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setFlash(id);
+    }, 60);
+
+    /* Cleared so the colour fades rather than marking the row for the rest of
+       the session — the highlight answers "which one", and once the eye has
+       found it a permanent colour reads as a status the row does not have. */
+    const done = window.setTimeout(() => setFlash(null), 4000);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(done);
+    };
+  }, [status]);
 
   function toggleColumn(key: ColumnKey) {
     setColumns((all) => {
@@ -633,6 +667,7 @@ export default function LeadsTable() {
                   onStatus={(next) => void move(lead, next)}
                   onPriority={(next) => void prioritise(lead, next)}
                   onArchive={() => void archive(lead, !lead.archived)}
+                  flash={flash === lead.id}
                   mayEdit={mayAssign || lead.assigned_to === profile?.id}
                   onEdit={() => {
                     setMenu(null);
@@ -755,6 +790,7 @@ function Row({
   onStatus,
   onPriority,
   onArchive,
+  flash,
   mayEdit,
   onEdit,
   mayDelete,
@@ -777,6 +813,8 @@ function Row({
   onStatus: (status: LeadStatus) => void;
   onPriority: (priority: Priority) => void;
   onArchive: () => void;
+  /** Lit because a notification pointed here. */
+  flash: boolean;
   mayEdit: boolean;
   onEdit: () => void;
   mayDelete: boolean;
@@ -791,7 +829,12 @@ function Row({
       {/* Anchored so a notification can link straight at this row.
          `:target` in globals.css does the highlighting — no JavaScript,
          and the browser scrolls to it on its own. */}
-      <tr id={`lead-${lead.id}`} className={picked ? "bg-brand-50/40" : "hover:bg-surface/60"}>
+      <tr
+        id={`lead-${lead.id}`}
+        className={
+          flash ? "lead-found" : picked ? "bg-brand-50/40" : "hover:bg-row-hover"
+        }
+      >
         {mayAssign && (
           <td className="px-3 py-2.5">
             <input
