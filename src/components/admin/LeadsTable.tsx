@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import {
   addLead,
   archiveLead,
+  deleteLead,
+  updateLead,
   assign,
   assigneesFor,
   assignMany,
@@ -110,6 +112,14 @@ export default function LeadsTable() {
   const [bulkPriority, setBulkPriority] = useState<Priority>("normal");
 
   const mayAssign = allows(profile, "leads:assign");
+  /* The role, not a capability. The policy underneath is is_super_admin(), and
+     inventing a "leads:delete" capability would be a second statement of the
+     same rule — free to drift from the one that actually decides. */
+  const mayDelete = profile?.role === "super_admin";
+
+  /* The lead being corrected, or null. Held here rather than in the row so
+     the dialog is not unmounted when the table re-sorts underneath it. */
+  const [editing, setEditing] = useState<Lead | null>(null);
   const mayWork = allows(profile, "leads:work");
   const readOnly = profile?.role === "presales";
 
@@ -212,6 +222,24 @@ export default function LeadsTable() {
     }
     await patchRow(lead, { archived: next }, () => archiveLead(lead.id, next));
     setMenu(null);
+  }
+
+  async function remove(lead: Lead) {
+    const ok = await confirm({
+      title: `Delete the lead from ${lead.name}?`,
+      body: "This cannot be undone, and its notes and history go with it. To take it out of the lists without losing it, archive it instead.",
+      confirmLabel: "Delete",
+    });
+    if (!ok) return;
+
+    setMenu(null);
+    try {
+      await deleteLead(lead.id);
+      setRows((all) => all.filter((r) => r.id !== lead.id));
+      notify(`The lead from ${lead.name} was deleted.`);
+    } catch (e) {
+      notify(e instanceof Error ? e.message : "That did not delete.");
+    }
   }
 
   async function bulkAssign() {
@@ -451,7 +479,7 @@ export default function LeadsTable() {
             value={bulkTo}
             onChange={(e) => setBulkTo(e.target.value)}
             aria-label="Assign the selected leads to"
-            className="cursor-pointer rounded-lg border border-line bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-500"
+            className="select-chevron cursor-pointer rounded-lg border border-line bg-white py-1.5 pl-3 pr-8 text-sm outline-none focus:border-brand-500"
           >
             <option value="">Assign to...</option>
             {staff.map((person) => (
@@ -465,7 +493,7 @@ export default function LeadsTable() {
             value={bulkPriority}
             onChange={(e) => setBulkPriority(e.target.value as Priority)}
             aria-label="Priority"
-            className="cursor-pointer rounded-lg border border-line bg-white px-3 py-1.5 text-sm capitalize outline-none focus:border-brand-500"
+            className="select-chevron cursor-pointer rounded-lg border border-line bg-white py-1.5 pl-3 pr-8 text-sm capitalize outline-none focus:border-brand-500"
           >
             {PRIORITIES.map((v) => (
               <option key={v} value={v}>
@@ -487,7 +515,7 @@ export default function LeadsTable() {
             value=""
             onChange={(e) => e.target.value && void bulkStatus(e.target.value as LeadStatus)}
             aria-label="Change status of the selected leads"
-            className="cursor-pointer rounded-lg border border-line bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-500"
+            className="select-chevron cursor-pointer rounded-lg border border-line bg-white py-1.5 pl-3 pr-8 text-sm outline-none focus:border-brand-500"
           >
             <option value="">Change status...</option>
             {LEAD_STATUSES.map((v) => (
@@ -605,6 +633,13 @@ export default function LeadsTable() {
                   onStatus={(next) => void move(lead, next)}
                   onPriority={(next) => void prioritise(lead, next)}
                   onArchive={() => void archive(lead, !lead.archived)}
+                  mayEdit={mayAssign || lead.assigned_to === profile?.id}
+                  onEdit={() => {
+                    setMenu(null);
+                    setEditing(lead);
+                  }}
+                  mayDelete={mayDelete}
+                  onDelete={() => void remove(lead)}
                 />
               ))}
             </tbody>
@@ -646,13 +681,26 @@ export default function LeadsTable() {
       )}
 
       {adding && (
-        <AddLead
+        <LeadForm
           places={places}
           onClose={() => setAdding(false)}
-          onAdded={(lead) => {
+          onSaved={(lead) => {
             setRows((all) => [lead, ...all]);
             setAdding(false);
             notify("Lead added", `${lead.name} is in the list.`, "success");
+          }}
+        />
+      )}
+
+      {editing && (
+        <LeadForm
+          lead={editing}
+          places={places}
+          onClose={() => setEditing(null)}
+          onSaved={(lead) => {
+            setRows((all) => all.map((r) => (r.id === lead.id ? lead : r)));
+            setEditing(null);
+            notify("Saved", `${lead.name} updated.`, "success");
           }}
         />
       )}
@@ -678,7 +726,7 @@ function Select({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       aria-label={label}
-      className="cursor-pointer rounded-xl border border-line bg-white px-3 py-2 text-sm capitalize outline-none transition focus:border-brand-500"
+      className="select-chevron cursor-pointer rounded-xl border border-line bg-white py-2 pl-3 pr-9 text-sm capitalize outline-none transition focus:border-brand-500"
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>
@@ -707,6 +755,10 @@ function Row({
   onStatus,
   onPriority,
   onArchive,
+  mayEdit,
+  onEdit,
+  mayDelete,
+  onDelete,
 }: {
   lead: Lead;
   columns: ColumnKey[];
@@ -725,6 +777,10 @@ function Row({
   onStatus: (status: LeadStatus) => void;
   onPriority: (priority: Priority) => void;
   onArchive: () => void;
+  mayEdit: boolean;
+  onEdit: () => void;
+  mayDelete: boolean;
+  onDelete: () => void;
 }) {
   const shows = (key: ColumnKey) => columns.includes(key);
   const place = places.find((p) => p.id === lead.place_id)?.name;
@@ -732,7 +788,10 @@ function Row({
 
   return (
     <>
-      <tr className={picked ? "bg-brand-50/40" : "hover:bg-surface/60"}>
+      {/* Anchored so a notification can link straight at this row.
+         `:target` in globals.css does the highlighting — no JavaScript,
+         and the browser scrolls to it on its own. */}
+      <tr id={`lead-${lead.id}`} className={picked ? "bg-brand-50/40" : "hover:bg-surface/60"}>
         {mayAssign && (
           <td className="px-3 py-2.5">
             <input
@@ -773,7 +832,7 @@ function Row({
                 value={lead.status}
                 onChange={(event) => onStatus(event.target.value as LeadStatus)}
                 aria-label={`Status of the lead from ${lead.name}`}
-                className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold outline-none ${TONE[lead.status]}`}
+                className={`select-chevron select-chevron-sm cursor-pointer rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold outline-none ${TONE[lead.status]}`}
               >
                 {LEAD_STATUSES.map((value) => (
                   <option key={value} value={value} className="bg-white text-ink-900">
@@ -796,7 +855,7 @@ function Row({
                 value={lead.assigned_to ?? ""}
                 onChange={(event) => onAssign(event.target.value || null)}
                 aria-label={`Assign the lead from ${lead.name}`}
-                className="max-w-[11rem] cursor-pointer rounded-lg border border-line bg-white px-2 py-1 text-xs outline-none focus:border-brand-500"
+                className="select-chevron select-chevron-sm max-w-[11rem] cursor-pointer rounded-lg border border-line bg-white py-1 pl-2 pr-6 text-xs outline-none focus:border-brand-500"
               >
                 <option value="">—</option>
                 {assigneesFor(lead, staff).map((person) => (
@@ -820,7 +879,7 @@ function Row({
                 value={lead.priority}
                 onChange={(event) => onPriority(event.target.value as Priority)}
                 aria-label={`Priority of the lead from ${lead.name}`}
-                className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold capitalize outline-none ${PRIORITY_TONE[lead.priority]}`}
+                className={`select-chevron select-chevron-sm cursor-pointer rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold capitalize outline-none ${PRIORITY_TONE[lead.priority]}`}
               >
                 {PRIORITIES.map((value) => (
                   <option key={value} value={value} className="bg-white text-ink-900">
@@ -864,10 +923,26 @@ function Row({
               <MenuItem onClick={() => window.open(`mailto:${lead.email}`, "_blank")}>
                 Email them
               </MenuItem>
+              {/* Only for somebody the policy would actually let through:
+                  marketing, a super admin, or the person this lead belongs to.
+                  Offering it to everyone would mean a form that fills in and
+                  then refuses to save. */}
+              {mayEdit && <MenuItem onClick={onEdit}>Edit</MenuItem>}
               {mayAssign && (
                 <MenuItem onClick={onArchive}>
                   {lead.archived ? "Restore" : "Archive"}
                 </MenuItem>
+              )}
+              {/* Last, and separated: the one item here that cannot be undone
+                  sits apart from the ones that can, so it is not the thing a
+                  hand lands on by momentum. */}
+              {mayDelete && (
+                <>
+                  <span className="my-1 block h-px bg-line" />
+                  <MenuItem onClick={onDelete} tone="danger">
+                    Delete
+                  </MenuItem>
+                </>
               )}
             </div>
           )}
@@ -893,12 +968,24 @@ function Row({
   );
 }
 
-function MenuItem({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+function MenuItem({
+  onClick,
+  children,
+  tone = "normal",
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+  tone?: "normal" | "danger";
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="block w-full cursor-pointer rounded-lg px-3 py-1.5 text-left text-sm transition hover:bg-surface"
+      className={`block w-full cursor-pointer rounded-lg px-3 py-1.5 text-left text-sm transition ${
+        tone === "danger"
+          ? "text-signal-500 hover:bg-signal-50"
+          : "hover:bg-surface"
+      }`}
     >
       {children}
     </button>
@@ -906,23 +993,35 @@ function MenuItem({ onClick, children }: { onClick: () => void; children: React.
 }
 
 /** Manual intake: the counter and the telephone, into the same table. */
-function AddLead({
+/**
+ * One dialog for adding a lead and for correcting one.
+ *
+ * The same seven fields either way, so two components would be two places to
+ * fix the next thing wrong with them. `lead` is what tells them apart: absent
+ * means a new row, present means that row.
+ */
+function LeadForm({
+  lead,
   places,
   onClose,
-  onAdded,
+  onSaved,
 }: {
+  /** The lead being corrected, or undefined when adding one. */
+  lead?: Lead;
   places: Place[];
   onClose: () => void;
-  onAdded: (lead: Lead) => void;
+  onSaved: (lead: Lead) => void;
 }) {
+  const editing = Boolean(lead);
+
   const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    company: "",
-    source: "Phone",
-    message: "",
-    placeId: "" as string,
+    name: lead?.name ?? "",
+    phone: lead?.phone ?? "",
+    email: lead?.email ?? "",
+    company: lead?.company ?? "",
+    source: lead?.source ?? "Phone",
+    message: lead?.message ?? "",
+    placeId: lead?.place_id ? String(lead.place_id) : "",
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -932,19 +1031,49 @@ function AddLead({
     setBusy(true);
     setError("");
     try {
-      const lead = await addLead({
-        ...form,
-        placeId: form.placeId ? Number(form.placeId) : null,
-      });
-      onAdded(lead);
+      const placeId = form.placeId ? Number(form.placeId) : null;
+
+      if (lead) {
+        await updateLead(lead.id, {
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          company: form.company,
+          message: form.message,
+          place_id: placeId,
+          source: form.source,
+        });
+        /* The row the table already holds, with the edits folded in — rather
+           than a re-fetch, which would also discard the status and assignment
+           the person can see on screen. */
+        onSaved({
+          ...lead,
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          company: form.company,
+          message: form.message,
+          place_id: placeId,
+          source: form.source,
+        });
+        return;
+      }
+
+      const made = await addLead({ ...form, placeId });
+      onSaved(made);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not add that.");
+      setError(e instanceof Error ? e.message : "Could not save that.");
       setBusy(false);
     }
   }
 
   const field =
     "w-full rounded-xl border border-line bg-white px-4 py-2.5 text-[15px] outline-none transition focus:border-brand-500";
+
+  /* The same control with room on the right for the arrow the browser draws
+     inside a <select>. Shared padding put the text underneath it. */
+  const selectField =
+    "select-chevron w-full rounded-xl border border-line bg-white py-2.5 pl-4 pr-10 text-[15px] outline-none transition focus:border-brand-500";
 
   return (
     <div className="fixed inset-0 z-100 flex items-start justify-center overflow-y-auto bg-secondary/50 p-4 backdrop-blur-sm sm:p-8">
@@ -954,9 +1083,13 @@ function AddLead({
         onSubmit={submit}
         className="relative z-10 my-auto w-full max-w-lg space-y-3 rounded-2xl bg-white p-6 text-left shadow-lift sm:p-8"
       >
-        <h2 className="font-display text-xl font-semibold">Add a lead</h2>
+        <h2 className="font-display text-xl font-semibold">
+          {editing ? "Edit this lead" : "Add a lead"}
+        </h2>
         <p className="text-sm text-ink-500">
-          Somebody who rang, or walked in. It joins the same list as the website enquiries.
+          {editing
+            ? "Corrects the details only. Status, priority and who it belongs to are changed on the row itself."
+            : "Somebody who rang, or walked in. It joins the same list as the website enquiries."}
         </p>
 
         <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={field} />
@@ -965,7 +1098,7 @@ function AddLead({
         <input placeholder="Company (optional)" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} className={field} />
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <select value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} aria-label="Source" className={`${field} cursor-pointer`}>
+          <select value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} aria-label="Source" className={`${selectField} cursor-pointer`}>
             {["Phone", "Walk-in", "Referral", "WhatsApp", "Exhibition", "Other"].map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -973,16 +1106,28 @@ function AddLead({
             ))}
           </select>
 
-          {places.length > 0 && (
-            <select value={form.placeId} onChange={(e) => setForm({ ...form, placeId: e.target.value })} aria-label="Place" className={`${field} cursor-pointer`}>
-              <option value="">No place yet</option>
-              {places.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          )}
+          {/* Always shown, even with nothing to choose.
+              
+              It used to hide itself when the places list was empty, which is
+              every day so far — the table has no rows and no screen manages
+              it. A field that vanishes makes the gap look like a decision
+              rather than a thing nobody has set up yet. */}
+          <select
+            value={form.placeId}
+            onChange={(e) => setForm({ ...form, placeId: e.target.value })}
+            aria-label="Place"
+            disabled={places.length === 0}
+            className={`${selectField} cursor-pointer disabled:cursor-default disabled:text-ink-400`}
+          >
+            <option value="">
+              {places.length === 0 ? "No places set up yet" : "Place (optional)"}
+            </option>
+            {places.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <textarea rows={3} placeholder="What did they ask for?" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className={`${field} resize-none`} />
@@ -991,7 +1136,7 @@ function AddLead({
 
         <div className="flex gap-2 pt-1">
           <button type="submit" disabled={busy} className="cursor-pointer rounded-full bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-60">
-            {busy ? "Adding…" : "Add lead"}
+            {busy ? "Saving…" : editing ? "Save changes" : "Add lead"}
           </button>
           <button type="button" onClick={onClose} className="cursor-pointer rounded-full border border-line px-5 py-2.5 text-sm font-semibold transition hover:border-brand-200">
             Cancel

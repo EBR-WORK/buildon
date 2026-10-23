@@ -341,7 +341,7 @@ export default function TeamEditor() {
               <select
                 value={newRole}
                 onChange={(event) => setNewRole(event.target.value as AdminRole)}
-                className="cursor-pointer rounded-xl border border-line bg-white px-4 py-3 text-[15px] outline-none transition focus:border-brand-500"
+                className="select-chevron cursor-pointer rounded-xl border border-line bg-white py-3 pl-4 pr-10 text-[15px] outline-none transition focus:border-brand-500"
               >
                 {/* From ROLES, so a role added there appears here without an
                     edit. `admin` is deliberately absent: it is the original

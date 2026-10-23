@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AdminRail from "@/components/admin/AdminRail";
+import NotificationBell from "@/components/admin/NotificationBell";
 import AuthGate from "@/components/admin/AuthGate";
 import { ToastProvider } from "@/components/admin/Toast";
 
@@ -31,7 +32,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="min-h-svh bg-surface text-ink-900">
           <div className="mx-auto flex min-h-svh w-full max-w-[90rem] flex-col lg:flex-row">
             <AdminRail />
-            <main className="min-w-0 flex-1">{children}</main>
+            <main className="relative min-w-0 flex-1">
+              {/* Top right of the content, above each screen's own heading and
+                  its action buttons — which sit lower, level with the title.
+                  Absolute rather than in the flow so a screen with nothing new
+                  loses no space to it: the bell renders null when empty. */}
+              <div className="absolute top-4 right-5 z-40 sm:top-5 sm:right-8">
+                <NotificationBell />
+              </div>
+
+              {children}
+            </main>
           </div>
         </div>
       </AuthGate>

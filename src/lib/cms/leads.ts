@@ -103,9 +103,29 @@ export async function listLeads(): Promise<Lead[]> {
   return (data ?? []) as Lead[];
 }
 
+/**
+ * The branches a lead can be put in.
+ *
+ * Only the open ones. The close dialog promises that a closed branch "stops
+ * being offered on new leads", and this is the list that keeps or breaks that
+ * promise — it used to return every branch, so closing one took it out of
+ * nothing.
+ *
+ * The error is raised rather than swallowed. It used to be discarded, which
+ * turned a failed read into an empty list, and an empty list renders as "No
+ * places set up yet" — a message that says the table is empty when the truth
+ * might be that the request was refused.
+ */
 export async function listPlaces(): Promise<Place[]> {
   if (!supabase) return [];
-  const { data } = await supabase.from("places").select("id,name,active").order("name");
+
+  const { data, error } = await supabase
+    .from("places")
+    .select("id,name,active")
+    .eq("active", true)
+    .order("name");
+
+  if (error) throw new Error(error.message);
   return (data ?? []) as Place[];
 }
 
@@ -290,6 +310,27 @@ export const countViews = (leads: Lead[]) =>
 
 /* ---------------------------------------------------------------- archive */
 
+/**
+ * Correct the details of a lead — a misheard phone number, a misspelt name.
+ *
+ * Who may is decided by the policies and not here: marketing and super admins
+ * may touch any lead, a salesperson only one assigned to them. Both routes end
+ * in the same filtered UPDATE, and patch() turns "changed nothing" into an
+ * error rather than letting it read as a save.
+ */
+export const updateLead = (
+  id: number,
+  values: Pick<Lead, "name" | "phone" | "email" | "company" | "message"> & {
+    place_id: number | null;
+    source: string | null;
+  },
+) =>
+  patch(
+    id,
+    values,
+    "That did not save. You can only edit a lead assigned to you, unless you are marketing or a super admin.",
+  );
+
 export const archiveLead = (id: number, archived: boolean) =>
   patch(
     id,
@@ -298,6 +339,33 @@ export const archiveLead = (id: number, archived: boolean) =>
       ? "That did not archive. Only marketing and super admins can."
       : "That did not restore.",
   );
+
+/**
+ * Remove a lead for good.
+ *
+ * Super admins only — the policy says so, and nothing here checks it a second
+ * time. The row count is what tells us whether it happened: a DELETE filtered
+ * away by a policy reports no error and removes nothing, the same shape that
+ * made a refused update look like a save.
+ *
+ * Archiving is the reversible option and the one the menu offers first. This
+ * is for a lead that should never have existed — a test row, a duplicate, a
+ * bot — where archiving only moves the clutter somewhere else.
+ */
+export async function deleteLead(id: number) {
+  if (!supabase) throw new Error("The database is not configured.");
+
+  const { data, error } = await supabase
+    .from("enquiries")
+    .delete()
+    .eq("id", id)
+    .select("id");
+
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) {
+    throw new Error("That did not delete. Only a super admin can remove a lead.");
+  }
+}
 
 /* ----------------------------------------------------------- manual intake */
 

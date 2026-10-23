@@ -168,6 +168,8 @@ export default function ApplicationsList() {
         {visible.map((row) => (
           <li
             key={row.id}
+            /* Anchored for the notification bell — see globals.css. */
+            id={`application-${row.id}`}
             className={`rounded-2xl border bg-white p-4 transition sm:p-5 ${
               row.handled ? "border-line opacity-60" : "border-brand-200"
             }`}

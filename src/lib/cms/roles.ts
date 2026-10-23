@@ -158,8 +158,7 @@ export const PANELS: readonly PanelLink[] = [
   { href: "/admin/projects", label: "Projects", note: "24 developments", needs: "content" },
   { href: "/admin/blog", label: "Blog", note: "33 articles", needs: "content" },
   { href: "/admin/faq", label: "FAQs", note: "3 sections · 18 questions", needs: "content" },
-  /* Places is not in the rail yet — the screen does not exist, and a link to
-     a 404 is worse than no link. Restore this line with the page. */
+  { href: "/admin/places", label: "Branches", note: "Offices and depots", needs: "places" },
   { href: "/admin/team", label: "Team", note: "Who may do what", needs: "team" },
 ];
 

@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { describeRole } from "@/lib/cms/auth";
 import { panelsFor } from "@/lib/cms/roles";
+import { loadNotifications, type Stream } from "@/lib/cms/notifications";
 import { site } from "@/lib/content";
 import { RESET_PATH } from "@/lib/cms/auth";
 import { useAdminMaybe } from "./AuthGate";
@@ -36,13 +38,46 @@ import { useAdminMaybe } from "./AuthGate";
 export default function AdminRail() {
   const admin = useAdminMaybe();
   const pathname = usePathname();
+  const profile = admin?.profile ?? null;
+
+  /* Counts for the rail, so somebody learns about work wherever they are.
+
+     The dashboard carries the same notifications in full, but it is not where
+     most roles land: homeFor() sends them to their first panel, and Presales
+     — who can be assigned leads — never opens /admin at all. A badge in the
+     rail is on every screen, which is where a notification has to be to be
+     one.
+
+     Declared before the early return below, because a hook that runs on some
+     renders and not others changes React's hook order between them. */
+  const [counts, setCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!profile?.id) return;
+    let alive = true;
+    loadNotifications(profile).then((streams: Stream[]) => {
+      if (!alive) return;
+      /* Keyed by the screen the work is on, because that is what the rail
+         knows about. Two streams can land on the same screen — leads assigned
+         to you and leads waiting to be assigned are both Leads — and the badge
+         should say how many things are new there, not how many kinds. */
+      const byHref: Record<string, number> = {};
+      for (const stream of streams) {
+        byHref[stream.href] = (byHref[stream.href] ?? 0) + stream.items.length;
+      }
+      setCounts(byHref);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [profile, pathname]);
 
   /* No rail on the reset screen: it renders outside the gate, for someone who
      is not signed in, so every link and the Sign out button would be furniture
      for a session that does not exist. */
   if (!admin || pathname === RESET_PATH) return null;
 
-  const { profile, signOut } = admin;
+  const { signOut } = admin;
 
   const pages = panelsFor(profile?.role);
 
@@ -122,6 +157,11 @@ export default function AdminRail() {
               }`}
             >
               {page.label}
+              {(counts[page.href] ?? 0) > 0 && (
+                <span className="ml-1.5 inline-flex min-w-[1.25rem] justify-center rounded-full bg-brand-500 px-1.5 text-xs font-semibold text-white">
+                  {counts[page.href]}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
@@ -157,7 +197,7 @@ export default function AdminRail() {
           <ul className="space-y-1">
             {pages.map((page) => (
               <li key={page.href}>
-                <RailLink {...page} active={pathname === page.href} />
+                <RailLink {...page} active={pathname === page.href} count={counts[page.href] ?? 0} />
               </li>
             ))}
           </ul>
@@ -187,11 +227,14 @@ function RailLink({
   label,
   note,
   active,
+  count,
 }: {
   href: string;
   label: string;
   note: string;
   active: boolean;
+  /** How much is new here. Zero shows nothing at all. */
+  count: number;
 }) {
   return (
     <Link
@@ -201,7 +244,19 @@ function RailLink({
         active ? "bg-brand-50 text-brand-600" : "hover:bg-surface"
       }`}
     >
-      <span className="block text-[15px] font-medium">{label}</span>
+      <span className="flex items-center justify-between gap-2">
+        <span className="text-[15px] font-medium">{label}</span>
+        {count > 0 && (
+          /* Counted for a screen reader as well, because a number alone beside
+             a link says nothing about what it counts. */
+          <span
+            className="inline-flex min-w-[1.4rem] justify-center rounded-full bg-brand-500 px-1.5 py-0.5 text-xs font-semibold text-white"
+            aria-label={`${count} new`}
+          >
+            {count}
+          </span>
+        )}
+      </span>
       <span className={`block text-sm ${active ? "text-brand-500" : "text-ink-500"}`}>
         {note}
       </span>

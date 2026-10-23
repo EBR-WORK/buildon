@@ -36,6 +36,16 @@
   --color-accent-600: #a41019;
 
   /* Dark sections */
+  /* The highlighter.
+     
+     Used by one thing: the row a notification pointed at. It is not part of
+     the brand system and should not be borrowed for anything else — it exists
+     because the palette has blue, which already means "this row is selected",
+     and red, which already means "this will delete something". A found row is
+     neither, and amber is what a person reaches for with a highlighter pen. */
+  --color-found: #ffd84d;
+  --color-found-bar: #d79b00;
+
   --color-secondary: #2b343b;
 
   /* Footer: a neutral dark grey, with the reference's #323232 bottom bar */
@@ -240,6 +250,98 @@
 }
 
 @layer components {
+  /*
+    The row a notification pointed at.
+
+    `:target` is the element whose id matches the fragment in the URL, so
+    clicking "A super admin assigned you Rajesh Kumar" lands on /admin/leads
+    and the browser both scrolls to that row and marks it — no JavaScript, no
+    query parameter, and nothing to clean up afterwards.
+
+    It fades rather than staying lit: the highlight answers "which one", and
+    once the eye has found it a permanent colour would read as a status the
+    row does not have. Three seconds is long enough to follow a scroll.
+  */
+  tr:target,
+  li:target {
+    /* scroll-margin so the row does not land under the sticky table header. */
+    scroll-margin-top: 6rem;
+    animation: found 4s ease-out 1;
+  }
+
+  /* A table row cannot take a background on itself in every browser once the
+     cells have one, so the cells are coloured too. */
+  tr:target > td {
+    animation: found-cell 4s ease-out 1;
+  }
+
+  @keyframes found {
+    0%,
+    65% {
+      background-color: var(--color-found);
+      box-shadow: inset 4px 0 0 var(--color-found-bar);
+    }
+    100% {
+      background-color: transparent;
+      box-shadow: inset 4px 0 0 transparent;
+    }
+  }
+
+  @keyframes found-cell {
+    0%,
+    65% {
+      background-color: var(--color-found);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  /* Somebody who has asked for less motion still needs to see WHICH row, so
+     the colour holds instead of fading. */
+  @media (prefers-reduced-motion: reduce) {
+    tr:target,
+    li:target,
+    tr:target > td {
+      animation: none;
+      background-color: var(--color-found);
+    }
+    tr:target,
+    li:target {
+      box-shadow: inset 4px 0 0 var(--color-found-bar);
+    }
+  }
+
+  /*
+    One chevron for every <select> in the admin.
+
+    Browsers each draw their own arrow, at their own size, in their own grey,
+    and on Windows it is a chunky double triangle that sits badly inside a
+    small coloured pill. The leads table has three dropdowns in every row, so
+    whatever the browser decides is repeated forty times down the page.
+
+    appearance-none removes it; the background image puts back one that
+    matches the rest of the panel. The right padding on each control is what
+    leaves room for it — see LeadsTable.
+  */
+  .select-chevron {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 0.7rem;
+    /* Safari keeps a shadow on a select otherwise, which reads as a second
+       border once the native arrow is gone. */
+    box-shadow: none;
+  }
+
+  /* Inside a coloured pill the chevron is tighter to the edge, because the
+     control is small and the gap reads as empty space rather than padding. */
+  .select-chevron-sm {
+    background-position: right 0.45rem center;
+    background-size: 0.6rem;
+  }
+
   .faq-panel::details-content {
     block-size: 0;
     overflow: hidden;
