@@ -1643,25 +1643,74 @@ export const chat = {
     "I did not quite catch that. Pick one of the options below, or choose “Leave an enquiry” and a person will reply.",
   menuAgain: "Anything else?",
   options: chatOptions,
-  /** The three questions the enquiry branch asks, in order. */
+  /**
+   * The enquiry branch, one question at a time.
+   *
+   * It asks what a salesperson would have to ring back and ask anyway: who,
+   * how to reach them, which product, how much, where, and by when. An enquiry
+   * that arrives with those answered is one the desk can quote from; one that
+   * says only "need plaster" is a phone call before any work can start.
+   *
+   * `choices` are one-tap answers shown under the question. They are
+   * suggestions and not a closed list — anything typed instead is taken as the
+   * answer, because the list cannot cover every job.
+   *
+   * `min` is the shortest answer that counts. Phone is checked for digits
+   * instead, and a step with neither is optional: "Skip" moves past it.
+   */
   enquiry: {
     steps: [
-      { field: "name", ask: "Happy to help. What is your name?", invalid: "Please type your name." },
+      {
+        field: "name",
+        ask: "Happy to help. What is your name?",
+        invalid: "Please type your name.",
+        min: 2,
+      },
       {
         field: "phone",
         ask: "Thanks, {name}. What number can we reach you on?",
         invalid: "That does not look like a reachable number — please include the full number.",
       },
       {
-        field: "message",
-        ask: "And what do you need? A line or two is plenty.",
-        invalid: "Could you tell us a little more about your requirement?",
+        field: "email",
+        ask: "And an email address, so we can send the quotation in writing?",
+        invalid: "That does not look like an email address.",
+        min: 5,
+      },
+      {
+        field: "product",
+        ask: "Which product is this about? Pick one, or tell me what the job is and I will pass it on.",
+        invalid: "Pick one above, or describe the job in a few words.",
+        min: 3,
+        choices: [...productCatalogue.map((item) => item.name), "Not sure yet"],
+      },
+      {
+        field: "quantity",
+        ask: "Roughly how much do you need?",
+        invalid: "",
+        choices: ["Under 100 bags", "100 – 500 bags", "500 – 2,000 bags", "Over 2,000 bags", "Not sure yet"],
+      },
+      {
+        field: "place",
+        ask: "Where is the site? The city is enough.",
+        invalid: "Which city is the site in?",
+        min: 2,
+      },
+      {
+        field: "timeline",
+        ask: "And when do you need it?",
+        invalid: "",
+        choices: ["Immediately", "This month", "In 1 – 3 months", "Just comparing for now"],
       },
     ],
-    /* The site has no backend, so this ends where every other form on it ends:
-       a mail draft to the office. Swap it for a POST when there is somewhere to
-       post to — the questions above do not change. */
+    /* Stored in the same table as every other form on the site, so it reaches
+       the admin panel and the CRM by the same road. The mail draft is only
+       what happens when that write fails. */
     cancelled: "No problem — I have dropped that. What else can I help with?",
-    done: "Thank you, {name}. I have opened an email with your enquiry — send it and our team will come back to you.",
+    sending: "Thank you — sending that across now …",
+    done: "That is with our team, {name}. Someone will call you on {phone}, usually within one working day.",
+    failed:
+      "I could not send that from here. I have opened an email with everything you told me — send it and we will pick it up.",
+    skip: "Skip",
   },
 } as const;

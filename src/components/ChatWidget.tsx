@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { chat, site } from "@/lib/content";
+import { submitEnquiry } from "@/lib/cms/enquiries";
 import { getDictionary } from "@/lib/i18n";
 import { localeOf } from "@/lib/i18n/config";
 
@@ -44,12 +45,33 @@ type Message = {
   image?: string;
   /** Rendered as the menu card. Only the latest one stays pressable. */
   menu?: boolean;
+  /** One-tap answers to the question in this message. */
+  choices?: readonly string[];
+  /** This step may be passed over. */
+  skippable?: boolean;
 };
 
 /** Where the enquiry branch is up to, or null when it is not running. */
 type Enquiry = { step: number; answers: Record<string, string> };
 
 const isReachable = (value: string) => value.replace(/\D/g, "").length >= 8;
+
+/* Deliberately loose. The point is to catch "i dont have one" before it is
+   stored as an address, not to rule on what an address may contain. */
+const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
+
+type Step = (typeof chat.enquiry.steps)[number];
+
+/** A step with neither a minimum nor a format to meet can be passed over. */
+const isOptional = (step: Step) =>
+  step.field !== "phone" && step.field !== "email" && !("min" in step && step.min);
+
+function accepts(step: Step, text: string) {
+  if (step.field === "phone") return isReachable(text);
+  if (step.field === "email") return looksLikeEmail(text);
+  const min = "min" in step && step.min ? step.min : 0;
+  return text.trim().length >= min;
+}
 
 let nextId = 0;
 
@@ -77,6 +99,26 @@ export default function ChatWidget({
 
   const say = (text: string, extra: Partial<Message> = {}) =>
     setMessages((all) => [...all, { id: nextId++, from: "bot", text, ...extra }]);
+
+  /**
+   * The visitor's own turn — and the end of the menu that offered it.
+   *
+   * The menu card used to stay where it was, greyed out and pressing nothing,
+   * at the top of every conversation that had moved past it. On a phone it
+   * took a third of the panel, so the question actually being asked sat below
+   * the fold while four dead rows held the top of the screen.
+   *
+   * It is removed rather than disabled because it has already been answered:
+   * the choice appears as the visitor's own message on the line below, which
+   * is the record of what was picked. Leaving the list as well says the choice
+   * is still open when it is not.
+   */
+  const youSaid = (text: string) =>
+    setMessages((all) => {
+      const spent = [...all].reverse().find((message) => message.menu);
+      const kept = spent ? all.filter((message) => message.id !== spent.id) : all;
+      return [...kept, { id: nextId++, from: "you", text }];
+    });
 
   /**
    * Opening and closing in one place, because both have to tell the page as
@@ -119,7 +161,7 @@ export default function ChatWidget({
     const option = chat.options.find((item) => item.id === id);
     if (!option) return;
 
-    setMessages((all) => [...all, { id: nextId++, from: "you", text: option.label }]);
+    youSaid(option.label);
 
     /* Picking anything else abandons an enquiry in progress. Without this it
        kept running invisibly, and every later message was read as an answer to
@@ -128,7 +170,7 @@ export default function ChatWidget({
 
     if (option.asks) {
       setEnquiry({ step: 0, answers: {} });
-      say(chat.enquiry.steps[0].ask);
+      ask(0, {});
       inputRef.current?.focus();
       return;
     }
@@ -149,7 +191,7 @@ export default function ChatWidget({
    * on, for anyone who wants the whole thing.
    */
   function openTopic(topic: ChatTopic) {
-    setMessages((all) => [...all, { id: nextId++, from: "you", text: topic.label }]);
+    youSaid(topic.label);
     setEnquiry(null);
     say(topic.reply, {
       image: topic.image,
@@ -173,45 +215,148 @@ export default function ChatWidget({
     say(chat.enquiry.cancelled, { menu: true });
   }
 
+  /**
+   * Take the suggestions off a question that has been answered.
+   *
+   * Only once the answer is accepted — a rejected one leaves them in place,
+   * because the question is being asked again and the chips are the easiest
+   * way to answer it. Ten dead product chips above the live question is the
+   * same problem the spent menu had, one layer down.
+   */
+  const retireChoices = () =>
+    setMessages((all) => {
+      const spent = [...all].reverse().find((message) => message.choices);
+      if (!spent) return all;
+      return all.map((message) =>
+        message.id === spent.id
+          ? { ...message, choices: undefined, skippable: false }
+          : message,
+      );
+    });
+
+  /** Ask the step at `index`, with its suggestions under it. */
+  function ask(index: number, answers: Record<string, string>) {
+    const step = chat.enquiry.steps[index];
+    say(step.ask.replace("{name}", answers.name ?? ""), {
+      choices: "choices" in step ? step.choices : undefined,
+      skippable: isOptional(step),
+    });
+  }
+
+  /**
+   * What the desk reads.
+   *
+   * The requirement answers are folded into one message rather than given
+   * columns of their own: the leads table has none for a quantity or a date,
+   * and inventing three would mean a migration every time this script gains a
+   * question. Written as lines so it stays readable in the panel.
+   */
+  function describe(answers: Record<string, string>) {
+    const lines = [
+      answers.product ? `Product: ${answers.product}` : "",
+      answers.quantity ? `Quantity: ${answers.quantity}` : "",
+      answers.place ? `Site: ${answers.place}` : "",
+      answers.timeline ? `Needed: ${answers.timeline}` : "",
+    ].filter(Boolean);
+
+    /* The insert policy wants at least ten characters, and an enquiry where
+       every optional question was skipped would be shorter than that. */
+    return lines.length > 0
+      ? `Enquiry left in the chat assistant.\n${lines.join("\n")}`
+      : "Enquiry left in the chat assistant. No details given.";
+  }
+
+  /**
+   * Store it, and say so.
+   *
+   * It goes to the same table as every other form on the site, so it reaches
+   * the admin panel and the CRM by the road that is already built. The mail
+   * draft is what happens when that write fails — handing the visitor their
+   * own words back beats an assistant that swallowed them.
+   */
+  function finish(answers: Record<string, string>) {
+    setEnquiry(null);
+    say(chat.enquiry.sending);
+
+    const message = describe(answers);
+
+    submitEnquiry({
+      name: answers.name,
+      email: answers.email,
+      phone: answers.phone,
+      message,
+      product: answers.product === "Not sure yet" ? "" : answers.product,
+      enquiryType: "Chat assistant",
+      source: "Chat widget",
+      page: window.location.pathname,
+    }).then(
+      () => {
+        say(
+          chat.enquiry.done
+            .replace("{name}", answers.name ?? "")
+            .replace("{phone}", answers.phone ?? ""),
+        );
+        say(chat.menuAgain, { menu: true });
+      },
+      () => {
+        say(chat.enquiry.failed);
+        say(chat.menuAgain, { menu: true });
+
+        const body = [
+          `Name: ${answers.name}`,
+          `Phone: ${answers.phone}`,
+          `Email: ${answers.email}`,
+          "",
+          message,
+        ].join("\n");
+        window.location.href = `mailto:${site.enquiryEmail}?subject=${encodeURIComponent(
+          `Enquiry from ${answers.name}`,
+        )}&body=${encodeURIComponent(body)}`;
+      },
+    );
+  }
+
   /** The enquiry branch, one answer at a time. */
   function answer(text: string) {
     if (!enquiry) return;
     const step = chat.enquiry.steps[enquiry.step];
 
-    const valid =
-      step.field === "phone"
-        ? isReachable(text)
-        : step.field === "message"
-          ? text.length >= 10
-          : text.length >= 2;
-
-    if (!valid) {
-      say(step.invalid);
+    if (!accepts(step, text)) {
+      say(step.invalid || "Could you put that another way?");
       return;
     }
 
-    const answers = { ...enquiry.answers, [step.field]: text };
+    retireChoices();
+
+    const answers = { ...enquiry.answers, [step.field]: text.trim() };
     const next = enquiry.step + 1;
 
     if (next < chat.enquiry.steps.length) {
       setEnquiry({ step: next, answers });
-      say(chat.enquiry.steps[next].ask.replace("{name}", answers.name ?? ""));
+      ask(next, answers);
       return;
     }
 
-    setEnquiry(null);
-    say(chat.enquiry.done.replace("{name}", answers.name ?? ""));
-    say(chat.menuAgain, { menu: true });
+    finish(answers);
+  }
 
-    const body = [
-      `Name: ${answers.name}`,
-      `Phone: ${answers.phone}`,
-      "",
-      answers.message,
-    ].join("\n");
-    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
-      `Enquiry from ${answers.name}`,
-    )}&body=${encodeURIComponent(body)}`;
+  /** Pass over a question that has no answer worth waiting for. */
+  function skipStep() {
+    if (!enquiry) return;
+    retireChoices();
+
+    const answers = { ...enquiry.answers };
+    const next = enquiry.step + 1;
+
+    youSaid(chat.enquiry.skip);
+
+    if (next < chat.enquiry.steps.length) {
+      setEnquiry({ step: next, answers });
+      ask(next, answers);
+      return;
+    }
+
+    finish(answers);
   }
 
   /** Typed text: an answer if the enquiry is running, otherwise a keyword look-up. */
@@ -220,7 +365,7 @@ export default function ChatWidget({
     const text = draft.trim();
     if (!text) return;
 
-    setMessages((all) => [...all, { id: nextId++, from: "you", text }]);
+    youSaid(text);
     setDraft("");
 
     if (enquiry) {
@@ -240,7 +385,7 @@ export default function ChatWidget({
 
     if (hit.asks) {
       setEnquiry({ step: 0, answers: {} });
-      say(chat.enquiry.steps[0].ask);
+      ask(0, {});
       return;
     }
 
@@ -259,6 +404,13 @@ export default function ChatWidget({
   const liveMenu = enquiry
     ? undefined
     : [...messages].reverse().find((message) => message.menu)?.id;
+
+  /* The suggestions under the question being asked right now. Earlier ones are
+     answers to questions already given, and pressing one would send it as the
+     answer to a different question. */
+  const liveChoices = enquiry
+    ? [...messages].reverse().find((message) => message.choices)?.id
+    : undefined;
 
   return (
     <>
@@ -363,6 +515,41 @@ export default function ChatWidget({
                         <ChevronRightIcon className="size-4 shrink-0" />
                       </Link>
                     ))}
+                  </div>
+                )}
+
+                {/* One-tap answers to the question above. Suggestions, not a
+                    closed list: anything typed instead is taken as the answer,
+                    which is why the input stays open underneath. */}
+                {message.choices && message.choices.length > 0 && (
+                  <div className="mt-2 flex max-w-[85%] flex-wrap gap-1.5">
+                    {message.choices.map((choice) => (
+                      <button
+                        suppressHydrationWarning
+                        key={choice}
+                        type="button"
+                        disabled={message.id !== liveChoices}
+                        onClick={() => {
+                          youSaid(choice);
+                          answer(choice);
+                        }}
+                        className="cursor-pointer rounded-full border border-brand-200 bg-white px-3 py-1.5 text-xs font-medium text-brand-500 transition hover:border-brand-500 hover:bg-brand-50 disabled:cursor-default disabled:border-line disabled:text-ink-500"
+                      >
+                        {choice}
+                      </button>
+                    ))}
+
+                    {message.skippable && (
+                      <button
+                        suppressHydrationWarning
+                        type="button"
+                        disabled={message.id !== liveChoices}
+                        onClick={skipStep}
+                        className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-medium text-ink-500 underline underline-offset-2 transition hover:text-ink-900 disabled:cursor-default disabled:no-underline"
+                      >
+                        {chat.enquiry.skip}
+                      </button>
+                    )}
                   </div>
                 )}
 
