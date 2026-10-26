@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -22,6 +21,16 @@ import { ChevronDownIcon } from "./icons";
  * It points at the same page in the other language, computed from the current
  * path, so switching from /products lands on /mr/products rather than dropping
  * somebody on a home page they did not ask for.
+ *
+ * A plain <a>, deliberately, where the rest of the site uses next/link.
+ *
+ * Changing language is the one navigation that must not be client-side. Each
+ * locale is a separately built copy of the site, with its own translated
+ * markup and its own JavaScript state; handing the router a path in another
+ * language asks it to swap the content underneath a tree it is still holding,
+ * and what came back was a page half in each. A full load throws the old page
+ * away and fetches the real, already-translated document. It costs one
+ * request on a click that happens once a visit.
  */
 export default function LanguageSwitch({ className = "" }: { className?: string }) {
   const pathname = usePathname() ?? "/";
@@ -71,7 +80,7 @@ export default function LanguageSwitch({ className = "" }: { className?: string 
         >
           {LOCALES.map((locale: Locale) => (
             <li key={locale} role="none">
-              <Link
+              <a
                 role="menuitem"
                 href={localePath(pathname, locale)}
                 hrefLang={locale}
@@ -81,7 +90,7 @@ export default function LanguageSwitch({ className = "" }: { className?: string 
                 }`}
               >
                 {LOCALE_NAMES[locale]}
-              </Link>
+              </a>
             </li>
           ))}
         </ul>

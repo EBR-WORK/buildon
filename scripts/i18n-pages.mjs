@@ -19,7 +19,16 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { alternates, apply, collect, setLang, translateFlight } from "./lib/html-text.mjs";
+import {
+  alternates,
+  apply,
+  collect,
+  prefixLinks,
+  prefixLinksInFlight,
+  setLang,
+  setLangInFlight,
+  translateFlight,
+} from "./lib/html-text.mjs";
 import { hashOf, LOCALE_NAMES, readProvider, translateBatch } from "./lib/translate.mjs";
 
 const OUT = "out";
@@ -76,6 +85,19 @@ for (const key of Object.keys(process.env)) {
 const url = env.NEXT_PUBLIC_SUPABASE_URL;
 const writeKey = env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
 
+/* A deploy is not a local build.
+
+   This exited 0 whatever happened, so a Netlify build with no Supabase
+   variables set printed the banner into a log nobody reads, went green, and
+   published 93 Marathi pages and 93 Hindi pages in English. The site looked
+   live and correct and the language did not work, with nothing failing
+   anywhere to say so.
+
+   On a build server it now fails. Locally it still only warns: a developer
+   with no keys is working on something else and should not be blocked by it,
+   and they can see the banner on their own screen. */
+const CI = Boolean(process.env.CI || process.env.NETLIFY || process.env.VERCEL);
+
 function stop(message) {
   console.warn("");
   console.warn("  ================================================================");
@@ -84,9 +106,15 @@ function stop(message) {
   console.warn(`   ${message}`);
   console.warn("");
   console.warn("   out/mr and out/hi are built and served; they read in English.");
+  if (CI) {
+    console.warn("");
+    console.warn("   Failing the build rather than publishing that.");
+    console.warn("   Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in the");
+    console.warn("   site's environment variables and deploy again.");
+  }
   console.warn("  ================================================================");
   console.warn("");
-  process.exit(0);
+  process.exit(CI ? 1 : 0);
 }
 
 if (!existsSync(OUT)) stop("There is no out/ — run npm run build first.");
@@ -444,6 +472,36 @@ function flightFilesFor(locale) {
   });
 }
 
+/**
+ * The clean paths this locale actually has a built page for.
+ *
+ * The link pass asks this before moving an href, so a link can only ever be
+ * pointed at a page that exists. A route that was skipped, or that has no
+ * Marathi version yet, keeps its English href — the wrong language being a
+ * great deal better than a 404.
+ */
+function builtPagesFor(locale) {
+  const found = new Set();
+
+  /* The home page sits beside the directory, not inside it. */
+  if (existsSync(join(OUT, `${locale}.html`))) found.add(`/${locale}`);
+
+  const walk = (dir) => {
+    if (!existsSync(dir)) return;
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (entry.endsWith(".html")) {
+        const rel = relative(OUT, full).split(sep).join("/").replace(/\.html$/, "");
+        found.add(`/${rel}`);
+      }
+    }
+  };
+  walk(join(OUT, locale));
+
+  return found;
+}
+
 /* -------------------------------------------------------------- applying */
 
 for (const locale of LOCALES) {
@@ -458,6 +516,10 @@ for (const locale of LOCALES) {
   let misses = 0;
   let written = 0;
   let absent = 0;
+  let links = 0;
+
+  const built = builtPagesFor(locale);
+  const hasPage = (path) => built.has(path);
 
   for (const page of pages) {
     const file = join(OUT, localeFile(page, locale));
@@ -468,7 +530,13 @@ for (const locale of LOCALES) {
     const result = apply(readFileSync(file, "utf8"), lookup);
     hits += result.hits;
     misses += result.misses;
-    const tagged = setLang(result.html, locale, TAGS[locale]);
+
+    /* Translating the words is half of it. Every link on the page still
+       pointed at the English URL, so the first click left the language. */
+    const linked = prefixLinks(result.html, locale, hasPage);
+    links += linked.hits;
+
+    const tagged = setLang(linked.html, locale, TAGS[locale]);
     writeFileSync(file, alternates(tagged, page, ORIGIN, locale), "utf8");
     written += 1;
   }
@@ -490,8 +558,19 @@ for (const locale of LOCALES) {
   for (const file of flightFilesFor(locale)) {
     const before = readFileSync(file, "utf8");
     const result = translateFlight(before, lookup);
-    if (result.hits === 0) continue;
-    writeFileSync(file, result.flight, "utf8");
+
+    /* And the hrefs inside it, for the same reason they are rewritten in the
+       markup: this payload is what a clicked link renders from, so a link left
+       in English here walks the visitor out of the language even though the
+       document it came from was right. */
+    const linked = prefixLinksInFlight(result.flight, locale, hasPage);
+    links += linked.hits;
+
+    /* And <html lang>, which this payload also carries. */
+    const tagged = setLangInFlight(linked.flight, TAGS[locale]);
+
+    if (tagged === before) continue;
+    writeFileSync(file, tagged, "utf8");
     navFiles += 1;
     navHits += result.hits;
   }
@@ -500,7 +579,8 @@ for (const locale of LOCALES) {
   console.log(
     `   ${LOCALE_NAMES[locale].padEnd(8)} ${written} pages, ${hits.toLocaleString()} strings replaced (${share}%)` +
       (absent ? `, ${absent} page(s) have no ${locale} copy` : "") +
-      `, ${navHits.toLocaleString()} in ${navFiles} navigation payloads`,
+      `, ${navHits.toLocaleString()} in ${navFiles} navigation payloads` +
+      `, ${links.toLocaleString()} links kept in ${locale}`,
   );
 }
 
