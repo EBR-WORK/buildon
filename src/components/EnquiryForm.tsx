@@ -152,17 +152,12 @@ export default function EnquiryForm({
     data.set("source", origin);
     data.set("page", window.location.pathname);
 
-    /* The quantity rides in the message rather than in a column of its own.
-       
-       The enquiries table has nowhere to put it, and adding a column would
-       mean a migration, a change to the insert policy's length checks and a
-       cell on the leads screen — for one line the desk reads anyway. The chat
-       assistant already writes its answers this way, so an enquiry reads the
-       same whichever road it came by. */
-    const quantity = String(data.get("quantity") ?? "").trim();
-    const detail = quantity
-      ? [`Quantity: ${quantity} bags`, "", message].join("\n")
-      : message;
+    /* Its own column since 0025. It used to ride inside the message, which
+       put it in the admin panel's message box — where correcting it meant
+       editing the visitor's own words, and nothing could total or sort by
+       it. */
+    const typed = Number(String(data.get("quantity") ?? "").trim());
+    const quantity = Number.isFinite(typed) && typed > 0 ? typed : undefined;
 
     setStatus("sending");
 
@@ -170,10 +165,11 @@ export default function EnquiryForm({
       name,
       email,
       phone,
-      message: detail,
+      message,
       company: String(data.get("company") ?? ""),
       enquiryType: String(data.get("enquiryType") ?? ""),
       product: String(data.get("product") ?? ""),
+      quantity,
       source: origin,
       page: window.location.pathname,
     }).then(
@@ -209,7 +205,8 @@ export default function EnquiryForm({
         if (company) lines.push(`Company: ${company}`);
         if (enquiryType) lines.push(`Enquiry type: ${enquiryType}`);
         if (chosen) lines.push(`Product: ${chosen}`);
-        lines.push("", detail);
+        if (quantity) lines.push(`Quantity: ${quantity} bags`);
+        lines.push("", message);
 
         window.location.href = `mailto:${site.enquiryEmail}?subject=${encodeURIComponent(
           `Enquiry from ${name}`,

@@ -1691,10 +1691,11 @@ export const chat = {
         choices: [...productCatalogue.map((item) => item.name), "Not sure yet"],
       },
       {
+        /* A number, like the form asks for, because it goes into the same
+           column. Bands were easier to tap and could not be stored as one. */
         field: "quantity",
-        ask: "Roughly how much do you need?",
-        invalid: "",
-        choices: ["Under 100 bags", "100 – 500 bags", "500 – 2,000 bags", "Over 2,000 bags", "Not sure yet"],
+        ask: "Roughly how many bags do you need? A number is fine.",
+        invalid: "Just the number of bags — or press Skip.",
       },
       {
         field: "place",

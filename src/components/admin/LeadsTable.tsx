@@ -1110,6 +1110,7 @@ function LeadForm({
        and the product column is filterable whichever road it came by. */
     enquiryType: lead?.enquiry_type ?? "",
     product: lead?.product ?? "",
+    quantity: lead?.quantity != null ? String(lead.quantity) : "",
     message: lead?.message ?? "",
     placeId: lead?.place_id ? String(lead.place_id) : "",
   });
@@ -1122,6 +1123,7 @@ function LeadForm({
     setError("");
     try {
       const placeId = form.placeId ? Number(form.placeId) : null;
+      const quantity = form.quantity.trim() ? Number(form.quantity) : null;
 
       if (lead) {
         await updateLead(lead.id, {
@@ -1132,6 +1134,7 @@ function LeadForm({
           message: form.message,
           enquiry_type: form.enquiryType || null,
           product: form.product || null,
+          quantity,
           place_id: placeId,
           source: form.source,
         });
@@ -1147,13 +1150,14 @@ function LeadForm({
           message: form.message,
           enquiry_type: form.enquiryType || null,
           product: form.product || null,
+          quantity,
           place_id: placeId,
           source: form.source,
         });
         return;
       }
 
-      const made = await addLead({ ...form, placeId });
+      const made = await addLead({ ...form, placeId, quantity });
       onSaved(made);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save that.");
@@ -1233,6 +1237,21 @@ function LeadForm({
             ))}
           </select>
         </div>
+
+        {/* Its own box, not a line inside the message.
+            
+            It used to arrive as "Quantity: 3 bags" at the top of the message
+            text, so correcting it here meant editing the visitor's own words
+            and hoping the shape survived. 0025 gave it a column. */}
+        <input
+          type="number"
+          inputMode="numeric"
+          min={1}
+          placeholder="How many bags (optional)"
+          value={form.quantity}
+          onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+          className={field}
+        />
 
         <textarea rows={3} placeholder="What did they ask for?" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className={`${field} resize-none`} />
 

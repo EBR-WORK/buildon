@@ -52,6 +52,7 @@ export type Lead = {
   company: string | null;
   enquiry_type: string | null;
   product: string | null;
+  quantity: number | null;
   source: string | null;
   page: string | null;
   place_id: number | null;
@@ -322,7 +323,14 @@ export const updateLead = (
   id: number,
   values: Pick<
     Lead,
-    "name" | "phone" | "email" | "company" | "message" | "enquiry_type" | "product"
+    | "name"
+    | "phone"
+    | "email"
+    | "company"
+    | "message"
+    | "enquiry_type"
+    | "product"
+    | "quantity"
   > & {
     place_id: number | null;
     source: string | null;
@@ -391,6 +399,7 @@ export async function addLead(entry: {
   message?: string;
   company?: string;
   product?: string;
+  quantity?: number | null;
   enquiryType?: string;
   placeId?: number | null;
 }) {
@@ -410,6 +419,7 @@ export async function addLead(entry: {
       message: message && message.length >= 10 ? message : `Taken by hand. ${entry.source}.`,
       company: entry.company?.trim() || null,
       product: entry.product?.trim() || null,
+      quantity: entry.quantity ?? null,
       enquiry_type: entry.enquiryType?.trim() || null,
       source: entry.source,
       place_id: entry.placeId ?? null,

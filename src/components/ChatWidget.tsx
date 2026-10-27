@@ -67,9 +67,17 @@ type Step = (typeof chat.enquiry.steps)[number];
 const isOptional = (step: Step) =>
   step.field !== "phone" && step.field !== "email" && !("min" in step && step.min);
 
+/** The typed quantity as a number, or undefined when it was skipped. */
+const bags = (value: string | undefined) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
+};
+
 function accepts(step: Step, text: string) {
   if (step.field === "phone") return isReachable(text);
   if (step.field === "email") return looksLikeEmail(text);
+  /* Skipping is still allowed; what is refused is "a few" and "lots". */
+  if (step.field === "quantity") return bags(text.trim()) !== undefined;
   const min = "min" in step && step.min ? step.min : 0;
   return text.trim().length >= min;
 }
@@ -226,7 +234,9 @@ export default function ChatWidget({
    */
   const retireChoices = () =>
     setMessages((all) => {
-      const spent = [...all].reverse().find((message) => message.choices);
+      const spent = [...all]
+        .reverse()
+        .find((message) => message.choices || message.skippable);
       if (!spent) return all;
       return all.map((message) =>
         message.id === spent.id
@@ -253,9 +263,9 @@ export default function ChatWidget({
    * question. Written as lines so it stays readable in the panel.
    */
   function describe(answers: Record<string, string>) {
+    /* Quantity is not here: it has a column of its own since 0025. */
     const lines = [
       answers.product ? `Product: ${answers.product}` : "",
-      answers.quantity ? `Quantity: ${answers.quantity}` : "",
       answers.place ? `Site: ${answers.place}` : "",
       answers.timeline ? `Needed: ${answers.timeline}` : "",
     ].filter(Boolean);
@@ -287,6 +297,7 @@ export default function ChatWidget({
       phone: answers.phone,
       message,
       product: answers.product === "Not sure yet" ? "" : answers.product,
+      quantity: bags(answers.quantity),
       enquiryType: "Chat assistant",
       source: "Chat widget",
       page: window.location.pathname,
@@ -414,7 +425,7 @@ export default function ChatWidget({
      answers to questions already given, and pressing one would send it as the
      answer to a different question. */
   const liveChoices = enquiry
-    ? [...messages].reverse().find((message) => message.choices)?.id
+    ? [...messages].reverse().find((message) => message.choices || message.skippable)?.id
     : undefined;
 
   return (
@@ -526,9 +537,10 @@ export default function ChatWidget({
                 {/* One-tap answers to the question above. Suggestions, not a
                     closed list: anything typed instead is taken as the answer,
                     which is why the input stays open underneath. */}
-                {message.choices && message.choices.length > 0 && (
+                {((message.choices && message.choices.length > 0) ||
+                  message.skippable) && (
                   <div className="mt-2 flex max-w-[85%] flex-wrap gap-1.5">
-                    {message.choices.map((choice) => (
+                    {(message.choices ?? []).map((choice) => (
                       <button
                         suppressHydrationWarning
                         key={choice}
