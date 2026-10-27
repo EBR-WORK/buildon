@@ -682,7 +682,10 @@ export default function LeadsTable() {
                      to nobody else — see 0023_lock_assignment.sql, which is
                      where this is actually enforced. */
                   locked={Boolean(lead.assigned_to) && lead.assigned_to !== profile?.id}
-                  mayEdit={mayAssign || lead.assigned_to === profile?.id}
+                  /* Marketing and the super admin, whoever is selling it.
+                     Correcting a misheard number is keeping the record true,
+                     not working the lead — see 0024_owner_only.sql. */
+                  mayEdit={mayAssign}
                   onEdit={() => {
                     setMenu(null);
                     setEditing(lead);
@@ -998,11 +1001,11 @@ function Row({
               <MenuItem onClick={() => window.open(`mailto:${lead.email}`, "_blank")}>
                 Email them
               </MenuItem>
-              {/* Only for somebody the policy would actually let through:
-                  marketing, a super admin, or the person this lead belongs to.
-                  Offering it to everyone would mean a form that fills in and
-                  then refuses to save. */}
-              {mayEdit && !locked && <MenuItem onClick={onEdit}>Edit</MenuItem>}
+              {/* Only for somebody the database would actually let through:
+                  marketing or a super admin, assigned or not. Offering it to
+                  everyone would mean a form that fills in and then refuses to
+                  save. */}
+              {mayEdit && <MenuItem onClick={onEdit}>Edit</MenuItem>}
               {mayAssign && !locked && (
                 <MenuItem onClick={onArchive}>
                   {lead.archived ? "Restore" : "Archive"}
