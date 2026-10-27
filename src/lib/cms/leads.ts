@@ -320,7 +320,10 @@ export const countViews = (leads: Lead[]) =>
  */
 export const updateLead = (
   id: number,
-  values: Pick<Lead, "name" | "phone" | "email" | "company" | "message"> & {
+  values: Pick<
+    Lead,
+    "name" | "phone" | "email" | "company" | "message" | "enquiry_type" | "product"
+  > & {
     place_id: number | null;
     source: string | null;
   },
@@ -388,6 +391,7 @@ export async function addLead(entry: {
   message?: string;
   company?: string;
   product?: string;
+  enquiryType?: string;
   placeId?: number | null;
 }) {
   if (!supabase) throw new Error("The database is not configured.");
@@ -406,6 +410,7 @@ export async function addLead(entry: {
       message: message && message.length >= 10 ? message : `Taken by hand. ${entry.source}.`,
       company: entry.company?.trim() || null,
       product: entry.product?.trim() || null,
+      enquiry_type: entry.enquiryType?.trim() || null,
       source: entry.source,
       place_id: entry.placeId ?? null,
     })

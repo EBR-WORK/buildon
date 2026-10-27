@@ -317,6 +317,138 @@ function composeEnquiry(row: Enquiry) {
   };
 }
 
+/**
+ * One plain-text mail, over the same Gmail connection everything else uses.
+ *
+ * Pulled out when assignment notices were added: they go to a member of staff
+ * rather than to MAIL_TO, so the recipient had to become an argument. The
+ * encoding is unchanged and deliberately plain — see the note on mimeContent
+ * below for the three ways the pretty version failed to arrive.
+ */
+async function sendMail(to: string, subject: string, text: string, replyTo?: string) {
+  const client = new SMTPClient({
+    connection: {
+      hostname: "smtp.gmail.com",
+      port: 465,
+      tls: true,
+      auth: { username: env("GMAIL_USER"), password: env("GMAIL_APP_PASSWORD") },
+    },
+  });
+
+  try {
+    await client.send({
+      from: env("GMAIL_USER"),
+      to,
+      ...(replyTo ? { replyTo } : {}),
+      subject,
+      mimeContent: [
+        {
+          mimeType: 'text/plain; charset="us-ascii"',
+          content: text,
+          transferEncoding: "7bit",
+        },
+      ],
+    });
+  } finally {
+    await client.close();
+  }
+}
+
+/* --------------------------------------------------------- assignments */
+
+type Assignment = {
+  kind: "assignment" | "task";
+  /** The member of staff being told. */
+  to: string;
+  /** Who did it, when a person did. */
+  by?: string | null;
+  lead: {
+    id: number;
+    name: string;
+    phone: string;
+    email: string;
+    company: string | null;
+    product: string | null;
+    enquiry_type: string | null;
+    message: string;
+    source: string | null;
+    status: string;
+    priority: string;
+  };
+  /** Only on a task. */
+  action?: string;
+  due_on?: string | null;
+};
+
+/* Non-ASCII is stripped rather than encoded, for the same reason the body is
+   7bit: a subject line that needs decoding is a subject line that sometimes
+   arrives as gibberish. Names on this site are Latin; a stray character is
+   worth less than a mail that always reads. */
+const ascii = (value: string) =>
+  value
+    /* Newlines survive; they are below 0x20 and were being stripped with
+       everything else, which ran a message's lines together. An enquiry
+       reading "Quantity: 33 bags" and "this is testing" on two lines arrived
+       as "33 bagsthis is testing".
+
+       A carriage return is folded into the newline rather than kept, so a
+       pasted Windows line ending does not open a blank line of its own. */
+    .replace(/\r\n?/g, "\n")
+    .replace(/[^\x20-\x7E\n]/g, "")
+    .trim();
+
+function composeAssignment(body: Assignment) {
+  const lead = body.lead;
+  const who = body.by ? ascii(body.by) : "A super admin";
+
+  const lines = [
+    body.kind === "task"
+      ? `${who} added a task on a lead assigned to you.`
+      : `${who} assigned you a lead.`,
+    "",
+    `Name:     ${ascii(lead.name)}`,
+    `Phone:    ${ascii(lead.phone)}`,
+  ];
+
+  /* The placeholder addLead writes for a lead taken by hand. Printing it would
+     invite somebody to mail a mailbox that does not exist. */
+  if (lead.email && !lead.email.startsWith("no-email@")) {
+    lines.push(`Email:    ${ascii(lead.email)}`);
+  }
+  if (lead.company) lines.push(`Company:  ${ascii(lead.company)}`);
+  if (lead.product) lines.push(`Product:  ${ascii(lead.product)}`);
+  if (lead.enquiry_type) lines.push(`Type:     ${ascii(lead.enquiry_type)}`);
+  if (lead.source) lines.push(`Source:   ${ascii(lead.source)}`);
+  lines.push(`Status:   ${ascii(lead.status)}`);
+  if (lead.priority && lead.priority !== "normal") {
+    lines.push(`Priority: ${ascii(lead.priority)}`);
+  }
+
+  if (body.kind === "task" && body.action) {
+    lines.push("", "Next action:", ascii(body.action));
+    if (body.due_on) lines.push(`Due: ${ascii(body.due_on)}`);
+  }
+
+  if (lead.message) {
+    lines.push("", "What they asked for:", ascii(lead.message));
+  }
+
+  lines.push(
+    "",
+    "Open it in the admin panel:",
+    `${env("PANEL_URL") || "https://buildon.co.in"}/admin/leads#lead-${lead.id}`,
+    "",
+    "You are getting this because the lead is assigned to you.",
+  );
+
+  const subject =
+    body.kind === "task"
+      ? `New task: ${ascii(lead.name)}`
+      : `Lead assigned to you: ${ascii(lead.name)}`;
+
+  return { subject, text: lines.join("\n") };
+}
+
 Deno.serve(async (request) => {
   if (request.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
@@ -330,13 +462,52 @@ Deno.serve(async (request) => {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  /* One function, two tables. The shape says which: an application carries a
-     job and a first name, an enquiry a message. Two functions would mean two
-     deploys, two sets of SMTP credentials and two places for one bug. */
+  /* One function, three jobs. The shape says which: an application carries a
+     job and a first name, an enquiry a message, and an assignment says so.
+     Three functions would mean three deploys, three sets of SMTP credentials
+     and three places for one bug. */
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response("Bad request", { status: 400 });
+  }
+
+  /* An assignment, which is the only one of the three addressed to a member of
+     staff rather than to the office. It is handled before anything else
+     because it arrives on an UPDATE of a row that has already been through
+     here once as an INSERT — falling through would push the same lead into
+     Odoo a second time. */
+  if (body.kind === "assignment" || body.kind === "task") {
+    const note = body as unknown as Assignment;
+
+    if (!note.to || !note.lead?.name) {
+      return new Response("Bad request", { status: 400 });
+    }
+
+    /* A profile without an address, or a lead unassigned rather than handed
+       on. Neither is an error: the bell in the panel still shows it. */
+    if (!note.to.includes("@") || note.to.startsWith("no-email@")) {
+      console.log(`no address for ${note.to} — notice is in the panel only`);
+      return new Response("Skipped", { status: 200 });
+    }
+
+    try {
+      const composed = composeAssignment(note);
+      await sendMail(note.to, composed.subject, composed.text);
+    } catch (error) {
+      /* 500 so Supabase retries. Nothing is duplicated by a second attempt:
+         this sends mail and writes nothing. */
+      console.error("assignment mail failed", error);
+      return new Response(`Send failed: ${error}`, { status: 500 });
+    }
+
+    return new Response("Sent", { status: 200 });
+  }
+
   let record: Enquiry | Application;
   try {
-    const body = await request.json();
-    record = body.record ?? body;
+    record = (body.record ?? body) as Enquiry | Application;
     if (!record?.email) throw new Error("not a submission");
   } catch {
     return new Response("Bad request", { status: 400 });

@@ -4,6 +4,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { site } from "@/lib/content";
 import { submitApplication } from "@/lib/cms/applications";
 import { applicationFields } from "@/lib/careerDetails";
+import { keepDigits } from "@/lib/phone";
 import { ArrowIcon, ChevronDownIcon } from "./icons";
 
 type Field = "firstName" | "lastName" | "email" | "phone" | "qualification" | "experience" | "ctc" | "preference" | "cv";
@@ -241,7 +242,8 @@ export default function ApplicationForm({ jobTitle }: { jobTitle: string }) {
             type="tel"
             inputMode="tel"
             autoComplete="tel"
-            maxLength={20}
+            maxLength={15}
+            onInput={keepDigits}
             required
             className={FIELD_CLASS}
             {...invalid("phone")}

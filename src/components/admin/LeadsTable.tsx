@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+/* The website form's own option lists, so the two cannot drift apart. */
+import { contact } from "@/lib/content";
+import { toDigits } from "@/lib/phone";
 import {
   addLead,
   archiveLead,
@@ -121,6 +124,12 @@ export default function LeadsTable() {
   const [bulkPriority, setBulkPriority] = useState<Priority>("normal");
 
   const mayAssign = allows(profile, "leads:assign");
+
+  /* Handing out an unassigned lead is marketing's job. Taking one off the
+     person already working it is not — see 0023_lock_assignment.sql, which is
+     where that is actually enforced. The dropdown below only shows it, so the
+     answer arrives before the attempt rather than as an error after it. */
+  const mayReassign = profile?.role === "super_admin";
   /* The role, not a capability. The policy underneath is is_super_admin(), and
      inventing a "leads:delete" capability would be a second statement of the
      same rule — free to drift from the one that actually decides. */
@@ -649,6 +658,7 @@ export default function LeadsTable() {
                   staff={staff}
                   names={names}
                   mayAssign={mayAssign}
+                  mayReassign={mayReassign}
                   mayWork={mayWork && !readOnly}
                   picked={picked.has(lead.id)}
                   expanded={open === lead.id}
@@ -668,6 +678,10 @@ export default function LeadsTable() {
                   onPriority={(next) => void prioritise(lead, next)}
                   onArchive={() => void archive(lead, !lead.archived)}
                   flash={flash === lead.id}
+                  /* An assigned lead belongs to the person holding it, and
+                     to nobody else — see 0023_lock_assignment.sql, which is
+                     where this is actually enforced. */
+                  locked={Boolean(lead.assigned_to) && lead.assigned_to !== profile?.id}
                   mayEdit={mayAssign || lead.assigned_to === profile?.id}
                   onEdit={() => {
                     setMenu(null);
@@ -717,7 +731,6 @@ export default function LeadsTable() {
 
       {adding && (
         <LeadForm
-          places={places}
           onClose={() => setAdding(false)}
           onSaved={(lead) => {
             setRows((all) => [lead, ...all]);
@@ -730,7 +743,6 @@ export default function LeadsTable() {
       {editing && (
         <LeadForm
           lead={editing}
-          places={places}
           onClose={() => setEditing(null)}
           onSaved={(lead) => {
             setRows((all) => all.map((r) => (r.id === lead.id ? lead : r)));
@@ -787,10 +799,12 @@ function Row({
   onExpand,
   onMenu,
   onAssign,
+  mayReassign,
   onStatus,
   onPriority,
   onArchive,
   flash,
+  locked,
   mayEdit,
   onEdit,
   mayDelete,
@@ -810,11 +824,15 @@ function Row({
   onExpand: () => void;
   onMenu: () => void;
   onAssign: (to: string | null) => void;
+  /** May change an owner the lead already has. */
+  mayReassign: boolean;
   onStatus: (status: LeadStatus) => void;
   onPriority: (priority: Priority) => void;
   onArchive: () => void;
   /** Lit because a notification pointed here. */
   flash: boolean;
+  /** Somebody else is working this one. Read-only for everyone but them. */
+  locked: boolean;
   mayEdit: boolean;
   onEdit: () => void;
   mayDelete: boolean;
@@ -875,7 +893,9 @@ function Row({
                 value={lead.status}
                 onChange={(event) => onStatus(event.target.value as LeadStatus)}
                 aria-label={`Status of the lead from ${lead.name}`}
-                className={`select-chevron select-chevron-sm cursor-pointer rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold outline-none ${TONE[lead.status]}`}
+                disabled={locked}
+                title={locked ? "Assigned to somebody else. Only they can change this." : undefined}
+                className={`select-chevron select-chevron-sm cursor-pointer rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold outline-none disabled:cursor-default disabled:opacity-100 ${TONE[lead.status]}`}
               >
                 {LEAD_STATUSES.map((value) => (
                   <option key={value} value={value} className="bg-white text-ink-900">
@@ -898,7 +918,17 @@ function Row({
                 value={lead.assigned_to ?? ""}
                 onChange={(event) => onAssign(event.target.value || null)}
                 aria-label={`Assign the lead from ${lead.name}`}
-                className="select-chevron select-chevron-sm max-w-[11rem] cursor-pointer rounded-lg border border-line bg-white py-1 pl-2 pr-6 text-xs outline-none focus:border-brand-500"
+                /* Locked once somebody holds it, for everyone but a super
+                   admin. The database refuses the change either way; this is
+                   so the person finds out by the control being shut rather
+                   than by an error after they chose a name. */
+                disabled={Boolean(lead.assigned_to) && !mayReassign}
+                title={
+                  Boolean(lead.assigned_to) && !mayReassign
+                    ? "Already assigned. Only a super admin can change this."
+                    : undefined
+                }
+                className="select-chevron select-chevron-sm max-w-[11rem] cursor-pointer rounded-lg border border-line bg-white py-1 pl-2 pr-6 text-xs outline-none focus:border-brand-500 disabled:cursor-default disabled:border-transparent disabled:bg-transparent disabled:text-ink-700"
               >
                 <option value="">—</option>
                 {assigneesFor(lead, staff).map((person) => (
@@ -922,7 +952,9 @@ function Row({
                 value={lead.priority}
                 onChange={(event) => onPriority(event.target.value as Priority)}
                 aria-label={`Priority of the lead from ${lead.name}`}
-                className={`select-chevron select-chevron-sm cursor-pointer rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold capitalize outline-none ${PRIORITY_TONE[lead.priority]}`}
+                disabled={locked}
+                title={locked ? "Assigned to somebody else. Only they can change this." : undefined}
+                className={`select-chevron select-chevron-sm cursor-pointer rounded-full py-1 pl-2.5 pr-6 text-xs font-semibold capitalize outline-none disabled:cursor-default disabled:opacity-100 ${PRIORITY_TONE[lead.priority]}`}
               >
                 {PRIORITIES.map((value) => (
                   <option key={value} value={value} className="bg-white text-ink-900">
@@ -970,8 +1002,8 @@ function Row({
                   marketing, a super admin, or the person this lead belongs to.
                   Offering it to everyone would mean a form that fills in and
                   then refuses to save. */}
-              {mayEdit && <MenuItem onClick={onEdit}>Edit</MenuItem>}
-              {mayAssign && (
+              {mayEdit && !locked && <MenuItem onClick={onEdit}>Edit</MenuItem>}
+              {mayAssign && !locked && (
                 <MenuItem onClick={onArchive}>
                   {lead.archived ? "Restore" : "Archive"}
                 </MenuItem>
@@ -979,7 +1011,7 @@ function Row({
               {/* Last, and separated: the one item here that cannot be undone
                   sits apart from the ones that can, so it is not the thing a
                   hand lands on by momentum. */}
-              {mayDelete && (
+              {mayDelete && !locked && (
                 <>
                   <span className="my-1 block h-px bg-line" />
                   <MenuItem onClick={onDelete} tone="danger">
@@ -1039,19 +1071,17 @@ function MenuItem({
 /**
  * One dialog for adding a lead and for correcting one.
  *
- * The same seven fields either way, so two components would be two places to
+ * The same fields either way, so two components would be two places to
  * fix the next thing wrong with them. `lead` is what tells them apart: absent
  * means a new row, present means that row.
  */
 function LeadForm({
   lead,
-  places,
   onClose,
   onSaved,
 }: {
   /** The lead being corrected, or undefined when adding one. */
   lead?: Lead;
-  places: Place[];
   onClose: () => void;
   onSaved: (lead: Lead) => void;
 }) {
@@ -1062,7 +1092,21 @@ function LeadForm({
     phone: lead?.phone ?? "",
     email: lead?.email ?? "",
     company: lead?.company ?? "",
-    source: lead?.source ?? "Phone",
+    /* Kept although nothing on this form sets them any more.
+
+       Source: a lead edited here must keep the one it arrived with, or
+       correcting a typo on a website enquiry would relabel it as one taken by
+       hand and lose where it actually came from.
+
+       Place: filled in the moment the lead is assigned, from the branch the
+       salesperson works at — which is a better answer than asking the person
+       taking the call to guess. */
+    source: lead?.source ?? "Added by hand",
+    /* The same two questions the website form asks, so a lead taken on the
+       phone arrives in the same shape as one that came through the site —
+       and the product column is filterable whichever road it came by. */
+    enquiryType: lead?.enquiry_type ?? "",
+    product: lead?.product ?? "",
     message: lead?.message ?? "",
     placeId: lead?.place_id ? String(lead.place_id) : "",
   });
@@ -1083,6 +1127,8 @@ function LeadForm({
           email: form.email,
           company: form.company,
           message: form.message,
+          enquiry_type: form.enquiryType || null,
+          product: form.product || null,
           place_id: placeId,
           source: form.source,
         });
@@ -1096,6 +1142,8 @@ function LeadForm({
           email: form.email,
           company: form.company,
           message: form.message,
+          enquiry_type: form.enquiryType || null,
+          product: form.product || null,
           place_id: placeId,
           source: form.source,
         });
@@ -1136,38 +1184,48 @@ function LeadForm({
         </p>
 
         <input required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={field} />
-        <input required placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={field} />
+        {/* Digits only, the same as every form on the website — a lead taken
+            on the phone must be as dialable as one that came through the
+            site. See lib/phone.ts. */}
+        <input
+          required
+          type="tel"
+          inputMode="tel"
+          placeholder="Phone"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: toDigits(e.target.value) })}
+          className={field}
+        />
         <input type="email" placeholder="Email (optional)" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={field} />
         <input placeholder="Company (optional)" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} className={field} />
 
+        {/* The website form's own two questions, from the same lists — so the
+            product names cannot drift apart between the site and the panel. */}
         <div className="grid gap-3 sm:grid-cols-2">
-          <select value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} aria-label="Source" className={`${selectField} cursor-pointer`}>
-            {["Phone", "Walk-in", "Referral", "WhatsApp", "Exhibition", "Other"].map((s) => (
-              <option key={s} value={s}>
-                {s}
+          <select
+            value={form.enquiryType}
+            onChange={(e) => setForm({ ...form, enquiryType: e.target.value })}
+            aria-label="Enquiry type"
+            className={`${selectField} cursor-pointer`}
+          >
+            <option value="">Enquiry type (optional)</option>
+            {contact.enquiryTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
               </option>
             ))}
           </select>
 
-          {/* Always shown, even with nothing to choose.
-              
-              It used to hide itself when the places list was empty, which is
-              every day so far — the table has no rows and no screen manages
-              it. A field that vanishes makes the gap look like a decision
-              rather than a thing nobody has set up yet. */}
           <select
-            value={form.placeId}
-            onChange={(e) => setForm({ ...form, placeId: e.target.value })}
-            aria-label="Place"
-            disabled={places.length === 0}
-            className={`${selectField} cursor-pointer disabled:cursor-default disabled:text-ink-400`}
+            value={form.product}
+            onChange={(e) => setForm({ ...form, product: e.target.value })}
+            aria-label="Which product"
+            className={`${selectField} cursor-pointer`}
           >
-            <option value="">
-              {places.length === 0 ? "No places set up yet" : "Place (optional)"}
-            </option>
-            {places.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
+            <option value="">Which product (optional)</option>
+            {contact.productOptions.map((name) => (
+              <option key={name} value={name}>
+                {name}
               </option>
             ))}
           </select>

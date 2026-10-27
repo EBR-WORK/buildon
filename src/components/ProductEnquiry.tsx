@@ -44,8 +44,6 @@ export default function ProductEnquiry({ product }: { product: string }) {
           /* Prefixed: /contact-us and the home page carry this same form, and
              two copies claiming the same ids point every label at the first. */
           idPrefix="product-"
-          detailed
-          withProduct
           defaultProduct={product}
           source="Product page"
         />

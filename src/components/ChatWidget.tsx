@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { chat, site } from "@/lib/content";
 import { submitEnquiry } from "@/lib/cms/enquiries";
+import { toDigits } from "@/lib/phone";
 import { getDictionary } from "@/lib/i18n";
 import { localeOf } from "@/lib/i18n/config";
 
@@ -328,7 +329,11 @@ export default function ChatWidget({
 
     retireChoices();
 
-    const answers = { ...enquiry.answers, [step.field]: text.trim() };
+    /* The phone answer is kept as digits, like every box on the site.
+       isReachable only counts the digits, so "98765 43210 after 6pm" passed
+       and was stored whole — a number nobody can dial without editing it. */
+    const value = step.field === "phone" ? toDigits(text) : text.trim();
+    const answers = { ...enquiry.answers, [step.field]: value };
     const next = enquiry.step + 1;
 
     if (next < chat.enquiry.steps.length) {

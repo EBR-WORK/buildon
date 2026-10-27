@@ -174,11 +174,6 @@ export default function QuotePanel({
             worth knowing even when the form is identical. */}
         <EnquiryForm
           idPrefix="quote-"
-          detailed
-          /* Only the tab asks which product. The pop-up arrives uninvited, and
-             every field it adds before taking a message is one more reason to
-             close it. */
-          withProduct={open === "tab"}
           source={open === "tab" ? "Get a Quote tab" : "Pop-up dialog"}
         />
       </EnquiryDialog>

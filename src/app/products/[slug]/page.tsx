@@ -618,7 +618,17 @@ export default async function ProductDetailPage({
                     <h2 className="font-display text-2xl leading-snug font-semibold">
                       {contact.formTitle}
                     </h2>
-                    <EnquiryForm idPrefix={`${product.slug}-`} className="mt-6" />
+                    {/* The page is about one product, so the dropdown opens
+                        on it rather than asking a question the page has
+                        already answered. It stays changeable: somebody
+                        reading about one plaster may be enquiring about
+                        another. */}
+                    <EnquiryForm
+                      idPrefix={`${product.slug}-`}
+                      className="mt-6"
+                      defaultProduct={product.name}
+                      source="Product page"
+                    />
                   </div>
   
                   {/* The photograph is square. Below desktop its box takes that

@@ -45,3 +45,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Migrations with the real keys pasted in, ready for the SQL editor.
+# The versions in supabase/migrations/ carry placeholders on purpose; these
+# are the filled-in copies and must never be committed.
+/supabase/ready/

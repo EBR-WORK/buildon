@@ -22,7 +22,7 @@ import {
   type Place,
   type Staff,
 } from "@/lib/cms/leads";
-import { allows } from "@/lib/cms/auth";
+import { allows, describeRole } from "@/lib/cms/auth";
 import { useAdmin } from "./AuthGate";
 import { useToast } from "./Toast";
 
@@ -227,9 +227,13 @@ export default function PresalesTracker() {
               className="cursor-pointer rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none focus:border-brand-500"
             >
               <option value="all">Anyone</option>
+              {/* Role and branch beside the address: three sales accounts at
+                  three branches are three different answers, and an email
+                  alone does not say which is which. */}
               {staff.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.email}
+                  {p.email} — {describeRole(p.role)}
+                  {p.place_id ? ` · ${placeName(p.place_id)}` : ""}
                 </option>
               ))}
             </select>
@@ -251,11 +255,12 @@ export default function PresalesTracker() {
 
           {/* --------------------------------------------------- tracker */}
           <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-            <table className="w-full min-w-[42rem] text-sm">
+            <table className="w-full min-w-[62rem] text-sm">
               <thead className="border-b border-line bg-surface text-left text-xs font-semibold tracking-wide text-ink-500 uppercase">
                 <tr>
                   <th className="px-3 py-2.5">Lead</th>
-                  <th className="px-3 py-2.5">Place</th>
+                  <th className="px-3 py-2.5">Contact</th>
+                  <th className="px-3 py-2.5">Asked for</th>
                   <th className="px-3 py-2.5">Salesperson</th>
                   <th className="px-3 py-2.5">Status</th>
                   <th className="px-3 py-2.5">Updated</th>
@@ -265,25 +270,109 @@ export default function PresalesTracker() {
               <tbody className="divide-y divide-line">
                 {tracked.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-3 py-6 text-center text-ink-500">
+                    <td colSpan={7} className="px-3 py-6 text-center text-ink-500">
                       Nothing assigned yet.
                     </td>
                   </tr>
                 )}
                 {tracked.map((lead) => (
                   <tr key={lead.id} className="hover:bg-row-hover">
-                    <td className="px-3 py-2.5 font-semibold">{lead.name}</td>
-                    <td className="px-3 py-2.5">{placeName(lead.place_id)}</td>
-                    <td className="px-3 py-2.5">
-                      {lead.assigned_to ? (names[lead.assigned_to] ?? "—") : "—"}
+                    {/* Who it is, and where from. The company is what tells a
+                        repeat buyer from a first one, and it was not here. */}
+                    <td className="px-3 py-2.5 align-top">
+                      <span className="block font-semibold">{lead.name}</span>
+                      {lead.company && (
+                        <span className="block text-xs text-ink-500">{lead.company}</span>
+                      )}
+                      <span className="block text-xs text-ink-500">
+                        {placeName(lead.place_id)}
+                        {lead.source ? ` · ${lead.source}` : ""}
+                      </span>
                     </td>
-                    <td className="px-3 py-2.5">
+
+                    {/* Presales rings people. Having to open another screen to
+                        find the number is the whole job made slower. */}
+                    <td className="px-3 py-2.5 align-top whitespace-nowrap">
+                      {lead.phone ? (
+                        <a
+                          href={`tel:${lead.phone.replace(/[^\d+]/g, "")}`}
+                          className="block text-brand-500"
+                        >
+                          {lead.phone}
+                        </a>
+                      ) : (
+                        <span className="block text-ink-400">No number</span>
+                      )}
+                      {lead.email && !lead.email.startsWith("no-email@") && (
+                        <a
+                          href={`mailto:${lead.email}`}
+                          className="block max-w-[13rem] truncate text-xs text-ink-500"
+                          title={lead.email}
+                        >
+                          {lead.email}
+                        </a>
+                      )}
+                    </td>
+
+                    {/* What they actually want. A tracker that shows a name, a
+                        branch and a status, and not the enquiry, is asking
+                        presales to qualify something they cannot see. */}
+                    <td className="px-3 py-2.5 align-top">
+                      <span className="block max-w-[16rem] truncate">
+                        {lead.product ?? lead.enquiry_type ?? "—"}
+                      </span>
+                      {lead.message && (
+                        <span
+                          className="mt-0.5 block max-w-[16rem] truncate text-xs text-ink-500"
+                          title={lead.message}
+                        >
+                          {lead.message}
+                        </span>
+                      )}
+                    </td>
+
+                    {/* The person, their role and their branch — not an email
+                        on its own, which says who to blame and nothing about
+                        whether they are the right person for this place. */}
+                    <td className="px-3 py-2.5 align-top">
+                      {lead.assigned_to ? (
+                        <>
+                          <span className="block max-w-[14rem] truncate" title={names[lead.assigned_to]}>
+                            {names[lead.assigned_to] ?? "Unknown account"}
+                          </span>
+                          <span className="block text-xs text-ink-500">
+                            {describeRole(staff.find((p) => p.id === lead.assigned_to)?.role)}
+                            {(() => {
+                              const theirs = staff.find((p) => p.id === lead.assigned_to)?.place_id;
+                              return theirs ? ` · ${placeName(theirs)}` : "";
+                            })()}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-ink-400">Nobody yet</span>
+                      )}
+                    </td>
+
+                    <td className="px-3 py-2.5 align-top">
                       <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${TONE[lead.status]}`}>
                         {STATUS_LABEL[lead.status]}
                       </span>
+                      {lead.priority !== "normal" && (
+                        <span className="mt-1 block text-xs font-semibold text-signal-500">
+                          {lead.priority === "high" ? "High priority" : "Low priority"}
+                        </span>
+                      )}
                     </td>
-                    <td className="px-3 py-2.5 whitespace-nowrap text-ink-500">
+
+                    {/* Both halves of the clock: how long since it last moved,
+                        and how long it has existed. A lead touched an hour ago
+                        reads the same as a fresh one until you can see it
+                        arrived three weeks back. */}
+                    <td className="px-3 py-2.5 align-top whitespace-nowrap text-ink-500">
                       {sinceText(lead.updated_at ?? lead.created_at)}
+                      <span className="block text-xs">
+                        in {sinceText(lead.created_at)}
+                      </span>
                     </td>
                     <td className="px-3 py-2.5 text-right">
                       {mayWrite && (
@@ -363,7 +452,6 @@ export default function PresalesTracker() {
                   <tr>
                     <th className="w-10 px-3 py-2.5" />
                     <th className="px-3 py-2.5">Lead</th>
-                    <th className="px-3 py-2.5">Place</th>
                     <th className="px-3 py-2.5">Salesperson</th>
                     <th className="px-3 py-2.5">Next action</th>
                     <th className="px-3 py-2.5">Due</th>
@@ -372,7 +460,7 @@ export default function PresalesTracker() {
                 <tbody className="divide-y divide-line">
                   {tasks.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-3 py-6 text-center text-ink-500">
+                      <td colSpan={5} className="px-3 py-6 text-center text-ink-500">
                         No tasks yet. Add one from a row above.
                       </td>
                     </tr>
@@ -391,17 +479,52 @@ export default function PresalesTracker() {
                             className="size-4 cursor-pointer accent-brand-500"
                           />
                         </td>
-                        <td className="px-3 py-2.5 font-semibold">{lead?.name ?? "—"}</td>
-                        <td className="px-3 py-2.5">{placeName(lead?.place_id ?? null)}</td>
-                        <td className="px-3 py-2.5">
+                        {/* The lead, its branch and its number together: a task
+                            that says "call them back Tuesday" and makes you go
+                            to another screen for the number is half a task. */}
+                        <td className="px-3 py-2.5 align-top">
+                          <span className="block font-semibold">{lead?.name ?? "Lead removed"}</span>
+                          <span className="block text-xs text-ink-500">
+                            {placeName(lead?.place_id ?? null)}
+                            {lead?.company ? ` · ${lead.company}` : ""}
+                          </span>
+                          {lead?.phone && (
+                            <a
+                              href={`tel:${lead.phone.replace(/[^\d+]/g, "")}`}
+                              className="block text-xs text-brand-500"
+                            >
+                              {lead.phone}
+                            </a>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5 align-top">
                           {lead?.assigned_to ? (
-                            (names[lead.assigned_to] ?? "—")
+                            <>
+                              <span className="block max-w-[14rem] truncate">
+                                {names[lead.assigned_to] ?? "Unknown account"}
+                              </span>
+                              <span className="block text-xs text-ink-500">
+                                {describeRole(
+                                  staff.find((p) => p.id === lead.assigned_to)?.role,
+                                )}
+                              </span>
+                            </>
                           ) : (
                             <span className="text-ink-400">unassigned</span>
                           )}
                         </td>
-                        <td className={`px-3 py-2.5 ${task.done ? "line-through" : ""}`}>
+                        {/* Who asked for it, so the salesperson knows whom to
+                            go back to when the answer is not what was wanted. */}
+                        <td className={`px-3 py-2.5 align-top ${task.done ? "line-through" : ""}`}>
                           {task.action}
+                          <span className="mt-0.5 block text-xs text-ink-500 no-underline">
+                            {task.created_by
+                              ? `asked by ${names[task.created_by] ?? "someone"}`
+                              : "asked by someone"}
+                            {task.done && task.done_at
+                              ? ` · done ${sinceText(task.done_at)}`
+                              : ""}
+                          </span>
                         </td>
                         <td
                           className={`px-3 py-2.5 whitespace-nowrap ${

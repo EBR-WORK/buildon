@@ -312,6 +312,23 @@
     }
   }
 
+  /* The spinner arrows on a number input.
+     
+     Hidden because the one number this site asks for is a quantity in the
+     hundreds, and a pair of arrows that step by one is a fiddly way to reach
+     500. The keyboard still types it, and inputMode="numeric" opens the
+     keypad on a phone. */
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
   .faq-panel::details-content {
     block-size: 0;
     overflow: hidden;

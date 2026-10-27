@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { contact, site } from "@/lib/content";
 import { submitEnquiry } from "@/lib/cms/enquiries";
+import { keepDigits } from "@/lib/phone";
 import { ENQUIRY_FORM } from "./NetlifyForms";
 import { ArrowIcon, ChevronDownIcon } from "./icons";
 
@@ -24,8 +25,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export default function EnquiryForm({
   className = "",
   idPrefix = "",
-  detailed = false,
-  withProduct = false,
+  withProduct = true,
   defaultProduct,
   source,
 }: {
@@ -34,28 +34,18 @@ export default function EnquiryForm({
   /**
    * What the desk sees as the origin of the enquiry.
    *
-   * A prop rather than something derived from `detailed`: the tab and the
-   * pop-up now show the same form, so its shape no longer says anything about
-   * where the enquiry came from — and which of the two produced a lead is the
-   * one thing this field exists to tell apart.
+   * A prop rather than something derived from the shape of the form: every
+   * form on the site now asks the same questions, so nothing about it says
+   * where the enquiry came from — and that is the one thing this field exists
+   * to record.
    */
   source?: string;
   /**
-   * Adds company and enquiry type, and sets phone and email side by side.
+   * Whether to ask which product.
    *
-   * Only the quote dialog asks for them. The home page's "Send Us Message"
-   * block and /contact-us are deliberately short — a form that wants six
-   * answers before it will take a question is a form fewer people finish, and
-   * those two are already doing their job.
-   */
-  detailed?: boolean;
-  /**
-   * Adds the product dropdown. Only the Get a Quote tab asks.
-   *
-   * Someone who pressed that button came to ask about something. The dialog
-   * that lets itself in 1.2 seconds after the page loads interrupted them
-   * instead, and every field it adds before it will take a message is one more
-   * reason to close it.
+   * On by default, with everything else. It is here for the one place that
+   * cannot use it: a form that is already about a named product, where the
+   * dropdown would ask a question the page has answered.
    */
   withProduct?: boolean;
   /**
@@ -69,6 +59,11 @@ export default function EnquiryForm({
 }) {
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+
+  /* Which product is chosen — the only answer on this form that changes what
+     else it asks. Everything else is read out of the FormData on submit; this
+     one has to be known while the form is still being filled in. */
+  const [product, setProduct] = useState(defaultProduct ?? "");
 
   /**
    * Send it to Netlify, which emails it on to the enquiry desk.
@@ -153,9 +148,21 @@ export default function EnquiryForm({
     }
 
     data.set("form-name", ENQUIRY_FORM);
-    const origin = source ?? (detailed ? "Quote dialog" : "Page form");
+    const origin = source ?? "Page form";
     data.set("source", origin);
     data.set("page", window.location.pathname);
+
+    /* The quantity rides in the message rather than in a column of its own.
+       
+       The enquiries table has nowhere to put it, and adding a column would
+       mean a migration, a change to the insert policy's length checks and a
+       cell on the leads screen — for one line the desk reads anyway. The chat
+       assistant already writes its answers this way, so an enquiry reads the
+       same whichever road it came by. */
+    const quantity = String(data.get("quantity") ?? "").trim();
+    const detail = quantity
+      ? [`Quantity: ${quantity} bags`, "", message].join("\n")
+      : message;
 
     setStatus("sending");
 
@@ -163,7 +170,7 @@ export default function EnquiryForm({
       name,
       email,
       phone,
-      message,
+      message: detail,
       company: String(data.get("company") ?? ""),
       enquiryType: String(data.get("enquiryType") ?? ""),
       product: String(data.get("product") ?? ""),
@@ -198,11 +205,11 @@ export default function EnquiryForm({
         ];
         const company = String(data.get("company") ?? "").trim();
         const enquiryType = String(data.get("enquiryType") ?? "").trim();
-        const product = String(data.get("product") ?? "").trim();
+        const chosen = String(data.get("product") ?? "").trim();
         if (company) lines.push(`Company: ${company}`);
         if (enquiryType) lines.push(`Enquiry type: ${enquiryType}`);
-        if (product) lines.push(`Product: ${product}`);
-        lines.push("", message);
+        if (chosen) lines.push(`Product: ${chosen}`);
+        lines.push("", detail);
 
         window.location.href = `mailto:${site.enquiryEmail}?subject=${encodeURIComponent(
           `Enquiry from ${name}`,
@@ -234,255 +241,136 @@ export default function EnquiryForm({
     );
   }
 
-  /* Two field styles, because the two places this appears are different
-     shapes. The page forms are a single column in a narrow band, where an
-     underlined field with a floating label is light and reads as part of the
-     page. The dialog is a wide white card with six fields in it, where filled
-     boxes with their labels above are easier to scan — and the reference does
-     exactly that. */
-  if (detailed) {
-    return (
-      <form
-        name={ENQUIRY_FORM}
-        method="POST"
-        onSubmit={handleSubmit}
-        noValidate
-        className={className}
-      >
-        {/* Carried so a submission still arrives if the POST above never runs
-            — JavaScript blocked, or a browser that falls back to a plain
-            form submit. Netlify matches it to the hidden definition. */}
-        <input type="hidden" name="form-name" value={ENQUIRY_FORM} />
-        <Filled
-          name="name"
-          idPrefix={idPrefix}
-          label="Name"
-          placeholder={contact.placeholders.name}
-          error={errors.name}
-          autoComplete="name"
-        />
-
-        <div className="gap-x-5 sm:grid sm:grid-cols-2">
-          <Filled
-            name="phone"
-            idPrefix={idPrefix}
-            label="Phone Number"
-            placeholder={contact.placeholders.phone}
-            type="tel"
-            error={errors.phone}
-            autoComplete="tel"
-          />
-          <Filled
-            name="email"
-            idPrefix={idPrefix}
-            label="Email"
-            placeholder={contact.placeholders.email}
-            type="email"
-            error={errors.email}
-            autoComplete="email"
-          />
-        </div>
-
-        <Filled
-          name="company"
-          idPrefix={idPrefix}
-          label="Company Name (if applicable)"
-          placeholder={contact.placeholders.company}
-          autoComplete="organization"
-        />
-
-        {/* Side by side when both are here, full width when the product
-            dropdown is not: a lone select in a half-width column beside empty
-            space reads as a field that lost its partner. */}
-        <div className={withProduct ? "gap-x-5 sm:grid sm:grid-cols-2" : ""}>
-          <Filled
-            name="enquiryType"
-            idPrefix={idPrefix}
-            label="Enquiry Type"
-            placeholder={contact.placeholders.enquiryType}
-            options={contact.enquiryTypes}
-          />
-          {withProduct && (
-            <Filled
-              name="product"
-              idPrefix={idPrefix}
-              label={contact.fields.product}
-              placeholder={contact.placeholders.product}
-              options={contact.productOptions}
-              defaultValue={defaultProduct}
-            />
-          )}
-        </div>
-
-        <Filled
-          name="message"
-          idPrefix={idPrefix}
-          label="Type Your Enquiry"
-          placeholder={contact.placeholders.message}
-          error={errors.message}
-          multiline
-        />
-
-        {/* The same button the rest of the site uses — the pill, not the
-            split white-and-orange control the reference has. A dialog is a
-            worse place than most to invent a one-off shape. */}
-        <button
-          suppressHydrationWarning
-          type="submit"
-          disabled={status === "sending"}
-          className="group mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600 sm:w-auto"
-        >
-          {status === "sending" ? "Sending…" : contact.submitDialog}
-          <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
-        </button>
-      </form>
-    );
-  }
-
+  /*
+   * One form, everywhere.
+   *
+   * There were two: a short one on the home page and /contact-us with
+   * underlined fields, and this one — boxed fields, company, enquiry type
+   * and product — behind Get a Quote. The short one was deliberate, on the
+   * reasoning that a form asking six questions before it will take a
+   * message is a form fewer people finish.
+   *
+   * It also meant the desk got a different shape of enquiry depending on
+   * where the visitor happened to be standing, and no way to tell whether a
+   * missing company name meant "none" or "never asked". Buildon asked for
+   * the quote form everywhere, so that is what this is.
+   */
   return (
     <form
-        name={ENQUIRY_FORM}
-        method="POST"
-        onSubmit={handleSubmit}
-        noValidate
-        className={className}
-      >
-        {/* Carried so a submission still arrives if the POST above never runs
-            — JavaScript blocked, or a browser that falls back to a plain
-            form submit. Netlify matches it to the hidden definition. */}
-        <input type="hidden" name="form-name" value={ENQUIRY_FORM} />
-      <Field
+      name={ENQUIRY_FORM}
+      method="POST"
+      onSubmit={handleSubmit}
+      noValidate
+      className={className}
+    >
+      {/* Carried so a submission still arrives if the POST above never runs
+          — JavaScript blocked, or a browser that falls back to a plain
+          form submit. Netlify matches it to the hidden definition. */}
+      <input type="hidden" name="form-name" value={ENQUIRY_FORM} />
+      <Filled
         name="name"
         idPrefix={idPrefix}
-        label={contact.fields.name}
+        label="Name"
+        placeholder={contact.placeholders.name}
         error={errors.name}
         autoComplete="name"
       />
-      <Field
-        name="email"
+
+      <div className="gap-x-5 sm:grid sm:grid-cols-2">
+        <Filled
+          name="phone"
+          idPrefix={idPrefix}
+          label="Phone Number"
+          placeholder={contact.placeholders.phone}
+          type="tel"
+          error={errors.phone}
+          autoComplete="tel"
+        />
+        <Filled
+          name="email"
+          idPrefix={idPrefix}
+          label="Email"
+          placeholder={contact.placeholders.email}
+          type="email"
+          error={errors.email}
+          autoComplete="email"
+        />
+      </div>
+
+      <Filled
+        name="company"
         idPrefix={idPrefix}
-        label={contact.fields.email}
-        type="email"
-        error={errors.email}
-        autoComplete="email"
+        label="Company Name (if applicable)"
+        placeholder={contact.placeholders.company}
+        autoComplete="organization"
       />
-      <Field
-        name="phone"
-        idPrefix={idPrefix}
-        label={contact.fields.phone}
-        type="tel"
-        error={errors.phone}
-        autoComplete="tel"
-      />
-      <Field
+
+      {/* Side by side when both are here, full width when the product
+          dropdown is not: a lone select in a half-width column beside empty
+          space reads as a field that lost its partner. */}
+      <div className={withProduct ? "gap-x-5 sm:grid sm:grid-cols-2" : ""}>
+        <Filled
+          name="enquiryType"
+          idPrefix={idPrefix}
+          label="Enquiry Type"
+          placeholder={contact.placeholders.enquiryType}
+          options={contact.enquiryTypes}
+        />
+        {withProduct && (
+          <Filled
+            name="product"
+            idPrefix={idPrefix}
+            label={contact.fields.product}
+            placeholder={contact.placeholders.product}
+            options={contact.productOptions}
+            defaultValue={defaultProduct}
+            onChange={setProduct}
+          />
+        )}
+      </div>
+
+      {/* How much, once there is a something to count.
+          
+          Not on the form from the start: "How much do you need?" above an
+          empty product dropdown is a question with no subject, and a field
+          that cannot be answered yet is one people skip and then forget to
+          come back to. Choosing a product is what makes it a real question, so
+          that is when it appears. */}
+      {product && (
+        <Filled
+          name="quantity"
+          idPrefix={idPrefix}
+          label={contact.fields.quantity}
+          placeholder={contact.placeholders.quantity}
+          type="number"
+        />
+      )}
+
+      <Filled
         name="message"
         idPrefix={idPrefix}
-        label={contact.fields.message}
+        label="Type Your Enquiry"
+        placeholder={contact.placeholders.message}
         error={errors.message}
         multiline
       />
 
+      {/* The same button the rest of the site uses — the pill, not the
+          split white-and-orange control the reference has. A dialog is a
+          worse place than most to invent a one-off shape. */}
       <button
         suppressHydrationWarning
         type="submit"
         disabled={status === "sending"}
-        className="group mt-8 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600 sm:w-auto"
+        className="group mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600 sm:w-auto"
       >
-        {status === "sending" ? "Sending…" : contact.submit}
+        {status === "sending" ? "Sending…" : contact.submitDialog}
         <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
       </button>
     </form>
   );
 }
 
-/**
- * An underlined field whose label starts in the input and rises out of it once
- * the field is focused or filled — the reference's look, but with a real
- * <label> rather than a placeholder that vanishes as soon as you type.
- *
- * The blue underline sweeps in on focus, so the focus cue is a change of weight
- * and not colour alone.
- */
-function Field({
-  name,
-  idPrefix = "",
-  label,
-  type = "text",
-  error,
-  autoComplete,
-  multiline = false,
-}: {
-  name: string;
-  idPrefix?: string;
-  label: string;
-  type?: string;
-  error?: string;
-  autoComplete?: string;
-  multiline?: boolean;
-}) {
-  const id = `${idPrefix}${name}`;
-  const errorId = `${id}-error`;
-  const field =
-    "peer w-full border-b bg-transparent pt-6 pb-2 text-base outline-none sm:text-[15px] " +
-    (error ? "border-signal-500" : "border-line");
-
-  return (
-    <div className="mb-2">
-      <div className="relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-brand-500 after:transition-all after:duration-300 after:content-[''] has-[:focus]:after:w-full">
-        {multiline ? (
-          <textarea
-            suppressHydrationWarning
-            id={id}
-            name={name}
-            rows={4}
-            placeholder=" "
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? errorId : undefined}
-            aria-required
-            className={`${field} resize-y`}
-          />
-        ) : (
-          <input
-            suppressHydrationWarning
-            id={id}
-            name={name}
-            type={type}
-            autoComplete={autoComplete}
-            placeholder=" "
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? errorId : undefined}
-            aria-required
-            className={field}
-          />
-        )}
-        <label
-          htmlFor={id}
-          className="pointer-events-none absolute top-6 left-0 text-base text-ink-500 transition-all duration-200 peer-focus:top-0 peer-focus:text-xs peer-focus:text-brand-500 peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs sm:text-[15px]"
-        >
-          {label}
-        </label>
-      </div>
-      {error && (
-        <p id={errorId} className="mt-1.5 text-sm text-signal-500">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-/**
- * A filled field, labelled from above.
- *
- * One component for input, select and textarea: they differ by a handful of
- * attributes and share the box, the label, the placeholder colour and the
- * error. Three near-identical components drift — one gets a focus ring the
- * others never do.
- *
- * The label is above rather than floating. A floating label needs the field to
- * start empty to have somewhere to float from, and a select never is; this way
- * every row in the dialog is built the same.
- */
 function Filled({
   name,
   idPrefix = "",
@@ -494,6 +382,7 @@ function Filled({
   multiline,
   options,
   defaultValue,
+  onChange,
 }: {
   name: string;
   idPrefix?: string;
@@ -507,17 +396,24 @@ function Filled({
   options?: readonly string[];
   /** Preselected, for a form opened from the thing it is about. */
   defaultValue?: string;
+  /** For a select whose answer changes what else the form asks. */
+  onChange?: (value: string) => void;
 }) {
   const id = `${idPrefix}${name}`;
   const errorId = `${id}-error`;
 
-  /* The resting state has no border — the fill is what marks the field. A
-     border appears only on focus and on error, so both read as something
-     happening rather than as the normal state with a colour change. */
+  /* White with a quiet border, which is the only pair that survives both
+     backgrounds this form now sits on.
+
+     It used to be a grey fill with no border: inside the white dialog the fill
+     was the whole edge of the field, and that was enough. On the home page and
+     /contact-us the band behind it is the same grey, so the fields vanished —
+     eight labels above eight pieces of placeholder text floating on nothing.
+     The border is what marks the field now, and the fill no longer has to. */
   const box =
-    "w-full rounded-lg border bg-surface px-3.5 py-2.5 text-[15px] text-ink-900 outline-none transition " +
-    "placeholder:text-ink-400 focus:bg-white focus:ring-2 focus:ring-brand-500/15 " +
-    (error ? "border-signal-500" : "border-transparent focus:border-brand-500");
+    "w-full rounded-lg border bg-white px-3.5 py-2.5 text-[15px] text-ink-900 outline-none transition " +
+    "placeholder:text-ink-400 focus:ring-2 focus:ring-brand-500/15 " +
+    (error ? "border-signal-500" : "border-line focus:border-brand-500");
 
   return (
     <div className="mb-3.5">
@@ -536,6 +432,7 @@ function Filled({
                and the dialog is reused for every product on the page. */
             key={defaultValue ?? ""}
             defaultValue={defaultValue ?? ""}
+            onChange={onChange ? (event) => onChange(event.target.value) : undefined}
             aria-invalid={Boolean(error)}
             className={`${box} cursor-pointer appearance-none pr-10`}
           >
@@ -572,6 +469,16 @@ function Filled({
           id={id}
           name={name}
           type={type}
+          /* A quantity is a whole positive number, and on a phone it should
+             open the keypad rather than the alphabet. The spinner arrows are
+             hidden in globals.css: they are a fiddly way to reach 500. */
+          {...(type === "number"
+            ? { inputMode: "numeric", min: 1, step: 1 }
+            : {})}
+          /* A phone box takes digits and nothing else — see lib/phone.ts. */
+          {...(type === "tel"
+            ? { inputMode: "tel", maxLength: 15, onInput: keepDigits }
+            : {})}
           autoComplete={autoComplete}
           placeholder={placeholder}
           aria-invalid={Boolean(error)}

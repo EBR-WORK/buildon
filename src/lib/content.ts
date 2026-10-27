@@ -341,10 +341,13 @@ export const contact = {
     email: "Your Mail Id*",
     phone: "Your Phone Number*",
     message: "Your Message",
-    /* Only the quote dialog asks these two — see EnquiryForm's `detailed`. */
     company: "Company Name (if applicable)",
     enquiryType: "Enquiry Type",
     product: "Which Product",
+    /* Asked only once a product is chosen. "How much" has no meaning until
+       there is a something to count — and the unit is in the label because the
+       box takes a number and nothing else. */
+    quantity: "How Many Bags Do You Need",
   },
   /**
    * What the quote dialog offers under Enquiry Type.
@@ -378,11 +381,14 @@ export const contact = {
   ],
   placeholders: {
     name: "Your full name",
-    phone: "+91 12345 67890",
+    /* No "+91" and no spaces: the box refuses both, and a placeholder that
+       cannot be typed teaches the wrong shape. */
+    phone: "9876543210",
     email: "you@company.com",
     company: "Company name",
     enquiryType: "Select…",
     product: "Select a product…",
+    quantity: "500",
     message: "Message",
   },
 } as const;

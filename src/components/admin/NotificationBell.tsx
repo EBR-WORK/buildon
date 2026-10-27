@@ -10,6 +10,7 @@
  */
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   dismissItem,
@@ -25,6 +26,8 @@ export default function NotificationBell() {
   /* Read here rather than passed in: the layout that places this is a server
      component, and the profile only exists on the client. */
   const profile = useAdminMaybe()?.profile ?? null;
+
+  const pathname = usePathname() ?? "";
 
   const [streams, setStreams] = useState<Stream[]>([]);
   const [open, setOpen] = useState(false);
@@ -62,7 +65,32 @@ export default function NotificationBell() {
     };
   }, [open]);
 
-  const total = streams.reduce((n, stream) => n + stream.items.length, 0);
+  /* What this screen is about.
+     
+     The bell used to carry everything wherever it was: standing on
+     Applications it said 8, of which two were applications and six were
+     leads. The number answered a question nobody had asked, and opening it
+     meant reading past work that belonged to another screen.
+     
+     A stream knows the screen it belongs to, so the filter is the path. Two
+     streams can share one — a lead assigned to you and a lead waiting to be
+     assigned are both rows in the leads table. */
+  const here = streams.filter(
+    (stream) => pathname === stream.href || pathname.startsWith(`${stream.href}/`),
+  );
+
+  /* On a screen no stream belongs to — the CMS, Team, Branches — there is
+     nothing to narrow to, and a bell that shows nothing there would just look
+     broken. It carries everything instead, as it did before. */
+  const filtered = here.length > 0;
+  const shown = filtered ? here : streams;
+
+  const total = shown.reduce((n, stream) => n + stream.items.length, 0);
+
+  /* Waiting on other screens. Said out loud, because a bell that quietly
+     shows two of eight is a bell that has hidden six. */
+  const elsewhere =
+    streams.reduce((n, stream) => n + stream.items.length, 0) - total;
 
   /** One row, either by its × or by opening it. */
   async function dismissOne(stream: StreamKey, itemId: number) {
@@ -82,8 +110,11 @@ export default function NotificationBell() {
     /* Cleared on screen first: the write records something already done —
        read them — and waiting on a round trip to acknowledge your own reading
        is the wrong way round. */
-    const keys = streams.map((stream) => stream.key);
-    setStreams([]);
+    /* Only what is on screen. Clearing the six lead notifications you have
+       not looked at, because you pressed this while reading applications, is
+       the one thing this button must never do. */
+    const keys = shown.map((stream) => stream.key);
+    setStreams((all) => all.filter((stream) => !keys.includes(stream.key)));
     setOpen(false);
     if (profile?.id) await Promise.all(keys.map((key) => markSeen(profile.id, key)));
   }
@@ -124,7 +155,9 @@ export default function NotificationBell() {
       {open && (
         <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-line bg-white shadow-lift">
           <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
-            <span className="text-sm font-semibold text-ink-900">Notifications</span>
+            <span className="text-sm font-semibold text-ink-900">
+              {filtered ? "On this screen" : "Notifications"}
+            </span>
             {/* Nothing to mark when nothing is waiting. */}
             <button
               type="button"
@@ -139,11 +172,13 @@ export default function NotificationBell() {
           <div className="max-h-96 overflow-y-auto">
             {!waiting && (
               <p className="px-4 py-6 text-center text-sm text-ink-500">
-                Nothing new.
+                {filtered && elsewhere > 0
+                  ? "Nothing new on this screen."
+                  : "Nothing new."}
               </p>
             )}
 
-            {streams.map((stream) => (
+            {shown.map((stream) => (
               <div key={stream.key}>
                 <p className="bg-surface px-4 py-1.5 text-xs font-semibold text-ink-500">
                   {stream.items.length === 1
@@ -203,6 +238,17 @@ export default function NotificationBell() {
               </div>
             ))}
           </div>
+
+          {/* Where the rest went.
+              
+              Without this the bell simply shows a smaller number on some
+              screens than on others, and the only way to find out why is to
+              go and look. */}
+          {filtered && elsewhere > 0 && (
+            <p className="border-t border-line px-4 py-2.5 text-sm text-ink-500">
+              {elsewhere} more on other screens.
+            </p>
+          )}
         </div>
       )}
     </div>
