@@ -193,36 +193,30 @@ Deno.serve(async (request) => {
 
   const data = hook.email_data;
 
-  /* The verify endpoint lives on the PROJECT, not on the website.
+  /* The link goes to OUR page, carrying the token — not to Supabase's verify
+     endpoint carrying the token.
   
-     site_url in the payload is the site a person lands on afterwards —
-     buildon.co.in — and a /auth/v1/verify path there is nothing at all. The
-     endpoint that turns a token into a session is on the Supabase API domain,
-     which the runtime always provides.
+     WHY, AND IT IS NOT EXPIRY
   
-     And it needs an apikey. Supabase's gateway refuses an unkeyed call with
-     "No API key found in request" — which is exactly what the first links from
-     this function returned when they reached the right domain. The gateway
-     accepts the key as a query parameter, which is the only place a link can
-     put it. It is the publishable key, the same one the website's JavaScript
-     carries in the open; what it permits is decided by row level security.
+     /auth/v1/verify spends the token on a GET. Gmail, Outlook and every
+     corporate mail scanner fetch the links in a message before a human sees
+     it, to check them for malware. That fetch IS the click: the token is
+     spent, and the person who actually presses it lands on
+     "Email link is invalid or has expired" seconds after the mail arrived.
+     Raising the expiry does nothing, because nothing has expired.
   
-     redirect_to is where the person goes once the token is accepted, and must
-     be allow-listed under Authentication -> URL Configuration or Supabase
-     quietly substitutes the Site URL. */
-  const apiUrl = env("SUPABASE_URL") || data.site_url;
-  /* SUPABASE_ANON_KEY is injected by the runtime and is usually enough. The
-     fallback is deliberately NOT called SUPABASE_something: the CLI refuses to
-     set any secret whose name starts with that prefix, because the prefix is
-     its own. */
-  const apiKey = env("SUPABASE_ANON_KEY") || env("PUBLISHABLE_KEY") || "";
+     A link to a page spends nothing. The page reads the token and exchanges it
+     from the browser, which a scanner does not do because it does not run the
+     JavaScript. The person gets the one use, which was always the intent.
+  
+     redirect_to is where the panel asked to land, already checked by Supabase
+     against the allow-list under Authentication -> URL Configuration. */
+  const landing = data.redirect_to || `${data.site_url}/admin/reset`;
+  const separator = landing.includes("?") ? "&" : "?";
 
   const link =
-    `${apiUrl}/auth/v1/verify` +
-    `?token=${encodeURIComponent(data.token_hash)}` +
-    `&type=${encodeURIComponent(data.email_action_type)}` +
-    `&redirect_to=${encodeURIComponent(data.redirect_to)}` +
-    (apiKey ? `&apikey=${encodeURIComponent(apiKey)}` : "");
+    `${landing}${separator}token_hash=${encodeURIComponent(data.token_hash)}` +
+    `&type=${encodeURIComponent(data.email_action_type)}`;
 
   const mail = compose(data.email_action_type, link);
 

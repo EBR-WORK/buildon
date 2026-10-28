@@ -167,9 +167,14 @@ export default function Dashboard() {
           <p className="mt-1.5 text-[15px] text-ink-500">{email}</p>
         </div>
 
-        {/* Only where there is a choice to make. One branch, or none, is not a
-            filter — it is a dropdown that always says the same thing. */}
-        {data && data.places.length > 1 && (
+        {/* Only where there is a choice to make, AND something to make it on.
+        
+            One branch, or none, is not a filter — it is a dropdown that always
+            says the same thing. Neither is a branch filter on a dashboard with
+            no leads on it: a content editor's panel is pages and articles, and
+            the control sat in their corner doing nothing whatever they picked.
+            It filters the lead figures, so it belongs to whoever has them. */}
+        {seesLeads && data && data.places.length > 1 && (
           <select
             value={place}
             onChange={(event) =>

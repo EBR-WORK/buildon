@@ -50,6 +50,36 @@ export default function ResetPasswordPage() {
       setStage(hasSession ? "ready" : "no-token");
     };
 
+    /* The token arrives as a query parameter and is spent HERE, from the
+       browser, rather than by the link being fetched.
+    
+       Mail scanners open every link in a message before a person sees it. When
+       the link was Supabase's own verify endpoint, that fetch spent the token
+       and the real click landed on "invalid or has expired" — within seconds
+       of the mail arriving, with nothing actually expired. A scanner does not
+       run this code, so the one use belongs to whoever pressed the link.
+    
+       The parameters are then stripped from the address bar: a recovery token
+       left in a URL is a password reset sitting in browser history. */
+    const params = new URLSearchParams(window.location.search);
+    const tokenHash = params.get("token_hash");
+    const type = params.get("type");
+
+    if (tokenHash && type) {
+      window.history.replaceState({}, "", window.location.pathname);
+
+      supabase.auth
+        .verifyOtp({
+          token_hash: tokenHash,
+          type: type as "recovery" | "invite" | "magiclink" | "email_change",
+        })
+        .then(({ data, error: failed }) => settle(!failed && Boolean(data.session)));
+
+      return () => {
+        alive = false;
+      };
+    }
+
     const subscription = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || session) settle(true);
     });
