@@ -79,10 +79,14 @@ function generatePassword() {
  * same place it was before any of this.
  */
 async function emailCredentials(to: string, password: string, roleLabel: string) {
+  const script = env("MAIL_WEBAPP_URL");
   const user = env("GMAIL_USER");
   const pass = env("GMAIL_APP_PASSWORD");
-  if (!user || !pass) {
-    return { ok: false, error: "GMAIL_USER or GMAIL_APP_PASSWORD is not set on the function." };
+  if (!script && (!user || !pass)) {
+    return {
+      ok: false,
+      error: "MAIL_WEBAPP_URL, or GMAIL_USER and GMAIL_APP_PASSWORD, must be set on the function.",
+    };
   }
 
   const lines = [
@@ -98,6 +102,45 @@ async function emailCredentials(to: string, password: string, roleLabel: string)
     "",
     "If you were not expecting this, tell whoever manages the website.",
   ].join("\n");
+
+  /* Through the company's own Apps Script web app when there is one.
+  
+     This function had its own SMTP client, so the move off the personal Gmail
+     account missed it: enquiries and assignments started arriving from
+     buildon.co.in while the mail that hands somebody their PASSWORD still came
+     from a stranger's address — which is the one mail where the sender being
+     recognisable matters most.
+  
+     No bcc on this road. The Apps Script contract takes one recipient, and the
+     copy that road sent to itself was an audit trail; the panel still shows
+     the password to the super admin, and the Team screen still records who was
+     added. */
+  if (script) {
+    try {
+      const response = await fetch(script, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          secret: env("MAIL_WEBAPP_SECRET"),
+          to,
+          subject: "Your Buildon admin account",
+          text: lines,
+        }),
+        redirect: "follow",
+        signal: AbortSignal.timeout(20_000),
+      });
+
+      /* Apps Script answers 200 to its own crash page too, so the body is what
+         is checked, not the status. */
+      const body = (await response.text()).slice(0, 300);
+      if (!response.ok || !body.includes('"ok":true')) {
+        return { ok: false, error: `mail web app refused: ${response.status} ${body}` };
+      }
+      return { ok: true, error: "" };
+    } catch (error) {
+      return { ok: false, error: `mail web app failed: ${error}` };
+    }
+  }
 
   const client = new SMTPClient({
     connection: {

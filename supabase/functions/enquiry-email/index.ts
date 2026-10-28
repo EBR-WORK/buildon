@@ -27,10 +27,16 @@
  * OAuth, and an app password cannot use it. The credentials are function
  * secrets; nothing here reaches a browser.
  *
+ * Mail goes out through a Google Apps Script web app running in Buildon's own
+ * Workspace, so it arrives from a buildon.co.in address rather than from the
+ * personal Gmail account whose app password this used to carry. The script
+ * itself is beside this file, in mail-webapp.gs. Gmail SMTP is still here and
+ * is used only while MAIL_WEBAPP_URL is unset.
+ *
  * Deploy:
  *   npx supabase login
  *   npx supabase functions deploy enquiry-email --project-ref <ref>
- *   npx supabase secrets set GMAIL_USER=… GMAIL_APP_PASSWORD=… MAIL_TO=… WEBHOOK_SECRET=…
+ *   npx supabase secrets set MAIL_WEBAPP_URL=… MAIL_WEBAPP_SECRET=… MAIL_TO=… WEBHOOK_SECRET=…
  */
 
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
@@ -330,6 +336,16 @@ function composeEnquiry(row: Enquiry) {
  * below for the three ways the pretty version failed to arrive.
  */
 async function sendMail(to: string, subject: string, text: string, replyTo?: string) {
+  const script = env("MAIL_WEBAPP_URL");
+  if (script) {
+    await sendViaScript(script, to, subject, text, replyTo);
+    return;
+  }
+
+  /* No web app configured, so the old road. Kept rather than deleted: it is
+     what sends while the Apps Script deployment is being set up, and what
+     sends again if that deployment is ever revoked. Unset MAIL_WEBAPP_URL and
+     mail resumes over SMTP with no deploy. */
   const client = new SMTPClient({
     connection: {
       hostname: "smtp.gmail.com",
@@ -355,6 +371,67 @@ async function sendMail(to: string, subject: string, text: string, replyTo?: str
     });
   } finally {
     await client.close();
+  }
+}
+
+/**
+ * Send through the Google Apps Script web app instead of Gmail SMTP.
+ *
+ * WHY THIS EXISTS
+ *
+ * SMTP sends as whichever mailbox owns the app password — a personal Gmail
+ * account that happens to have been to hand. Every enquiry, every assignment
+ * and every CV therefore arrived from an address that is nobody at Buildon,
+ * which is the wrong name on the envelope and the wrong account to depend on
+ * when that person's password changes. The web app runs inside the company's
+ * own Workspace and sends as a buildon.co.in address.
+ *
+ * It also removes the app password from this function. An Apps Script URL can
+ * be revoked by redeploying; a Gmail app password has to be found and killed
+ * in somebody's personal account settings.
+ *
+ * THE URL IS THE CREDENTIAL
+ *
+ * A web app deployed as "anyone" will send mail for whoever posts to it, so
+ * the shared secret below is what stops the URL alone being enough. Both live
+ * as function secrets and neither belongs in git.
+ */
+async function sendViaScript(
+  url: string,
+  to: string,
+  subject: string,
+  text: string,
+  replyTo?: string,
+) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    /* The shape the deployed script already reads — see mail-webapp.gs. It was
+       written for Supabase's Auth hook (password resets) and this reuses it
+       rather than replacing it: a second script would be a second deployment,
+       a second secret and a second quota, for the same account sending the
+       same kind of mail. `text`, not `body`: that is the key it looks for. */
+    body: JSON.stringify({
+      secret: env("MAIL_WEBAPP_SECRET"),
+      to,
+      subject,
+      text,
+      replyTo: replyTo ?? "",
+    }),
+    /* Apps Script answers with a 302 to googleusercontent.com and the real
+       reply is behind it. Deno follows that by default; saying so because a
+       redirect that is not followed looks exactly like a silent success. */
+    redirect: "follow",
+    signal: AbortSignal.timeout(20_000),
+  });
+
+  const body = (await response.text()).slice(0, 300);
+
+  /* Apps Script answers 200 to almost everything, including its own crash
+     page, so the status alone proves nothing. The script replies with
+     {"ok":true} and that is what is checked. */
+  if (!response.ok || !body.includes('"ok":true')) {
+    throw new Error(`mail web app refused: ${response.status} ${body}`);
   }
 }
 
@@ -568,57 +645,26 @@ Deno.serve(async (request) => {
     return new Response(`Compose failed: ${error}`, { status: 500 });
   }
 
-  const client = new SMTPClient({
-    connection: {
-      hostname: "smtp.gmail.com",
-      port: 465,
-      tls: true,
-      auth: { username: env("GMAIL_USER"), password: env("GMAIL_APP_PASSWORD") },
-    },
-  });
-
+  /* One sender for all three kinds of mail.
+  
+     This used to build its own SMTP client, with its own copy of the encoding
+     notes below. Two senders meant the Apps Script change would have moved
+     assignment mail to the company's own address and left applications coming
+     from a personal Gmail — which is exactly the split that made this worth
+     changing in the first place.
+  
+     Still plain text with no attachment. The CV goes as a signed link:
+     attaching it meant base64 through denomailer, which writes an attachment
+     in 75-character chunks, one call each — a 4.6 MB CV came to 84,000 of them
+     and the worker ran out of resources. The form allows 5 MB, so that was not
+     an edge case. */
   try {
-    await client.send({
-      from: env("GMAIL_USER"),
-      to: env("MAIL_TO"),
-      /* Reply goes to the person who asked, not to the sending mailbox —
-         otherwise answering an enquiry emails ourselves. */
-      replyTo: record.email,
-      subject: composed.subject,
-      /* One part, plain text, 7bit ASCII — and no attachment.
-       *
-       * The CV goes as a signed link. Attaching it meant base64 through
-       * denomailer, which writes an attachment in 75-character chunks, one
-       * call each: a 4.6 MB CV came to 84,000 of them and the worker ran out
-       * of resources. The form allows 5 MB, so that is not an edge case.
-       *
-       * One part, not two, because an HTML alternative nests
-       * multipart/alternative inside multipart/mixed, and that nesting arrived
-       * in Gmail as raw text — boundary lines, part headers and markup all
-       * printed into the body.
-       *
-       * The library's own `content`/`html` fields were worse again — it
-       * quoted-printable encodes them, and its encoder's soft line breaks came
-       * through as a literal `=` at the end of every line.
-       *
-       * So: nothing to decode, nothing to nest, nothing to render. An
-       * application email is a list of fields and a file; it does not need
-       * typography, and the version that always arrives beats the version that
-       * looks better when it does.
-       */
-      mimeContent: [
-        {
-          mimeType: 'text/plain; charset="us-ascii"',
-          content: composed.text,
-          transferEncoding: "7bit",
-        },
-      ],
-    });
-
-    await client.close();
+    /* Reply goes to the person who asked, not to the sending mailbox —
+       otherwise answering an enquiry emails ourselves. */
+    await sendMail(env("MAIL_TO"), composed.subject, composed.text, record.email);
   } catch (error) {
-    /* 500 on purpose: Supabase retries a failed webhook, and a transient SMTP
-       failure should get another go. The enquiry is already saved regardless. */
+    /* 500 on purpose: Supabase retries a failed webhook, and a transient
+       failure should get another go. The application is already saved. */
     console.error("send failed", error);
     return new Response(`Send failed: ${error}`, { status: 500 });
   }

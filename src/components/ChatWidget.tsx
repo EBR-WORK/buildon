@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { chat, site } from "@/lib/content";
+import { chat, productCatalogue, site } from "@/lib/content";
 import { submitEnquiry } from "@/lib/cms/enquiries";
 import { toDigits } from "@/lib/phone";
 import { getDictionary } from "@/lib/i18n";
@@ -61,7 +61,19 @@ const isReachable = (value: string) => value.replace(/\D/g, "").length >= 8;
    stored as an address, not to rule on what an address may contain. */
 const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
 
-type Step = (typeof chat.enquiry.steps)[number];
+/* The shape a question has once the dictionary has supplied its words. Spelt
+   out rather than derived from content.ts: that file's literal types describe
+   the English script, and a Marathi question is not the string
+   "Happy to help. What is your name?". */
+type Step = {
+  readonly field: string;
+  readonly ask: string;
+  readonly invalid: string;
+  /** The shortest answer that counts; absent means the step may be skipped. */
+  readonly min?: number;
+  /** One-tap answers, when there are sensible ones. */
+  readonly choices?: readonly string[];
+};
 
 /** A step with neither a minimum nor a format to meet can be passed over. */
 const isOptional = (step: Step) =>
@@ -90,14 +102,39 @@ export default function ChatWidget({
   /** Lets the page move anything else that lives in this corner out of the way. */
   onOpenChange?: (open: boolean) => void;
 }) {
-  /* The panel's own controls, in the language of the page it is sitting on.
+  /* The panel, in the language of the page it is sitting on.
      
-     Only the controls: the greeting, the menu and the answers come from `chat`
-     in content.ts and are still English. Those are worth doing through the
-     translation cache rather than by hand, and the controls are not — they are
-     three labels a screen reader reads out, and announcing them in English on
-     a Marathi page is the kind of thing nobody notices and everybody feels. */
+     Everything a visitor is asked or told comes from here. What stays in
+     content.ts is the scripted ANSWERS — what a product is, which projects we
+     supplied — because that is long marketing copy and three hand-written
+     copies of it would go out of step three ways. The frame is what a visitor
+     meets first, and the frame is translated. */
   const t = getDictionary(localeOf(usePathname() ?? "/"));
+
+  /* The questions, in order, with their words taken from the dictionary and
+     their rules from content.ts. Two sources because they are two different
+     things: what to ask is a translation, how long an answer must be is not. */
+  /* The menu rows. The script's own labels are the fallback, so a branch added
+     to content.ts and not yet to the dictionary still appears — in English,
+     in the right place, rather than as a blank row. */
+  const labelFor = (id: string) =>
+    t.chat.options[id as keyof typeof t.chat.options] ??
+    chat.options.find((option) => option.id === id)?.label ??
+    id;
+
+  const productNames = productCatalogue.map((item) => item.name);
+
+  const steps: Step[] = chat.enquiry.steps.map((step) => ({
+    ...step,
+    ask: t.chat.ask[step.field as keyof typeof t.chat.ask] ?? step.ask,
+    invalid: t.chat.invalid[step.field as keyof typeof t.chat.invalid] ?? step.invalid,
+    choices:
+      step.field === "product"
+        ? [...productNames, t.chat.notSure]
+        : step.field === "timeline"
+          ? t.chat.timeline
+          : undefined,
+  }));
 
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -139,8 +176,8 @@ export default function ChatWidget({
     setOpen(next);
     onOpenChange?.(next);
     if (next && messages.length === 0) {
-      say(chat.greeting);
-      say(chat.menuPrompt, { menu: true });
+      say(t.chat.greeting);
+      say(t.chat.menuPrompt, { menu: true });
     }
   }
 
@@ -170,7 +207,7 @@ export default function ChatWidget({
     const option = chat.options.find((item) => item.id === id);
     if (!option) return;
 
-    youSaid(option.label);
+    youSaid(labelFor(option.id));
 
     /* Picking anything else abandons an enquiry in progress. Without this it
        kept running invisibly, and every later message was read as an answer to
@@ -189,7 +226,7 @@ export default function ChatWidget({
        asked "anything else?" before the answer had been read. The way back to
        the menu is the button under the input, which is always there. */
     say(option.reply, { topics: option.topics, links: option.links });
-    if (!option.topics && !option.links) say(chat.menuAgain, { menu: true });
+    if (!option.topics && !option.links) say(t.chat.menuAgain, { menu: true });
   }
 
   /**
@@ -210,7 +247,7 @@ export default function ChatWidget({
 
   /** Put the menu back, for anyone who has read an answer and wants the list. */
   function showMenu() {
-    say(chat.menuPrompt, { menu: true });
+    say(t.chat.menuPrompt, { menu: true });
   }
 
   /**
@@ -221,7 +258,7 @@ export default function ChatWidget({
    */
   function cancelEnquiry() {
     setEnquiry(null);
-    say(chat.enquiry.cancelled, { menu: true });
+    say(t.chat.cancelled, { menu: true });
   }
 
   /**
@@ -247,7 +284,7 @@ export default function ChatWidget({
 
   /** Ask the step at `index`, with its suggestions under it. */
   function ask(index: number, answers: Record<string, string>) {
-    const step = chat.enquiry.steps[index];
+    const step = steps[index];
     say(step.ask.replace("{name}", answers.name ?? ""), {
       choices: "choices" in step ? step.choices : undefined,
       skippable: isOptional(step),
@@ -287,7 +324,7 @@ export default function ChatWidget({
    */
   function finish(answers: Record<string, string>) {
     setEnquiry(null);
-    say(chat.enquiry.sending);
+    say(t.chat.sending);
 
     const message = describe(answers);
 
@@ -304,15 +341,15 @@ export default function ChatWidget({
     }).then(
       () => {
         say(
-          chat.enquiry.done
+          t.chat.done
             .replace("{name}", answers.name ?? "")
             .replace("{phone}", answers.phone ?? ""),
         );
-        say(chat.menuAgain, { menu: true });
+        say(t.chat.menuAgain, { menu: true });
       },
       () => {
-        say(chat.enquiry.failed);
-        say(chat.menuAgain, { menu: true });
+        say(t.chat.failed);
+        say(t.chat.menuAgain, { menu: true });
 
         const body = [
           `Name: ${answers.name}`,
@@ -331,7 +368,7 @@ export default function ChatWidget({
   /** The enquiry branch, one answer at a time. */
   function answer(text: string) {
     if (!enquiry) return;
-    const step = chat.enquiry.steps[enquiry.step];
+    const step = steps[enquiry.step];
 
     if (!accepts(step, text)) {
       say(step.invalid || "Could you put that another way?");
@@ -347,7 +384,7 @@ export default function ChatWidget({
     const answers = { ...enquiry.answers, [step.field]: value };
     const next = enquiry.step + 1;
 
-    if (next < chat.enquiry.steps.length) {
+    if (next < steps.length) {
       setEnquiry({ step: next, answers });
       ask(next, answers);
       return;
@@ -364,9 +401,9 @@ export default function ChatWidget({
     const answers = { ...enquiry.answers };
     const next = enquiry.step + 1;
 
-    youSaid(chat.enquiry.skip);
+    youSaid(t.chat.skip);
 
-    if (next < chat.enquiry.steps.length) {
+    if (next < steps.length) {
       setEnquiry({ step: next, answers });
       ask(next, answers);
       return;
@@ -395,7 +432,7 @@ export default function ChatWidget({
     );
 
     if (!hit) {
-      say(chat.fallback, { menu: true });
+      say(t.chat.fallback, { menu: true });
       return;
     }
 
@@ -406,7 +443,7 @@ export default function ChatWidget({
     }
 
     say(hit.reply, { topics: hit.topics, links: hit.links });
-    if (!hit.topics && !hit.links) say(chat.menuAgain, { menu: true });
+    if (!hit.topics && !hit.links) say(t.chat.menuAgain, { menu: true });
   }
 
   /* --------------------------------------------------------------- render */
@@ -434,7 +471,7 @@ export default function ChatWidget({
         <div
           id="chat-panel"
           role="dialog"
-          aria-label={`${chat.title} — ${chat.subtitle}`}
+          aria-label={`${chat.title} — ${t.chat.subtitle}`}
           /* Pinned above the launcher, and never taller than the viewport
              allows: a fixed height would push the input off a short screen. */
           className="fixed right-4 bottom-22 z-50 flex max-h-[min(32rem,calc(100dvh-8rem))] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_-12px_rgba(0,0,0,0.35)] sm:right-5 sm:w-[23rem]"
@@ -453,7 +490,7 @@ export default function ChatWidget({
               <span className="block truncate font-display text-base font-semibold">
                 {chat.title}
               </span>
-              <span className="block truncate text-xs text-white/80">{chat.subtitle}</span>
+              <span className="block truncate text-xs text-white/80">{t.chat.subtitle}</span>
             </span>
             <button
               suppressHydrationWarning
@@ -564,7 +601,7 @@ export default function ChatWidget({
                         onClick={skipStep}
                         className="cursor-pointer rounded-full px-3 py-1.5 text-xs font-medium text-ink-500 underline underline-offset-2 transition hover:text-ink-900 disabled:cursor-default disabled:no-underline"
                       >
-                        {chat.enquiry.skip}
+                        {t.chat.skip}
                       </button>
                     )}
                   </div>
@@ -581,7 +618,7 @@ export default function ChatWidget({
                         onClick={() => choose(option.id)}
                         className="block w-full cursor-pointer border-b border-line px-3.5 py-2.5 text-left text-sm text-brand-500 transition last:border-0 hover:bg-surface disabled:cursor-default disabled:text-ink-500"
                       >
-                        {option.label}
+                        {labelFor(option.id)}
                       </button>
                     ))}
                   </div>
@@ -614,8 +651,8 @@ export default function ChatWidget({
               ref={inputRef}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              placeholder={chat.placeholder}
-              aria-label={chat.placeholder}
+              placeholder={t.chat.placeholder}
+              aria-label={t.chat.placeholder}
               className="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-sm outline-none placeholder:text-ink-500"
             />
             <button
@@ -639,7 +676,7 @@ export default function ChatWidget({
         onClick={() => show(!open)}
         aria-expanded={open}
         aria-controls="chat-panel"
-        aria-label={open ? t.chat.closeChat : chat.launcher}
+        aria-label={open ? t.chat.closeChat : t.chat.launcher}
         className={`fixed right-4 bottom-4 z-50 grid size-14 cursor-pointer place-items-center rounded-full text-white shadow-lift transition sm:right-5 ${
           open ? "bg-accent-500 hover:bg-accent-600" : "bg-brand-500 hover:bg-brand-600"
         }`}

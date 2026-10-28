@@ -4,6 +4,9 @@ import { useState, type FormEvent } from "react";
 import { contact, site } from "@/lib/content";
 import { submitEnquiry } from "@/lib/cms/enquiries";
 import { keepDigits } from "@/lib/phone";
+import { usePathname } from "next/navigation";
+import { getDictionary } from "@/lib/i18n";
+import { localeOf } from "@/lib/i18n/config";
 import { ENQUIRY_FORM } from "./NetlifyForms";
 import { ArrowIcon, ChevronDownIcon } from "./icons";
 
@@ -58,6 +61,15 @@ export default function EnquiryForm({
   defaultProduct?: string;
 }) {
   const [errors, setErrors] = useState<Errors>({});
+  /* The words, in the language of the page this form is standing on.
+  
+     They used to come from content.ts, which is imported into this client
+     component and therefore compiled into the shared JavaScript bundle — one
+     copy for all three languages. The Marathi page painted Marathi labels from
+     its markup and React put the English back the moment it hydrated. The
+     dictionary is read at render, so it cannot disagree with the URL. */
+  const t = getDictionary(localeOf(usePathname() ?? "/")).enquiry;
+
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
 
   /* Which product is chosen — the only answer on this form that changes what
@@ -131,15 +143,15 @@ export default function EnquiryForm({
        the form, is refused by the database, and the visitor is dropped into
        the mail-draft fallback with no idea which field was the problem. */
     const next: Errors = {};
-    if (name.length < 2) next.name = "Please enter your name.";
-    else if (name.length > 120) next.name = "That is too long for a name.";
-    if (!emailPattern.test(email)) next.email = "Please enter a valid email address.";
-    else if (email.length > 200) next.email = "That address is too long.";
-    if (phone.replace(/\D/g, "").length < 8) next.phone = "Please enter a reachable phone number.";
-    else if (phone.length > 40) next.phone = "That is too long for a phone number.";
-    if (message.length < 10) next.message = "Tell us a little about your requirement.";
+    if (name.length < 2) next.name = t.errors.name;
+    else if (name.length > 120) next.name = t.errors.nameLong;
+    if (!emailPattern.test(email)) next.email = t.errors.email;
+    else if (email.length > 200) next.email = t.errors.emailLong;
+    if (phone.replace(/\D/g, "").length < 8) next.phone = t.errors.phone;
+    else if (phone.length > 40) next.phone = t.errors.phoneLong;
+    if (message.length < 10) next.message = t.errors.message;
     else if (message.length > 5000)
-      next.message = "That is longer than we can accept — please shorten it a little.";
+      next.message = t.errors.messageLong;
 
     setErrors(next);
     if (Object.keys(next).length > 0) {
@@ -192,7 +204,7 @@ export default function EnquiryForm({
            message — but say so first, because a mail client that does not
            open leaves an otherwise silent failure. */
         setStatus("idle");
-        setErrors({ message: contact.failed });
+        setErrors({ message: t.failed });
 
         const lines = [
           `Name: ${name}`,
@@ -224,15 +236,15 @@ export default function EnquiryForm({
         role="status"
         className={`rounded-2xl border border-brand-200 bg-brand-50/50 p-6 text-center ${className}`}
       >
-        <p className="font-display text-lg font-semibold">{contact.sentTitle}</p>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink-500">{contact.sentBody}</p>
+        <p className="font-display text-lg font-semibold">{t.sentTitle}</p>
+        <p className="mt-2 text-[15px] leading-relaxed text-ink-500">{t.sentBody}</p>
         <button
           suppressHydrationWarning
           type="button"
           onClick={() => setStatus("idle")}
           className="mt-5 cursor-pointer text-sm font-semibold text-brand-500 transition hover:text-brand-600"
         >
-          {contact.sentAgain}
+          {t.sentAgain}
         </button>
       </div>
     );
@@ -267,8 +279,8 @@ export default function EnquiryForm({
       <Filled
         name="name"
         idPrefix={idPrefix}
-        label="Name"
-        placeholder={contact.placeholders.name}
+        label={t.labels.name}
+        placeholder={t.placeholders.name}
         error={errors.name}
         autoComplete="name"
       />
@@ -277,8 +289,8 @@ export default function EnquiryForm({
         <Filled
           name="phone"
           idPrefix={idPrefix}
-          label="Phone Number"
-          placeholder={contact.placeholders.phone}
+          label={t.labels.phone}
+          placeholder={t.placeholders.phone}
           type="tel"
           error={errors.phone}
           autoComplete="tel"
@@ -286,8 +298,8 @@ export default function EnquiryForm({
         <Filled
           name="email"
           idPrefix={idPrefix}
-          label="Email"
-          placeholder={contact.placeholders.email}
+          label={t.labels.email}
+          placeholder={t.placeholders.email}
           type="email"
           error={errors.email}
           autoComplete="email"
@@ -297,8 +309,8 @@ export default function EnquiryForm({
       <Filled
         name="company"
         idPrefix={idPrefix}
-        label="Company Name (if applicable)"
-        placeholder={contact.placeholders.company}
+        label={t.labels.company}
+        placeholder={t.placeholders.company}
         autoComplete="organization"
       />
 
@@ -309,16 +321,16 @@ export default function EnquiryForm({
         <Filled
           name="enquiryType"
           idPrefix={idPrefix}
-          label="Enquiry Type"
-          placeholder={contact.placeholders.enquiryType}
-          options={contact.enquiryTypes}
+          label={t.labels.enquiryType}
+          placeholder={t.placeholders.enquiryType}
+          options={t.types}
         />
         {withProduct && (
           <Filled
             name="product"
             idPrefix={idPrefix}
-            label={contact.fields.product}
-            placeholder={contact.placeholders.product}
+            label={t.labels.product}
+            placeholder={t.placeholders.product}
             options={contact.productOptions}
             defaultValue={defaultProduct}
             onChange={setProduct}
@@ -337,8 +349,8 @@ export default function EnquiryForm({
         <Filled
           name="quantity"
           idPrefix={idPrefix}
-          label={contact.fields.quantity}
-          placeholder={contact.placeholders.quantity}
+          label={t.labels.quantity}
+          placeholder={t.placeholders.quantity}
           type="number"
         />
       )}
@@ -346,8 +358,8 @@ export default function EnquiryForm({
       <Filled
         name="message"
         idPrefix={idPrefix}
-        label="Type Your Enquiry"
-        placeholder={contact.placeholders.message}
+        label={t.labels.message}
+        placeholder={t.placeholders.message}
         error={errors.message}
         multiline
       />
@@ -361,7 +373,7 @@ export default function EnquiryForm({
         disabled={status === "sending"}
         className="group mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-3.5 font-display font-medium tracking-wide text-white transition hover:bg-brand-600 sm:w-auto"
       >
-        {status === "sending" ? "Sending…" : contact.submitDialog}
+        {status === "sending" ? t.sending : t.submit}
         <ArrowIcon className="size-5 transition-transform group-hover:translate-x-0.5" />
       </button>
     </form>
