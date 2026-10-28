@@ -193,15 +193,36 @@ Deno.serve(async (request) => {
 
   const data = hook.email_data;
 
-  /* The address Supabase itself would have put in the mail. redirect_to is
-     where the person lands afterwards and is already allow-listed under
-     Authentication -> URL Configuration — which is the setting that decides
-     whether this link goes to the live site or to localhost. */
+  /* The verify endpoint lives on the PROJECT, not on the website.
+  
+     site_url in the payload is the site a person lands on afterwards —
+     buildon.co.in — and a /auth/v1/verify path there is nothing at all. The
+     endpoint that turns a token into a session is on the Supabase API domain,
+     which the runtime always provides.
+  
+     And it needs an apikey. Supabase's gateway refuses an unkeyed call with
+     "No API key found in request" — which is exactly what the first links from
+     this function returned when they reached the right domain. The gateway
+     accepts the key as a query parameter, which is the only place a link can
+     put it. It is the publishable key, the same one the website's JavaScript
+     carries in the open; what it permits is decided by row level security.
+  
+     redirect_to is where the person goes once the token is accepted, and must
+     be allow-listed under Authentication -> URL Configuration or Supabase
+     quietly substitutes the Site URL. */
+  const apiUrl = env("SUPABASE_URL") || data.site_url;
+  /* SUPABASE_ANON_KEY is injected by the runtime and is usually enough. The
+     fallback is deliberately NOT called SUPABASE_something: the CLI refuses to
+     set any secret whose name starts with that prefix, because the prefix is
+     its own. */
+  const apiKey = env("SUPABASE_ANON_KEY") || env("PUBLISHABLE_KEY") || "";
+
   const link =
-    `${data.site_url}/auth/v1/verify` +
+    `${apiUrl}/auth/v1/verify` +
     `?token=${encodeURIComponent(data.token_hash)}` +
     `&type=${encodeURIComponent(data.email_action_type)}` +
-    `&redirect_to=${encodeURIComponent(data.redirect_to)}`;
+    `&redirect_to=${encodeURIComponent(data.redirect_to)}` +
+    (apiKey ? `&apikey=${encodeURIComponent(apiKey)}` : "");
 
   const mail = compose(data.email_action_type, link);
 
