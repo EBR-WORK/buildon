@@ -87,8 +87,10 @@ function geminiPrompt(locale, items) {
   return `You are translating the website of Buildon Plasters, an Indian manufacturer of gypsum plaster, from English into ${LOCALE_NAMES[locale]}.
 
 Rules:
-- Keep these exactly as written, in English: ${DO_NOT_TRANSLATE.join(", ")}.
-- Technical and trade terms that Indian construction says in English stay in English or are transliterated, never translated: gypsum, plaster, one coat, setting time, coverage, bonding agent, primer, POP, mesh, bag, dealer, distributor.
+- Keep these exactly as written, in Latin script: ${DO_NOT_TRANSLATE.join(", ")}. These are product and standard names; a dealer has to recognise them.
+- EVERYTHING else must be in ${LOCALE_NAMES[locale]}, in Devanagari script. Do not leave a word in English because it is technical, because Indian English says it that way, or because the translation is longer. coverage, bag, false ceiling, brand, lighting, air conditioning, workforce, compliance, dealer, distributor, market leader, project and every word like them are translated or transliterated like any other word.
+- Where the trade really does say a word in English and ${LOCALE_NAMES[locale]} has no word in everyday use, write it in Devanagari rather than Latin script: false ceiling as a Devanagari transliteration, not "false ceiling".
+- A reader who has chosen ${LOCALE_NAMES[locale]} should see no Latin script on the page except the names listed above.
 - Write the way a builder, contractor or architect in Maharashtra actually reads — plain and direct. Not formal literary ${LOCALE_NAMES[locale]}.
 - Keep the tone of the original. Marketing copy stays marketing copy; a field label stays a label.
 - Preserve leading and trailing whitespace, and any punctuation that carries meaning (a trailing ">" or "*" or ":").

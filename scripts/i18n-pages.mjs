@@ -4,6 +4,7 @@
  *   npm run i18n:pages            collect, translate what is new, apply
  *   npm run i18n:pages -- --dry   collect and cost it, send nothing
  *   npm run i18n:pages -- --apply apply what is cached, translate nothing
+ *   npm run i18n:pages -- --again send every string again, replacing the cache
  *
  * Runs after `next build`, over `out/`. The English tree is read and never
  * written; out/mr and out/hi are rewritten in place.
@@ -47,6 +48,19 @@ const ORIGIN = "https://buildon.co.in";
 const argv = process.argv.slice(2);
 const dry = argv.includes("--dry");
 const applyOnly = argv.includes("--apply");
+/* Send every string again, cache or no cache.
+ *
+ * The cache is keyed by the English sentence, which is exactly right while the
+ * only thing that changes is the content — but the prompt is an input too, and
+ * changing it changes what the right answer is. Without this flag a reworded
+ * instruction reaches nothing already translated, which is to say almost
+ * nothing.
+ *
+ * Deliberately not a cache wipe. Rows are overwritten as the new ones arrive
+ * (see ignoreDuplicates below), so a run that stops halfway leaves the older
+ * translation in place rather than an English page. There is no moment at
+ * which the site is less translated than it was. */
+const retranslate = argv.includes("--again");
 /* One page at a time, for checking the output before committing to a run over
    three hundred of them. */
 const onlyAt = argv.indexOf("--page");
@@ -289,7 +303,7 @@ const cached = await readCache();
 const todo = [];
 for (const locale of LOCALES) {
   const have = cached.get(locale);
-  for (const text of all) if (!have.has(text)) todo.push({ locale, text });
+  for (const text of all) if (retranslate || !have.has(text)) todo.push({ locale, text });
 }
 
 const newCharacters = todo.reduce((sum, item) => sum + item.text.length, 0);
@@ -412,7 +426,12 @@ if (!applyOnly && todo.length > 0) {
         .from("translations")
         /* ignoreDuplicates, so a string an editor corrected between the read
            above and this write is not replaced by the machine. */
-        .upsert(rows, { onConflict: "source_hash,locale", ignoreDuplicates: true });
+        .upsert(rows, {
+          onConflict: "source_hash,locale",
+          /* Normally a row that exists is the answer and must not be touched.
+             On --again the whole point is that it is no longer the answer. */
+          ignoreDuplicates: !retranslate,
+        });
 
       if (error) {
         failed += batch.length;
