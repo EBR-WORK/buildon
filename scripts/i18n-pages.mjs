@@ -112,10 +112,10 @@ const CI = Boolean(process.env.CI || process.env.NETLIFY || process.env.VERCEL);
  * are otherwise translated; failing the deploy over that is worse than
  * shipping it, because it also blocks every other change in the push.
  */
-function stop(message, { fix = "", fatal = true } = {}) {
+function banner(title, message, fix, closing) {
   console.warn("");
   console.warn("  ================================================================");
-  console.warn(fatal ? "   PAGES NOT TRANSLATED" : "   SOME STRINGS NOT TRANSLATED");
+  console.warn(`   ${title}`);
   console.warn("");
   console.warn(`   ${message}`);
   if (fix) {
@@ -123,25 +123,46 @@ function stop(message, { fix = "", fatal = true } = {}) {
     console.warn(`   ${fix}`);
   }
   console.warn("");
-  console.warn(
-    fatal
-      ? "   out/mr and out/hi are built and served; they read in English."
-      : "   Everything already in the cache is translated; the rest stays English.",
-  );
-  if (CI && fatal) {
-    console.warn("");
-    console.warn("   Failing the build rather than publishing that.");
-  }
+  console.warn(`   ${closing}`);
   console.warn("  ================================================================");
   console.warn("");
-  process.exit(CI && fatal ? 1 : 0);
+}
+
+/* Nothing can be translated from here, so the run ends. */
+function stop(message, fix = "") {
+  banner(
+    "PAGES NOT TRANSLATED",
+    message,
+    fix,
+    CI
+      ? "Failing the build rather than publishing out/mr and out/hi in English."
+      : "out/mr and out/hi are built and served; they read in English.",
+  );
+  process.exit(CI ? 1 : 0);
+}
+
+/* Say so loudly and CARRY ON.
+ *
+ * This must never exit. The run's real work — applying the cache to out/mr and
+ * out/hi — happens further down, and skipping it is the all-English deploy the
+ * script exists to prevent. That is exactly what an early exit here shipped
+ * once: the cache held 9,159 of 9,199 strings and the site went out in English
+ * because 40 of them had nowhere to come from. */
+function warn(message, fix = "") {
+  banner(
+    "SOME STRINGS NOT TRANSLATED",
+    message,
+    fix,
+    "Everything already in the cache is translated; the rest stays English.",
+  );
 }
 
 if (!existsSync(OUT)) stop("There is no out/ — run npm run build first.");
 if (!url || !writeKey) {
-  stop("Supabase is not configured, so there is no cache to read.", {
-    fix: "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in the site's environment variables.",
-  });
+  stop(
+    "Supabase is not configured, so there is no cache to read.",
+    "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in the site's environment variables.",
+  );
 }
 
 /* --------------------------------------------------------------- the pages */
@@ -311,11 +332,11 @@ if (!applyOnly && todo.length > 0) {
        translation at all, and that is the silent all-English deploy this
        script exists to prevent. */
     const cachedCount = [...cached.values()].reduce((n, m) => n + m.size, 0);
-    stop(provider.reason.replace(" in .env.local", ""), {
-      fix: "Set GEMINI_API_KEY in the site's environment variables.",
-      fatal: cachedCount === 0,
-    });
-  }
+    const reason = provider.reason.replace(" in .env.local", "");
+    const fix = "Set GEMINI_API_KEY in the site's environment variables.";
+    if (cachedCount === 0) stop(reason, fix);
+    warn(reason, fix);
+  } else {
   console.log(`\n   provider: ${provider.name}\n`);
 
   let done = 0;
@@ -427,6 +448,7 @@ if (!applyOnly && todo.length > 0) {
   }
 
   console.log(`\n\n   ${done.toLocaleString()} translated${failed ? `, ${failed} failed` : ""}.\n`);
+  }
 }
 
 /* Leave the size of the backlog somewhere a scheduled job can read it.
