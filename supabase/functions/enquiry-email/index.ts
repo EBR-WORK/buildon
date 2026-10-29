@@ -69,6 +69,8 @@ type Enquiry = {
   enquiry_type: string | null;
   product: string | null;
   quantity: number | null;
+  city: string | null;
+  country: string | null;
   source: string | null;
   page: string | null;
 };
@@ -109,6 +111,10 @@ async function pushToOdoo(row: Enquiry) {
     /* Bags. Its own field since 0025 — it used to be a line inside message,
        which Odoo had no way to map onto anything. */
     quantity: row.quantity ?? "",
+    /* Where the browser appeared to be — a hint for routing, from the IP. Not
+       the site address, which is a different question the chat asks in words. */
+    city: row.city ?? "",
+    country: row.country ?? "",
     /* Where it came from, so website leads can be told from phone calls. */
     source: row.source ?? "website",
     page: row.page ?? "",
@@ -451,6 +457,7 @@ type Assignment = {
     company: string | null;
     product: string | null;
     quantity: number | null;
+    city: string | null;
     enquiry_type: string | null;
     message: string;
     source: string | null;
@@ -500,6 +507,7 @@ function composeAssignment(body: Assignment) {
   if (lead.company) lines.push(`Company:  ${ascii(lead.company)}`);
   if (lead.product) lines.push(`Product:  ${ascii(lead.product)}`);
   if (lead.quantity) lines.push(`Quantity: ${lead.quantity} bags`);
+  if (lead.city) lines.push(`Sent from: ${ascii(lead.city)}`);
   if (lead.enquiry_type) lines.push(`Type:     ${ascii(lead.enquiry_type)}`);
   if (lead.source) lines.push(`Source:   ${ascii(lead.source)}`);
   lines.push(`Status:   ${ascii(lead.status)}`);

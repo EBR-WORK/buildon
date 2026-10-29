@@ -886,7 +886,24 @@ function Row({
             </a>
           </td>
         )}
-        {shows("place") && <td className="px-3 py-2.5">{place ?? "—"}</td>}
+        {/* The branch, and underneath it where the enquiry seems to have come
+            from. Two different things sharing a cell on purpose: the branch is
+            a decision somebody made, the city is a guess from an IP address,
+            and the second is most useful as a prompt for the first. It is
+            quiet and small because it is a hint, not a fact. */}
+        {shows("place") && (
+          <td className="px-3 py-2.5 align-top">
+            <span className="block">{place ?? "—"}</span>
+            {lead.city && (
+              <span
+                className="block text-xs text-ink-500"
+                title="Where the enquiry was sent from, from the visitor's IP. A hint, not the site address."
+              >
+                from {lead.city}
+              </span>
+            )}
+          </td>
+        )}
         {shows("source") && <td className="px-3 py-2.5">{lead.source ?? "—"}</td>}
 
         {shows("status") && (

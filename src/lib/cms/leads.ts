@@ -53,6 +53,8 @@ export type Lead = {
   enquiry_type: string | null;
   product: string | null;
   quantity: number | null;
+  city: string | null;
+  country: string | null;
   source: string | null;
   page: string | null;
   place_id: number | null;

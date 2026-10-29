@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { chat, productCatalogue, site } from "@/lib/content";
 import { submitEnquiry } from "@/lib/cms/enquiries";
 import { toDigits } from "@/lib/phone";
+import { lookupPlace, warmPlace } from "@/lib/geo";
 import { getDictionary } from "@/lib/i18n";
 import { localeOf } from "@/lib/i18n/config";
 
@@ -175,6 +176,10 @@ export default function ChatWidget({
   function show(next: boolean) {
     setOpen(next);
     onOpenChange?.(next);
+    /* When the panel opens, not when the page loads: the launcher is on every
+       page and most visitors never press it. */
+    if (next) warmPlace();
+
     if (next && messages.length === 0) {
       say(t.chat.greeting);
       say(t.chat.menuPrompt, { menu: true });
@@ -322,11 +327,12 @@ export default function ChatWidget({
    * draft is what happens when that write fails — handing the visitor their
    * own words back beats an assistant that swallowed them.
    */
-  function finish(answers: Record<string, string>) {
+  async function finish(answers: Record<string, string>) {
     setEnquiry(null);
     say(t.chat.sending);
 
     const message = describe(answers);
+    const place = await lookupPlace();
 
     submitEnquiry({
       name: answers.name,
@@ -336,6 +342,8 @@ export default function ChatWidget({
       product: answers.product === "Not sure yet" ? "" : answers.product,
       quantity: bags(answers.quantity),
       enquiryType: "Chat assistant",
+      city: place?.city,
+      country: place?.country,
       source: "Chat widget",
       page: window.location.pathname,
     }).then(
@@ -390,7 +398,7 @@ export default function ChatWidget({
       return;
     }
 
-    finish(answers);
+    void finish(answers);
   }
 
   /** Pass over a question that has no answer worth waiting for. */
@@ -409,7 +417,7 @@ export default function ChatWidget({
       return;
     }
 
-    finish(answers);
+    void finish(answers);
   }
 
   /** Typed text: an answer if the enquiry is running, otherwise a keyword look-up. */

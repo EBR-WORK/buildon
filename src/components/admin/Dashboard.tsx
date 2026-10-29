@@ -159,7 +159,15 @@ export default function Dashboard() {
 
   return (
     <div className="p-5 sm:p-8">
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      {/* Room on the right for the notification bell.
+      
+          The bell is positioned absolutely in the admin layout, at the top
+          right of the content area, on the understanding that each screen's own
+          controls "sit lower, level with the title". This one does not: the
+          branch filter is level with the title AND hard against the same edge,
+          so the bell landed on top of it. The padding moves the filter left of
+          the bell rather than under it. */}
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-4 pr-12 sm:pr-14">
         <div>
           <h1 className="font-display text-2xl font-semibold sm:text-3xl">
             {describeRole(profile?.role)}

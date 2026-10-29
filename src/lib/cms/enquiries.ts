@@ -30,6 +30,8 @@ export type Enquiry = {
   enquiry_type: string | null;
   product: string | null;
   quantity: number | null;
+  city: string | null;
+  country: string | null;
   source: string | null;
   page: string | null;
   handled: boolean;
@@ -47,6 +49,9 @@ export type NewEnquiry = {
   product?: string;
   /** Bags. Undefined means not asked; the form only asks once a product is picked. */
   quantity?: number;
+  /** Where the browser appeared to be. A hint, often absent — see lib/geo.ts. */
+  city?: string;
+  country?: string;
   source?: string;
   page?: string;
 };
@@ -75,6 +80,8 @@ export async function submitEnquiry(entry: NewEnquiry) {
     enquiry_type: orNull(entry.enquiryType),
     product: orNull(entry.product),
     quantity: Number.isFinite(entry.quantity) ? entry.quantity : null,
+    city: orNull(entry.city),
+    country: orNull(entry.country),
     source: orNull(entry.source),
     page: orNull(entry.page),
   });

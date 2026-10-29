@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { contact, site } from "@/lib/content";
 import { submitEnquiry } from "@/lib/cms/enquiries";
 import { keepDigits } from "@/lib/phone";
+import { lookupPlace, warmPlace } from "@/lib/geo";
 import { usePathname } from "next/navigation";
 import { getDictionary } from "@/lib/i18n";
 import { localeOf } from "@/lib/i18n/config";
@@ -77,6 +78,13 @@ export default function EnquiryForm({
      one has to be known while the form is still being filled in. */
   const [product, setProduct] = useState(defaultProduct ?? "");
 
+  /* Started when the form appears, read when it is sent. Doing it at submit
+     would put a third-party request between pressing the button and the
+     enquiry being stored — the one moment here that must not be slow. */
+  useEffect(() => {
+    warmPlace();
+  }, []);
+
   /**
    * Send it to Netlify, which emails it on to the enquiry desk.
    *
@@ -129,7 +137,7 @@ export default function EnquiryForm({
     }).catch(() => {});
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
@@ -173,6 +181,12 @@ export default function EnquiryForm({
 
     setStatus("sending");
 
+    /* Already resolved by now in the ordinary case, and null when it is not.
+       Awaited rather than skipped because it is a cached value by this point;
+       if it is somehow still in flight it is three seconds at the very worst,
+       and an enquiry with no city is what the column expects anyway. */
+    const place = await lookupPlace();
+
     submitEnquiry({
       name,
       email,
@@ -182,6 +196,8 @@ export default function EnquiryForm({
       enquiryType: String(data.get("enquiryType") ?? ""),
       product: String(data.get("product") ?? ""),
       quantity,
+      city: place?.city,
+      country: place?.country,
       source: origin,
       page: window.location.pathname,
     }).then(
