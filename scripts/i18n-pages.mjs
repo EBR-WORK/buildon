@@ -29,31 +29,14 @@ import {
   setLangInFlight,
   translateFlight,
 } from "./lib/html-text.mjs";
-import { hashOf, LOCALE_NAMES, readProvider, translateBatch } from "./lib/translate.mjs";
+import { hashOf, LOCALE_NAMES, readProviders, translateBatch } from "./lib/translate.mjs";
 
 const OUT = "out";
 const LOCALES = ["mr", "hi"];
 const TAGS = { mr: "mr-IN", hi: "hi-IN" };
-/* Strings per request.
- *
- * The Gemini free tier allows 20 generate_content requests PER DAY per model —
- * not per minute, which is what the backoff in translate.mjs was built for and
- * what I first assumed when a run crawled. A 429 here says "retry in 11h44m".
- *
- * So the only number that matters is how many strings ride in each of those 20
- * requests. At 40 a day's quota moves 800 strings and this site needs 17,668.
- * At 500 it moves 10,000, which is the whole site in two days.
- *
- * Why not 1,000, which would fit in a single day: the output is the limit, not
- * the input. 500 short strings is ~13k input tokens against a 1M window, but
- * the Devanagari that comes back tokenises far worse than the English going in
- * — roughly 60 tokens a string — so 500 lands near 30k output tokens against a
- * 65k cap. 1,000 would exceed it, and a truncated response fails the
- * length check in translate.mjs and throws away the whole batch.
- *
- * With billing enabled this limit disappears and the batch size stops
- * mattering; 500 is simply safe either way. */
-const BATCH = 500;
+/* Strings per request is now a property of the provider, not of this script:
+   Gemini's limit is output tokens and Azure's is characters, and the two want
+   different numbers. See readProviders() in lib/translate.mjs. */
 
 /* The canonical origin, which hreflang links must be absolute against — a
    relative hreflang is ignored. Matches site.url in src/lib/content.ts; kept
@@ -321,8 +304,8 @@ if (dry) {
 /* ------------------------------------------------------------ translating */
 
 if (!applyOnly && todo.length > 0) {
-  const provider = readProvider(env);
-  if (!provider.name) {
+  const providers = readProviders(env);
+  if (providers.found.length === 0) {
     /* Not fatal when the cache answered. 9,159 strings came back and 40 did
        not: those forty stay English on pages that are otherwise translated,
        which is a gap worth a loud warning and not worth blocking the deploy —
@@ -332,12 +315,19 @@ if (!applyOnly && todo.length > 0) {
        translation at all, and that is the silent all-English deploy this
        script exists to prevent. */
     const cachedCount = [...cached.values()].reduce((n, m) => n + m.size, 0);
-    const reason = provider.reason.replace(" in .env.local", "");
+    const reason = providers.reason;
     const fix = "Set GEMINI_API_KEY in the site's environment variables.";
     if (cachedCount === 0) stop(reason, fix);
     warn(reason, fix);
   } else {
-  console.log(`\n   provider: ${provider.name}\n`);
+  /* The one in use, and the ones left to fall back to. */
+  let provider = providers.found[0];
+  const spare = providers.found.slice(1);
+  console.log(
+    `\n   provider: ${provider.name}` +
+      (spare.length ? ` (then ${spare.map((p) => p.name).join(", ")})` : "") +
+      "\n",
+  );
 
   let done = 0;
   let failed = 0;
@@ -359,7 +349,7 @@ if (!applyOnly && todo.length > 0) {
       const queue = queues.get(locale);
       if (queue.length === 0) continue;
 
-      const batch = queue.splice(0, BATCH);
+      const batch = queue.splice(0, provider.batch);
 
       let out;
       try {
@@ -370,9 +360,27 @@ if (!applyOnly && todo.length > 0) {
            is already cached stays cached, because each batch is saved as it
            returns rather than all of them at the end. */
         if (e.daily) {
-          exhausted = e.message;
-          /* Put the batch back, so the count of what is left is honest. */
+          /* Put the batch back either way: it is going to be sent again, by
+             the next provider or by tomorrow's run. */
           queue.unshift(...batch);
+
+          /* Another provider configured? Then this is not the end of the run,
+             it is a change of provider. Everything translated so far is
+             already saved and keyed by the English sentence, so the two fill
+             the same cache between them with no reconciliation needed —
+             nothing is sent twice and nothing is lost in the handover. */
+          const next = spare.shift();
+          if (next) {
+            const left = [...queues.values()].reduce((n, q) => n + q.length, 0);
+            console.warn("");
+            console.warn(`   ${provider.name} is out: ${e.message}`);
+            console.warn(`   Switching to ${next.name} for the remaining ${left.toLocaleString()} strings.`);
+            console.warn("");
+            provider = next;
+            continue;
+          }
+
+          exhausted = e.message;
           break outer;
         }
 
@@ -438,11 +446,13 @@ if (!applyOnly && todo.length > 0) {
     console.warn("");
     console.warn("   " + done.toLocaleString() + " strings translated and saved. " + left.toLocaleString() + " still to do.");
     console.warn("");
-    console.warn("   The Gemini free tier allows 20 requests a day. Everything above");
-    console.warn("   is cached, so running this again tomorrow carries on exactly");
-    console.warn("   where it stopped. Nothing is translated or paid for twice.");
+    console.warn("   Every provider configured here is spent: " + providers.found.map((p) => p.name).join(", ") + ".");
     console.warn("");
-    console.warn("   Google said: " + (when ? when[0] : "retry tomorrow"));
+    console.warn("   Everything above is cached, so the next run carries on exactly where");
+    console.warn("   this one stopped. Nothing is translated or paid for twice. The daily");
+    console.warn("   job in .github/workflows picks the rest up on its own.");
+    console.warn("");
+    console.warn("   The provider said: " + (when ? when[0] : exhausted.slice(0, 120)));
     console.warn("   ----------------------------------------------------------------");
     console.warn("");
   }

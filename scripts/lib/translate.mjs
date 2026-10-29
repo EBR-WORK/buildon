@@ -236,7 +236,7 @@ async function geminiTranslate(items, locale, key) {
   if (reason && reason !== "STOP") {
     throw new Error(
       `Gemini stopped with finishReason ${reason} after ${items.length} strings` +
-        (reason === "MAX_TOKENS" ? " — lower BATCH in i18n-pages.mjs" : ""),
+        (reason === "MAX_TOKENS" ? " — lower the gemini batch in readProviders()" : ""),
     );
   }
 
@@ -325,7 +325,18 @@ async function azureTranslate(items, locale, key, region) {
   );
 
   if (!response.ok) {
-    throw new Error(`Azure ${response.status}: ${(await response.text()).slice(0, 300)}`);
+    const body = (await response.text()).slice(0, 300);
+    const error = new Error(`Azure ${response.status}: ${body}`);
+
+    /* 403 on F0 means the month's 2M characters are gone, and no amount of
+       waiting inside this run brings them back — so it is flagged the same way
+       Gemini's per-day quota is, and withRetry throws rather than sleeping
+       through four doublings for nothing.
+    
+       429 is left alone: that is the per-hour character rate, which a wait
+       does clear. */
+    error.daily = response.status === 403;
+    throw error;
   }
 
   const data = await response.json();
@@ -335,6 +346,58 @@ async function azureTranslate(items, locale, key, region) {
 }
 
 /* --------------------------------------------------------------- dispatch */
+
+/**
+ * Every provider that is configured, best first.
+ *
+ * readProvider() answers "which one", which was the right question while there
+ * was only ever one. The run needs "which one, and what then": Gemini's free
+ * tier allows 20 requests a day, and the batch that meets that limit should
+ * carry on against Azure rather than ending the run — the strings are the same
+ * strings, and the cache does not care which provider filled them in.
+ *
+ * Order is deliberate and not a preference: Gemini is first because it is free
+ * without a card and its limit resets daily, so a day's backlog clears by
+ * itself. Azure's free tier is monthly, which makes it the better thing to
+ * spend second and the worse thing to spend first.
+ *
+ * `batch` rides along because the two have incompatible limits and the limit
+ * belongs with the provider, not with the loop: Gemini's cap is output tokens
+ * (~65k, which 500 Devanagari strings nearly fill) and Azure's is 50,000
+ * characters per request (which 500 strings at this site's average of 88 would
+ * come within 6,000 of, and a batch of long blog paragraphs would exceed).
+ */
+export function readProviders(env) {
+  const found = [];
+  const notes = [];
+
+  const gemini = env.GEMINI_API_KEY;
+  if (gemini && !/^AIza/.test(gemini)) {
+    notes.push(
+      `GEMINI_API_KEY does not look like one: it starts "${gemini.slice(0, 4)}" and a Gemini key starts "AIza". ` +
+        "Get one at https://aistudio.google.com/apikey",
+    );
+  } else if (gemini) {
+    found.push({ name: "gemini", key: gemini, batch: 500 });
+  }
+
+  const azure = env.AZURE_TRANSLATOR_KEY;
+  if (azure) {
+    found.push({
+      name: "azure",
+      key: azure,
+      region: env.AZURE_TRANSLATOR_REGION,
+      batch: 250,
+    });
+  }
+
+  return {
+    found,
+    reason: notes.length
+      ? notes.join(" ")
+      : "No GEMINI_API_KEY or AZURE_TRANSLATOR_KEY.",
+  };
+}
 
 export function readProvider(env) {
   const gemini = env.GEMINI_API_KEY;
