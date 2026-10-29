@@ -205,6 +205,189 @@
       "title": "Webdeveloper",
       "category": "IT",
       "location": "Mumbai"
+    },
+    {
+      "id": "0663cfd9-050a-4c84-95fd-3b809fc2abc1",
+      "body": [
+        {
+          "id": "4d4243b8-5e27-40d3-b23b-b0af9a73499e",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Core Responsibilities"
+            }
+          ]
+        },
+        {
+          "id": "0cd42534-b34b-4e32-8372-ddffadb6b06a",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "bold": true,
+                "text": "Research and Idea Generation:"
+              },
+              {
+                "text": " Investigate industry topics, read studies, and understand audience needs before writing. ["
+              },
+              {
+                "href": "https://resources.workable.com/content-writer-job-description",
+                "text": "1"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.careerexplorer.com/careers/content-writer/",
+                "text": "2"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://uk.indeed.com/career-advice/finding-a-job/what-does-content-writer-do",
+                "text": "3"
+              },
+              {
+                "text": "]"
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Writing and Editing:"
+              },
+              {
+                "text": " Draft and polish articles, blogs, website copy, emails, and social media posts while maintaining a consistent brand voice. ["
+              },
+              {
+                "href": "https://www.careerexplorer.com/careers/content-writer/",
+                "text": "1"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://uk.indeed.com/career-advice/finding-a-job/what-does-content-writer-do",
+                "text": "2"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://resources.workable.com/content-writer-job-description",
+                "text": "3"
+              },
+              {
+                "text": "]"
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "SEO Optimization:"
+              },
+              {
+                "text": " Integrate relevant keywords, craft meta descriptions, and structure headings so content ranks higher on search engines. ["
+              },
+              {
+                "href": "https://en.wikipedia.org/wiki/Website_content_writer",
+                "text": "1"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://uk.indeed.com/career-advice/finding-a-job/what-does-content-writer-do",
+                "text": "2"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.careerexplorer.com/careers/content-writer/",
+                "text": "3"
+              },
+              {
+                "text": "]"
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Collaboration:"
+              },
+              {
+                "text": " Work alongside designers, marketing teams, editors, and subject matter experts to align content with broader campaigns. ["
+              },
+              {
+                "href": "https://resources.workable.com/content-writer-job-description",
+                "text": "1"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.careerexplorer.com/careers/content-writer/",
+                "text": "2"
+              },
+              {
+                "text": "]"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "5f9cd1f1-c21f-4515-aabc-4083abd74862",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Common Types of Content"
+            }
+          ]
+        },
+        {
+          "id": "958c2fac-88f4-465f-9eea-c8e35d806e38",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "bold": true,
+                "text": "Blog Posts and Articles:"
+              },
+              {
+                "text": " Educational or entertaining pieces that drive organic web traffic."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Website Copy:"
+              },
+              {
+                "text": " Landing pages, about-us pages, and product descriptions."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Social Media and Email Content:"
+              },
+              {
+                "text": " Short, catchy updates, newsletters, and promotional emails."
+              }
+            ]
+          ]
+        }
+      ],
+      "live": true,
+      "slug": "content-writter",
+      "type": "2 year experience",
+      "title": "Content Writter",
+      "category": "IT",
+      "location": "Pune"
     }
   ],
   "moreLabel": "More Details",

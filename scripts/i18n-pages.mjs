@@ -98,27 +98,51 @@ const writeKey = env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
    and they can see the banner on their own screen. */
 const CI = Boolean(process.env.CI || process.env.NETLIFY || process.env.VERCEL);
 
-function stop(message) {
+/**
+ * Say what is wrong, and decide whether it is worth a failed deploy.
+ *
+ * `fix` is the thing to actually do about it — named here rather than in a
+ * fixed sentence at the bottom, because the first version of this printed
+ * "set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY" at somebody whose
+ * Supabase variables were fine and whose Gemini key was missing. It cost a
+ * build and an afternoon of looking at the wrong setting.
+ *
+ * `fatal` is false where the site still reads correctly. A missing Gemini key
+ * with a full cache means a handful of new strings stay English on pages that
+ * are otherwise translated; failing the deploy over that is worse than
+ * shipping it, because it also blocks every other change in the push.
+ */
+function stop(message, { fix = "", fatal = true } = {}) {
   console.warn("");
   console.warn("  ================================================================");
-  console.warn("   PAGES NOT TRANSLATED");
+  console.warn(fatal ? "   PAGES NOT TRANSLATED" : "   SOME STRINGS NOT TRANSLATED");
   console.warn("");
   console.warn(`   ${message}`);
+  if (fix) {
+    console.warn("");
+    console.warn(`   ${fix}`);
+  }
   console.warn("");
-  console.warn("   out/mr and out/hi are built and served; they read in English.");
-  if (CI) {
+  console.warn(
+    fatal
+      ? "   out/mr and out/hi are built and served; they read in English."
+      : "   Everything already in the cache is translated; the rest stays English.",
+  );
+  if (CI && fatal) {
     console.warn("");
     console.warn("   Failing the build rather than publishing that.");
-    console.warn("   Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in the");
-    console.warn("   site's environment variables and deploy again.");
   }
   console.warn("  ================================================================");
   console.warn("");
-  process.exit(CI ? 1 : 0);
+  process.exit(CI && fatal ? 1 : 0);
 }
 
 if (!existsSync(OUT)) stop("There is no out/ — run npm run build first.");
-if (!url || !writeKey) stop("Supabase is not configured, so there is no cache to read.");
+if (!url || !writeKey) {
+  stop("Supabase is not configured, so there is no cache to read.", {
+    fix: "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in the site's environment variables.",
+  });
+}
 
 /* --------------------------------------------------------------- the pages */
 
@@ -277,7 +301,21 @@ if (dry) {
 
 if (!applyOnly && todo.length > 0) {
   const provider = readProvider(env);
-  if (!provider.name) stop(provider.reason);
+  if (!provider.name) {
+    /* Not fatal when the cache answered. 9,159 strings came back and 40 did
+       not: those forty stay English on pages that are otherwise translated,
+       which is a gap worth a loud warning and not worth blocking the deploy —
+       and with it every other change in the same push.
+    
+       Fatal when the cache gave nothing, because then no provider means no
+       translation at all, and that is the silent all-English deploy this
+       script exists to prevent. */
+    const cachedCount = [...cached.values()].reduce((n, m) => n + m.size, 0);
+    stop(provider.reason.replace(" in .env.local", ""), {
+      fix: "Set GEMINI_API_KEY in the site's environment variables.",
+      fatal: cachedCount === 0,
+    });
+  }
   console.log(`\n   provider: ${provider.name}\n`);
 
   let done = 0;
