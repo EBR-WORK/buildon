@@ -68,6 +68,11 @@ const TONE: Record<LeadStatus, string> = {
   lost: "bg-surface text-ink-500",
 };
 
+/* Said in full on hover, because "from Mumbai" on its own could be read as
+   the customer's address rather than a guess from their connection. */
+const CITY_HINT =
+  "Where the enquiry was sent from, from the visitor's IP. A hint, not the site address.";
+
 const PRIORITY_TONE: Record<Priority, string> = {
   high: "bg-signal-50 text-signal-500",
   normal: "bg-surface text-ink-500",
@@ -638,7 +643,7 @@ export default function LeadsTable() {
                 )}
                 <th className="px-3 py-2.5">Name</th>
                 {shows("contact") && <th className="px-3 py-2.5">Contact</th>}
-                {shows("place") && <th className="px-3 py-2.5">Place</th>}
+                {shows("place") && <th className="px-3 py-2.5">Location</th>}
                 {shows("source") && <th className="px-3 py-2.5">Source</th>}
                 {shows("status") && <th className="px-3 py-2.5">Status</th>}
                 {shows("assigned") && <th className="px-3 py-2.5">Assigned</th>}
@@ -654,7 +659,6 @@ export default function LeadsTable() {
                   key={lead.id}
                   lead={lead}
                   columns={columns}
-                  places={places}
                   staff={staff}
                   names={names}
                   mayAssign={mayAssign}
@@ -790,7 +794,6 @@ function Select({
 function Row({
   lead,
   columns,
-  places,
   staff,
   names,
   mayAssign,
@@ -815,7 +818,6 @@ function Row({
 }: {
   lead: Lead;
   columns: ColumnKey[];
-  places: Place[];
   staff: Staff[];
   names: Record<string, string>;
   mayAssign: boolean;
@@ -842,7 +844,6 @@ function Row({
   onDelete: () => void;
 }) {
   const shows = (key: ColumnKey) => columns.includes(key);
-  const place = places.find((p) => p.id === lead.place_id)?.name;
   const span = 2 + columns.length + (mayAssign ? 1 : 0);
 
   return (
@@ -891,17 +892,20 @@ function Row({
             a decision somebody made, the city is a guess from an IP address,
             and the second is most useful as a prompt for the first. It is
             quiet and small because it is a hint, not a fact. */}
+        {/* Where the enquiry came from, and nothing else.
+
+            The branch used to sit here too, with the city underneath it. On a
+            lead nobody has assigned that read "— / from Mumbai", which is a
+            cell that looks like it could not decide: a dash means "nothing
+            here", and there was plainly something here.
+
+            The branch has not gone anywhere. It still filters this screen,
+            still groups the presales tracker, and is still set when a lead is
+            assigned. It is simply not what this column answers, which is why
+            the heading now says Location. */}
         {shows("place") && (
-          <td className="px-3 py-2.5 align-top">
-            <span className="block">{place ?? "—"}</span>
-            {lead.city && (
-              <span
-                className="block text-xs text-ink-500"
-                title="Where the enquiry was sent from, from the visitor's IP. A hint, not the site address."
-              >
-                from {lead.city}
-              </span>
-            )}
+          <td className="px-3 py-2.5" title={lead.city ? CITY_HINT : undefined}>
+            {lead.city ?? "—"}
           </td>
         )}
         {shows("source") && <td className="px-3 py-2.5">{lead.source ?? "—"}</td>}
