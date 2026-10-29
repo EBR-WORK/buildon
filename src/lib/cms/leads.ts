@@ -482,7 +482,10 @@ export function downloadCsv(filename: string, csv: string) {
 
 export const COLUMNS = [
   { key: "contact", label: "Contact" },
-  { key: "place", label: "Place" },
+  /* The key stays "place" — it is in saved column preferences in people's
+     browsers, and renaming it would silently reset everyone's choice. Only
+     what the menu says changed, to match the heading. */
+  { key: "place", label: "Location" },
   { key: "source", label: "Source" },
   { key: "status", label: "Status" },
   { key: "assigned", label: "Assigned" },

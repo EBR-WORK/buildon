@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 /* The website form's own option lists, so the two cannot drift apart. */
 import { contact } from "@/lib/content";
 import { toDigits } from "@/lib/phone";
+import { SearchIcon } from "@/components/icons";
 import {
   addLead,
   archiveLead,
@@ -91,6 +92,12 @@ export default function LeadsTable() {
 
   const [rows, setRows] = useState<Lead[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
+
+  /* Whether the search box is open. Focus alone decides it; a value keeps it
+     open afterwards, because a collapsed box hiding a live filter is a table
+     that looks wrong for no visible reason. */
+  const [searching, setSearching] = useState(false);
+
   const [staff, setStaff] = useState<Staff[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
@@ -106,6 +113,10 @@ export default function LeadsTable() {
 
   const [view, setView] = useState<ViewKey>("all");
   const [filters, setFilters] = useState<LeadFilters>(NO_FILTERS);
+  /* Open while somebody is in it, and afterwards while it still holds a
+     search: a collapsed box hiding a live filter is a table that looks wrong
+     for no visible reason. */
+  const searchOpen = searching || filters.search.length > 0;
   const [page, setPage] = useState(0);
   const [picked, setPicked] = useState<ReadonlySet<number>>(new Set());
   const [open, setOpen] = useState<number | null>(null);
@@ -403,17 +414,64 @@ export default function LeadsTable() {
       {/* --------------------------------------------------------- filters */}
       {status === "ready" && rows.length > 0 && (
         <div className="mb-3 flex flex-wrap items-center gap-2">
-          <input
-            type="search"
-            value={filters.search}
-            onChange={(e) => {
-              setFilters((all) => ({ ...all, search: e.target.value }));
-              setPage(0);
-            }}
-            placeholder="Search name, company, phone, email..."
-            aria-label="Search leads"
-            className="min-w-0 flex-1 rounded-xl border border-line bg-white px-4 py-2 text-sm outline-none transition focus:border-brand-500 sm:max-w-xs"
-          />
+          {/* A magnifier until it is wanted.
+          
+              It was a full-width box with a long placeholder, sharing one
+              wrapping row with five dropdowns and two buttons. There was never
+              room for the placeholder, so what showed was an empty rounded
+              rectangle that nobody read as a search field. Now it is the one
+              shape everybody recognises, and it takes the width only while
+              somebody is actually typing in it.
+          
+              It stays open while it holds a search: collapsing it on blur
+              would hide the reason the table is showing four rows. */}
+          <div
+            /* Two fixed widths, not flex-1.
+            
+               flex-1 means a basis of 0, and a wrapping row decides its line
+               breaks from the basis — so the search counted as nothing, the
+               five selects and two buttons claimed the line first, and the box
+               opened into whatever was left. Sometimes 320px, sometimes a
+               sliver. flex-grow does not animate either, so the 200ms was a
+               snap. Both widths are real now, and shrink-0 stops the row
+               squeezing it back. */
+            className={`relative shrink-0 transition-[width] duration-200 ${
+              searchOpen ? "w-52 sm:w-64" : "w-10"
+            }`}
+          >
+            <SearchIcon
+              aria-hidden
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-500"
+            />
+            <input
+              type="search"
+              value={filters.search}
+              onChange={(e) => {
+                setFilters((all) => ({ ...all, search: e.target.value }));
+                setPage(0);
+              }}
+              onFocus={() => setSearching(true)}
+              onBlur={() => setSearching(false)}
+              placeholder={searchOpen ? "Name, company, phone, email…" : ""}
+              aria-label="Search leads"
+              /* Closed, it is an icon button: no border, no fill, a hover tint.
+                 A bordered white rectangle with nothing in it is the thing that
+                 was unreadable as a search box in the first place. */
+              /* text-ink-900 said out loud. With nothing set, this inherited
+                 ink-500 — the same grey as the magnifier beside it — so what
+                 you typed came out as faint as the placeholder.
+              
+                 pl-0 when closed because the padding was wider than the box:
+                 36 + 12 + 2 against a 40px field leaves the text nowhere to
+                 sit, and anything typed scrolled straight out of view. Closed
+                 it is an icon, so it needs no room for text. */
+              className={`w-full rounded-xl py-2 text-sm text-ink-900 outline-none transition ${
+                searchOpen
+                  ? "cursor-text border border-line bg-white pr-3 pl-9 focus:border-brand-500"
+                  : "cursor-pointer border border-transparent bg-transparent px-0 hover:bg-surface"
+              }`}
+            />
+          </div>
 
           {places.length > 0 && (
             <Select
