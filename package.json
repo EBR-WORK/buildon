@@ -22,6 +22,7 @@
     "i18n:translate": "node scripts/i18n-translate.mjs",
     "i18n:routes": "node scripts/i18n-routes.mjs",
     "i18n:pages": "node scripts/i18n-pages.mjs",
+    "i18n:check": "node scripts/i18n-check.mjs",
     "i18n:fill": "node scripts/i18n-pages.mjs",
     "preview": "node scripts/preview.mjs"
   },

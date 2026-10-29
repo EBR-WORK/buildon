@@ -257,6 +257,18 @@ const supabase = createClient(url, writeKey, {
 const hashes = new Map(all.map((text) => [text, hashOf(text)]));
 
 /** Everything already translated, as locale -> (english -> translated). */
+/* Strings somebody corrected by hand, as `${locale} ${source}`.
+ *
+ * A row whose provider is neither gemini nor azure was not written by this
+ * script: somebody opened the table and fixed a translation. That is the
+ * authority on what the sentence should say, and --again must not drive over
+ * it — the whole point of --again is to overwrite machine output, and a
+ * correction is the one thing in there that is not machine output.
+ *
+ * Set provider to "manual" on a row to pin it for good. */
+const pinned = new Set();
+const pinKey = (locale, source) => `${locale} ${source}`;
+
 async function readCache() {
   const byLocale = new Map(LOCALES.map((locale) => [locale, new Map()]));
 
@@ -278,7 +290,7 @@ async function readCache() {
   for (let from = 0; ; from += 1000) {
     const { data, error } = await supabase
       .from("translations")
-      .select("source, translated, locale")
+      .select("source, translated, locale, provider")
       .in("locale", LOCALES)
       .order("source_hash", { ascending: true })
       .range(from, from + 999);
@@ -291,7 +303,12 @@ async function readCache() {
       );
     }
     if (!data?.length) break;
-    for (const row of data) byLocale.get(row.locale)?.set(row.source, row.translated);
+    for (const row of data) {
+      byLocale.get(row.locale)?.set(row.source, row.translated);
+      if (row.provider !== "gemini" && row.provider !== "azure") {
+        pinned.add(pinKey(row.locale, row.source));
+      }
+    }
     if (data.length < 1000) break;
   }
 
@@ -303,11 +320,15 @@ const cached = await readCache();
 const todo = [];
 for (const locale of LOCALES) {
   const have = cached.get(locale);
-  for (const text of all) if (retranslate || !have.has(text)) todo.push({ locale, text });
+  for (const text of all) {
+    if (pinned.has(pinKey(locale, text))) continue;
+    if (retranslate || !have.has(text)) todo.push({ locale, text });
+  }
 }
 
 const newCharacters = todo.reduce((sum, item) => sum + item.text.length, 0);
 console.log(`   cached   ${[...cached.values()].reduce((n, m) => n + m.size, 0).toLocaleString()}`);
+if (pinned.size) console.log(`   pinned   ${pinned.size.toLocaleString()} corrected by hand, left alone`);
 console.log(`   to send  ${todo.length.toLocaleString()} (${newCharacters.toLocaleString()} characters)`);
 
 if (dry) {
