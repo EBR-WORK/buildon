@@ -488,9 +488,23 @@ if (!applyOnly && todo.length > 0) {
     console.warn("");
     console.warn("   Every provider configured here is spent: " + providers.found.map((p) => p.name).join(", ") + ".");
     console.warn("");
-    console.warn("   Everything above is cached, so the next run carries on exactly where");
-    console.warn("   this one stopped. Nothing is translated or paid for twice. The daily");
-    console.warn("   job in .github/workflows picks the rest up on its own.");
+    if (retranslate) {
+      /* The daily job counts strings that are NOT cached, and on --again every
+         one of these IS cached — with the old translation, which is the thing
+         being replaced. So it reads a backlog of zero and starts nothing, and
+         saying otherwise here would send somebody away expecting a fix that
+         is never coming. This is the one case a person has to come back to. */
+      console.warn("   The rest still hold their PREVIOUS translation, so the pages read");
+      console.warn("   correctly — they just have not been redone yet. The daily job will");
+      console.warn("   NOT pick these up: it looks for strings with no translation at all,");
+      console.warn("   and these have one.");
+      console.warn("");
+      console.warn("   Run `npm run i18n:pages -- --again` again once the quota resets.");
+    } else {
+      console.warn("   Everything above is cached, so the next run carries on exactly where");
+      console.warn("   this one stopped. Nothing is translated or paid for twice. The daily");
+      console.warn("   job in .github/workflows picks the rest up on its own.");
+    }
     console.warn("");
     console.warn("   The provider said: " + (when ? when[0] : exhausted.slice(0, 120)));
     console.warn("   ----------------------------------------------------------------");

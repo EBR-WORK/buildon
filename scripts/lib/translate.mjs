@@ -40,6 +40,18 @@ export const DO_NOT_TRANSLATE = [
   "POP",
   "ISO",
   "IGBC",
+  "Plaster of Paris",
+  /* The company as it is written on the bags and in the footer. Without it
+     "Plasters" reads as an ordinary noun and comes back translated, so the
+     company's own name changes language halfway down the page. */
+  "Buildon Plasters",
+  /* Social networks are brand names, not words. यूट्यूब helps nobody find the
+     channel. */
+  "Facebook",
+  "Instagram",
+  "LinkedIn",
+  "YouTube",
+  "WhatsApp",
 ];
 
 /** The cache key. Hex sha256 of the exact source, so whitespace counts. */

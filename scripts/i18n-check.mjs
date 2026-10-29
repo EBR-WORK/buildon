@@ -39,11 +39,13 @@ const UNITS = [
   "am", "pm", "ac", "ph", "no", "nos",
 ];
 
-const ALLOWED = new Set(
-  [...DO_NOT_TRANSLATE.flatMap((term) => term.split(/[\s-]+/)), ...UNITS]
-    .map((word) => word.toLowerCase())
-    .filter(Boolean),
-);
+const ALLOWED = new Set(UNITS.map((word) => word.toLowerCase()));
+
+/* Longest first, so "Buildon Plasters" is taken out before "Buildon" can
+   match half of it and leave "Plasters" behind looking like a leak. */
+const NAMES = [...DO_NOT_TRANSLATE]
+  .sort((a, b) => b.length - a.length)
+  .map((term) => new RegExp(term.replace(/[.*+?^${}()|[\\\\]]/g, "\\$&"), "gi"));
 
 /** Every .html page of a tree, as paths relative to out/. */
 function pagesIn(dir, found = []) {
@@ -67,7 +69,13 @@ function englishIn(text) {
   if (/^(https?:|www\.|\/)/.test(text)) return [];
   if (/^[A-Za-z0-9._-]+\.[a-z]{2,5}$/.test(text)) return [];
 
-  return [...text.matchAll(/[A-Za-z][A-Za-z'’]*/g)]
+  /* Take the names out as whole phrases rather than exempting their words.
+     Splitting "Gypsum Plaster One Coat" into four allowed words would exempt
+     "plaster" everywhere it appears, which is most of the sentences on the
+     site — the leak the check exists to find would be the thing it hides. */
+  const rest = NAMES.reduce((acc, name) => acc.replace(name, " "), text);
+
+  return [...rest.matchAll(/[A-Za-z][A-Za-z'’]*/g)]
     .map((match) => match[0])
     /* A lone letter is a bullet, an initial or a size — never a word. */
     .filter((word) => word.length > 1)

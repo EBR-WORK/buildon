@@ -388,6 +388,306 @@
       "title": "Content Writter",
       "category": "IT",
       "location": "Pune"
+    },
+    {
+      "id": "88e633a8-04ce-4a82-bcab-22fd6b57fe2f",
+      "body": [
+        {
+          "id": "a2a7cd39-c360-4e0d-9923-0e1ba500d135",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "bold": true,
+                "text": "Data Collection & Ingestion:"
+              },
+              {
+                "text": " Pull data from structured databases, spreadsheets, or cloud platforms."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Data Cleaning:"
+              },
+              {
+                "text": " Fix errors, handle missing values, and remove outliers to ensure data quality."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Analysis & Modeling:"
+              },
+              {
+                "text": " Identify patterns, trends, and correlations using statistics or queries."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Data Visualization & Reporting:"
+              },
+              {
+                "text": " Build dashboards and visual charts to present findings to technical and non-technical stakeholders. ["
+              },
+              {
+                "href": "https://www.coursera.org/in/articles/what-does-a-data-analyst-do-a-career-guide",
+                "text": "1"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://roadmap.sh/data-analyst",
+                "text": "2"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.youtube.com/watch?v=TFFzNjWkhDk&t=218",
+                "text": "3"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.snhu.edu/about-us/newsroom/stem/what-does-a-data-analyst-do",
+                "text": "4"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.prospects.ac.uk/job-profiles/data-analyst/",
+                "text": "5"
+              },
+              {
+                "text": "]"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "66223e51-11c9-4a19-b4e8-b5170cba14ad",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Essential Tools & Skills"
+            }
+          ]
+        },
+        {
+          "id": "2ff67d02-c57b-4f72-bdb6-4021a15038a4",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "bold": true,
+                "text": "SQL:"
+              },
+              {
+                "text": " Essential for querying and extracting data from relational databases."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Microsoft Excel / Google Sheets:"
+              },
+              {
+                "text": " Used for quick data manipulation, pivot tables, and basic charting."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Business Intelligence (BI) Tools:"
+              },
+              {
+                "text": " Power BI and Tableau for interactive dashboards."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Programming Languages:"
+              },
+              {
+                "text": " Python (with libraries like Pandas and NumPy) or R for deeper data analysis."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Statistics:"
+              },
+              {
+                "text": " Understanding probability, distributions, and hypothesis testing. ["
+              },
+              {
+                "href": "https://www.youtube.com/watch?v=12aUCxVM0hA",
+                "text": "1"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.youtube.com/watch?v=cnjhHZNJEDk",
+                "text": "2"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://careers.societegenerale.com/en/jobs/data/data-analyst",
+                "text": "3"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.coursera.org/in/articles/what-does-a-data-analyst-do-a-career-guide",
+                "text": "4"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://roadmap.sh/data-analyst",
+                "text": "5"
+              },
+              {
+                "text": "]"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "0151f4e8-6cfd-438f-9aaf-aa880a055244",
+          "kind": "p",
+          "runs": [
+            {
+              "bold": true,
+              "text": "Career Outlook & Salary in India"
+            }
+          ]
+        },
+        {
+          "id": "29cf6188-1b05-48bd-b4d3-c466ff287589",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "bold": true,
+                "text": "Average Salary:"
+              },
+              {
+                "text": " Around ₹6,00,000 per year, depending on experience and location."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Demand:"
+              },
+              {
+                "text": " India remains a major global hub for data analytics job postings and recruitment."
+              }
+            ],
+            [
+              {
+                "bold": true,
+                "text": "Top Industries:"
+              },
+              {
+                "text": " E-commerce, finance, fintech, healthtech, and retail. ["
+              },
+              {
+                "href": "https://www.youtube.com/watch?v=-4-GbWuAFms&t=92",
+                "text": "1"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.coursera.org/in/articles/what-does-a-data-analyst-do-a-career-guide",
+                "text": "2"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://www.randstad.in/job-seeker/job-profiles/data-analyst/",
+                "text": "3"
+              },
+              {
+                "text": ", "
+              },
+              {
+                "href": "https://nextleap.app/jobs/data-analyst",
+                "text": "4"
+              },
+              {
+                "text": "]"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "d7891320-6c8c-4e0e-a896-e67bd86fe9a4",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "If you'd like, let me know:"
+            }
+          ]
+        },
+        {
+          "id": "610ad042-1227-4d11-9b1c-a996886b7d19",
+          "kind": "ul",
+          "items": [
+            [
+              {
+                "text": "Your "
+              },
+              {
+                "bold": true,
+                "text": "current educational or work background"
+              }
+            ],
+            [
+              {
+                "text": "Which "
+              },
+              {
+                "bold": true,
+                "text": "specific tool or skill"
+              },
+              {
+                "text": " you want to start learning first"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "7ece7795-8fc5-468f-8d98-8a23af078ba6",
+          "kind": "p",
+          "runs": [
+            {
+              "text": "I can help you build a step-by-step learning roadmap."
+            }
+          ]
+        }
+      ],
+      "live": true,
+      "slug": "data-analyst",
+      "type": "2 year experience",
+      "title": "Data analyst",
+      "category": "IT",
+      "location": "Pune"
     }
   ],
   "moreLabel": "More Details",
