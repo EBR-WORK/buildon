@@ -18,34 +18,16 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { collect } from "./lib/html-text.mjs";
-import { DO_NOT_TRANSLATE, LOCALE_NAMES, LOCALES } from "./lib/translate.mjs";
+import { latinLeftIn, LOCALE_NAMES, LOCALES } from "./lib/translate.mjs";
 
 const OUT = "out";
 const strict = process.argv.includes("--strict");
 const verbose = process.argv.includes("--all");
 
-/**
- * Latin script that is not a translation failure.
- *
- * The product names come from the list the translator is given, so the two
- * cannot drift: adding a product there exempts it here by the same edit.
- *
- * The rest are things no language translates. Units are written in Latin on an
- * Indian site whatever the surrounding script — a builder reads 12 mm, not
- * १२ मिमी — and an address, an email and a phone number are not prose.
- */
-const UNITS = [
-  "mm", "cm", "m", "sq", "ft", "kg", "g", "ml", "l", "hrs", "hr", "min",
-  "am", "pm", "ac", "ph", "no", "nos",
-];
-
-const ALLOWED = new Set(UNITS.map((word) => word.toLowerCase()));
-
-/* Longest first, so "Buildon Plasters" is taken out before "Buildon" can
-   match half of it and leave "Plasters" behind looking like a leak. */
-const NAMES = [...DO_NOT_TRANSLATE]
-  .sort((a, b) => b.length - a.length)
-  .map((term) => new RegExp(term.replace(/[.*+?^${}()|[\\\\]]/g, "\\$&"), "gi"));
+/* What counts as a leak lives next to the DO_NOT_TRANSLATE list it is derived
+   from, in lib/translate.mjs, because the translator's --stale flag asks the
+   same question of the cache that this asks of the pages. One definition, so a
+   name added there is exempt in both places by the same edit. */
 
 /** Every .html page of a tree, as paths relative to out/. */
 function pagesIn(dir, found = []) {
@@ -56,30 +38,6 @@ function pagesIn(dir, found = []) {
     else if (entry.endsWith(".html")) found.push(full);
   }
   return found;
-}
-
-/**
- * The Latin words in a string that should not be there.
- *
- * Whole strings go first: an email, a URL or a filename is Latin from end to
- * end and reporting its every word as untranslated is noise, not a finding.
- */
-function englishIn(text) {
-  if (/^[^\s@]+@[^\s@]+$/.test(text)) return [];
-  if (/^(https?:|www\.|\/)/.test(text)) return [];
-  if (/^[A-Za-z0-9._-]+\.[a-z]{2,5}$/.test(text)) return [];
-
-  /* Take the names out as whole phrases rather than exempting their words.
-     Splitting "Gypsum Plaster One Coat" into four allowed words would exempt
-     "plaster" everywhere it appears, which is most of the sentences on the
-     site — the leak the check exists to find would be the thing it hides. */
-  const rest = NAMES.reduce((acc, name) => acc.replace(name, " "), text);
-
-  return [...rest.matchAll(/[A-Za-z][A-Za-z'’]*/g)]
-    .map((match) => match[0])
-    /* A lone letter is a bullet, an initial or a size — never a word. */
-    .filter((word) => word.length > 1)
-    .filter((word) => !ALLOWED.has(word.toLowerCase()));
 }
 
 let findings = 0;
@@ -96,7 +54,7 @@ for (const locale of LOCALES) {
     const offenders = new Map();
 
     for (const text of collect(readFileSync(page, "utf8"))) {
-      const words = englishIn(text);
+      const words = latinLeftIn(text);
       if (words.length) offenders.set(text, words);
     }
 

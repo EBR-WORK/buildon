@@ -6,6 +6,8 @@
  *   npm run i18n:pages -- --apply apply what is cached, translate nothing
  *   npm run i18n:pages -- --again send every string again, replacing the cache
  *   npm run i18n:pages -- --again --since <iso>   ...but only the older ones
+ *   npm run i18n:pages -- --stale re-send only the translations that still
+ *                                 carry English words
  *
  * Runs after `next build`, over `out/`. The English tree is read and never
  * written; out/mr and out/hi are rewritten in place.
@@ -31,7 +33,13 @@ import {
   setLangInFlight,
   translateFlight,
 } from "./lib/html-text.mjs";
-import { hashOf, LOCALE_NAMES, readProviders, translateBatch } from "./lib/translate.mjs";
+import {
+  hashOf,
+  latinLeftIn,
+  LOCALE_NAMES,
+  readProviders,
+  translateBatch,
+} from "./lib/translate.mjs";
 
 const OUT = "out";
 const LOCALES = ["mr", "hi"];
@@ -81,6 +89,24 @@ const since = sinceAt === -1 ? null : Date.parse(argv[sinceAt + 1]);
 if (sinceAt !== -1 && Number.isNaN(since)) {
   stop(`--since needs a date I can read, not "${argv[sinceAt + 1]}".`, "Try --since 2026-10-29T12:00:00Z");
 }
+/* Re-send the translations that still read as English.
+ *
+ * Taking a name off DO_NOT_TRANSLATE does not reach the site: the cache is
+ * keyed on the English source, so every translation made while that name was
+ * exempt keeps it in Latin for ever, and the page shows an English heading
+ * over a Marathi paragraph.
+ *
+ * --again would fix it by re-sending all nine thousand, which is half a week
+ * of free quota spent mostly on strings that were already right. This re-sends
+ * only the ones latinLeftIn() can still find English in — the same test the
+ * checker reports on — which is the few hundred that actually changed meaning.
+ *
+ * Like --again it overwrites rather than deletes: a run that stops halfway
+ * leaves the old translation in place, never an English page. */
+const staleOnly = argv.includes("--stale");
+/* Both flags mean "the row that is there is no longer the answer". */
+const overwrite = retranslate || staleOnly;
+
 /* One page at a time, for checking the output before committing to a run over
    three hundred of them. */
 const onlyAt = argv.indexOf("--page");
@@ -289,6 +315,8 @@ const hashes = new Map(all.map((text) => [text, hashOf(text)]));
 const pinned = new Set();
 /* Rows newer than --since. Only ever filled when --since was passed. */
 const fresh = new Set();
+/* Rows whose translation still carries English. Only filled with --stale. */
+const stale = new Set();
 const pinKey = (locale, source) => `${locale}\u0000${source}`;
 
 async function readCache() {
@@ -334,6 +362,9 @@ async function readCache() {
         /* Already carries the current wording. Nothing to redo. */
         fresh.add(pinKey(row.locale, row.source));
       }
+      if (staleOnly && latinLeftIn(row.translated).length) {
+        stale.add(pinKey(row.locale, row.source));
+      }
     }
     if (data.length < 1000) break;
   }
@@ -349,13 +380,17 @@ for (const locale of LOCALES) {
   for (const text of all) {
     if (pinned.has(pinKey(locale, text))) continue;
     if (fresh.has(pinKey(locale, text))) continue;
-    if (retranslate || !have.has(text)) todo.push({ locale, text });
+    /* --stale is a narrowing, not a widening: a string with no translation at
+       all is still new work and still goes, as it would on a plain run. */
+    if (staleOnly && have.has(text) && !stale.has(pinKey(locale, text))) continue;
+    if (overwrite || !have.has(text)) todo.push({ locale, text });
   }
 }
 
 const newCharacters = todo.reduce((sum, item) => sum + item.text.length, 0);
 console.log(`   cached   ${[...cached.values()].reduce((n, m) => n + m.size, 0).toLocaleString()}`);
 if (fresh.size) console.log(`   fresh    ${fresh.size.toLocaleString()} newer than --since, skipped`);
+if (stale.size) console.log(`   stale    ${stale.size.toLocaleString()} still carrying English`);
 if (pinned.size) console.log(`   pinned   ${pinned.size.toLocaleString()} corrected by hand, left alone`);
 console.log(`   to send  ${todo.length.toLocaleString()} (${newCharacters.toLocaleString()} characters)`);
 
@@ -478,8 +513,9 @@ if (!applyOnly && todo.length > 0) {
         .upsert(rows, {
           onConflict: "source_hash,locale",
           /* Normally a row that exists is the answer and must not be touched.
-             On --again the whole point is that it is no longer the answer. */
-          ignoreDuplicates: !retranslate,
+             On --again and --stale the whole point is that it is no longer
+             the answer. */
+          ignoreDuplicates: !overwrite,
         });
 
       if (error) {

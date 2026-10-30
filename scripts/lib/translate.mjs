@@ -56,6 +56,60 @@ export const DO_NOT_TRANSLATE = [
   "WhatsApp",
 ];
 
+const BACKSLASH = String.fromCharCode(92);
+
+/**
+ * Latin script that no language translates.
+ *
+ * Units are written in Latin on an Indian site whatever the surrounding
+ * script — a builder reads 12 mm, not १२ मिमी.
+ */
+export const UNITS = [
+  "mm", "cm", "m", "sq", "ft", "kg", "g", "ml", "l", "hrs", "hr", "min",
+  "am", "pm", "ac", "ph", "no", "nos",
+];
+
+const ALLOWED = new Set(UNITS.map((word) => word.toLowerCase()));
+
+const ESCAPE = (term) =>
+  [...term].map((c) => (/[A-Za-z0-9 ]/.test(c) ? c : BACKSLASH + c)).join("");
+
+/* Longest first, so "Buildon Plasters" is taken out before "Buildon" can
+   match half of it and leave "Plasters" behind looking like a leak. */
+const NAMES = [...DO_NOT_TRANSLATE]
+  .sort((a, b) => b.length - a.length)
+  .map((term) => new RegExp(ESCAPE(term), "gi"));
+
+/**
+ * The Latin words in a finished translation that should not be there.
+ *
+ * Empty means the string reads as the language it claims to be. Anything
+ * returned is a word the translator left in English, which is the failure a
+ * reader actually sees — and, because DO_NOT_TRANSLATE drives it, taking a
+ * name off that list makes every translation carrying it stale by the same
+ * edit. That is what --stale re-sends.
+ *
+ * Whole strings go first: an email, a URL or a filename is Latin from end to
+ * end and reporting its every word is noise, not a finding.
+ */
+export function latinLeftIn(text) {
+  if (/^[^\s@]+@[^\s@]+$/.test(text)) return [];
+  if (/^(https?:|www[.]|[/])/.test(text)) return [];
+  if (/^[A-Za-z0-9._-]+[.][a-z]{2,5}$/.test(text)) return [];
+
+  /* Take the names out as whole phrases rather than exempting their words.
+     Splitting "Gypsum Plaster One Coat" into four allowed words would exempt
+     "plaster" everywhere it appears, which is most of the sentences on the
+     site — the leak this exists to find would be the thing it hides. */
+  const rest = NAMES.reduce((acc, name) => acc.replace(name, " "), text);
+
+  return [...rest.matchAll(/[A-Za-z][A-Za-z'’]*/g)]
+    .map((match) => match[0])
+    /* A lone letter is a bullet, an initial or a size — never a word. */
+    .filter((word) => word.length > 1)
+    .filter((word) => !ALLOWED.has(word.toLowerCase()));
+}
+
 /** The cache key. Hex sha256 of the exact source, so whitespace counts. */
 export const hashOf = (text) => createHash("sha256").update(text, "utf8").digest("hex");
 
