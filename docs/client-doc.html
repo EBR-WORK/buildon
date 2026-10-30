@@ -1,0 +1,364 @@
+<!doctype html>
+<!--
+  Source for docs/Buildon-What-Has-Been-Built.pdf — the client-facing summary.
+  Business language on purpose: no table names, no stack, nothing the reader
+  would have to ask about. docs/FEATURES.md is the developers' version.
+
+  Regenerate after editing (Windows, from the repo root):
+
+    "C:/Program Files/Google/Chrome/Application/chrome.exe" --headless ^
+      --disable-gpu --no-pdf-header-footer ^
+      --print-to-pdf="docs/Buildon-What-Has-Been-Built.pdf" ^
+      "file:///D:/buildon/docs/client-doc.html"
+
+  The print-to-pdf flag needs an absolute file:// URL; a relative path loads
+  as a hostname and fails with ERR_NAME_NOT_RESOLVED.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Buildon Plasters — What has been built</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 16mm 16mm; }
+
+  :root {
+    --brand: #4a6dad;
+    --brand-dark: #2b343b;
+    --red: #c1141f;
+    --ink: #1c2126;
+    --muted: #5d666f;
+    --line: #dbe3f4;
+    --panel: #f4f7fc;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    font-size: 10.5pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+
+  /* ------------------------------------------------------------- cover */
+
+  .cover {
+    height: 253mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .logo { width: 56mm; margin: 0 auto 14mm; display: block; }
+
+  .cover h1 {
+    font-size: 30pt;
+    line-height: 1.15;
+    margin: 0 0 6mm;
+    color: var(--brand-dark);
+    letter-spacing: -0.01em;
+  }
+
+  .cover .rule {
+    width: 28mm;
+    height: 3px;
+    background: var(--red);
+    margin: 0 auto 7mm;
+  }
+
+  .cover p {
+    font-size: 12.5pt;
+    color: var(--muted);
+    max-width: 125mm;
+    margin: 0 auto;
+  }
+
+  .cover .meta {
+    margin-top: 22mm;
+    font-size: 9.5pt;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ------------------------------------------------------------ headings */
+
+  h2 {
+    font-size: 16pt;
+    color: var(--brand-dark);
+    margin: 0 0 1mm;
+    letter-spacing: -0.01em;
+  }
+
+  .kicker {
+    font-size: 8.5pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--brand);
+    font-weight: 700;
+    margin: 0 0 2mm;
+  }
+
+  .lede {
+    font-size: 11.5pt;
+    color: var(--muted);
+    margin: 0 0 8mm;
+    padding-bottom: 5mm;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* --------------------------------------------------------------- items */
+
+  .item { margin-bottom: 7mm; page-break-inside: avoid; }
+
+  .item h3 {
+    font-size: 12pt;
+    margin: 0 0 1.5mm;
+    color: var(--ink);
+  }
+
+  .item h3::before {
+    content: "";
+    display: inline-block;
+    width: 3px;
+    height: 11pt;
+    background: var(--brand);
+    margin-right: 3mm;
+    vertical-align: -1.5pt;
+  }
+
+  .item p { margin: 0 0 0 6mm; color: var(--muted); }
+
+  /* --------------------------------------------------------------- panel */
+
+  .panel {
+    background: var(--panel);
+    border-left: 3px solid var(--brand);
+    padding: 6mm 7mm;
+    margin: 0 0 8mm;
+    page-break-inside: avoid;
+  }
+
+  .panel h3 { margin: 0 0 2mm; font-size: 11.5pt; }
+  .panel p { margin: 0; color: var(--muted); }
+
+  /* ---------------------------------------------------------------- grid */
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5mm 8mm;
+    margin-bottom: 8mm;
+  }
+
+  .cell { page-break-inside: avoid; }
+  .cell h4 { margin: 0 0 1mm; font-size: 10.5pt; color: var(--brand-dark); }
+  .cell p { margin: 0; color: var(--muted); font-size: 10pt; }
+
+  /* ------------------------------------------------------------- numbers */
+
+  .numbers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6mm;
+    margin: 0 0 9mm;
+    text-align: center;
+  }
+
+  .n { border-top: 2px solid var(--brand); padding-top: 3mm; }
+  .n strong { display: block; font-size: 21pt; color: var(--brand-dark); line-height: 1.1; }
+  .n span { font-size: 8.5pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* ---------------------------------------------------------------- list */
+
+  ul.plain { margin: 0 0 0 6mm; padding: 0; list-style: none; }
+  ul.plain li { margin-bottom: 2mm; color: var(--muted); position: relative; padding-left: 5mm; }
+  ul.plain li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 4.5pt;
+    width: 4px; height: 4px;
+    background: var(--red);
+    border-radius: 50%;
+  }
+
+  /* -------------------------------------------------------------- footer */
+
+  .foot {
+    margin-top: 10mm;
+    padding-top: 4mm;
+    border-top: 1px solid var(--line);
+    font-size: 9pt;
+    color: var(--muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================= cover -->
+<section class="page cover">
+  <img class="logo" src="../public/brand/logo.png" alt="Buildon Plasters">
+  <h1>Your website,<br>in three languages</h1>
+  <div class="rule"></div>
+  <p>What has been built for Buildon Plasters, and what it does for you.</p>
+  <div class="meta">buildon.co.in</div>
+</section>
+
+<!-- ========================================================== overview -->
+<section class="page">
+  <p class="kicker">At a glance</p>
+  <h2>What you have</h2>
+  <p class="lede">A website that speaks to builders in their own language, that you update yourself, and that sends every enquiry straight to your sales team.</p>
+
+  <div class="numbers">
+    <div class="n"><strong>3</strong><span>Languages</span></div>
+    <div class="n"><strong>96</strong><span>Pages each</span></div>
+    <div class="n"><strong>8</strong><span>City pages</span></div>
+    <div class="n"><strong>0</strong><span>Per-page cost</span></div>
+  </div>
+
+  <div class="item">
+    <h3>English, Marathi and Hindi</h3>
+    <p>Every page on the site reads in all three. A visitor picks a language once and the whole site follows — products, projects, blog posts, job openings, forms and all.</p>
+  </div>
+
+  <div class="item">
+    <h3>New content translates itself</h3>
+    <p>You write in English. The Marathi and Hindi versions appear on their own, usually within minutes of publishing. Nothing to send to a translator, nothing to chase, nothing to pay per page.</p>
+  </div>
+
+  <div class="item">
+    <h3>Product names stay as product names</h3>
+    <p>Bondit-151 and P-20 are printed on the bag, so they are left exactly as they are in every language. A dealer reading the Marathi page still recognises what to ask for.</p>
+  </div>
+
+  <div class="item">
+    <h3>Your own admin panel</h3>
+    <p>Products, projects, blog posts, job openings, team members, branches and FAQs are all edited by you. No developer, no waiting, no change request.</p>
+  </div>
+
+  <div class="item">
+    <h3>Every enquiry reaches your sales team</h3>
+    <p>An enquiry from the site becomes a lead in your CRM straight away, and can be assigned to a salesperson and followed up until it closes.</p>
+  </div>
+</section>
+
+<!-- ============================================================ control -->
+<section class="page">
+  <p class="kicker">Day to day</p>
+  <h2>What you can change yourself</h2>
+  <p class="lede">The admin panel covers everything that changes about the business. If it is on the site, you can edit it.</p>
+
+  <div class="grid">
+    <div class="cell"><h4>Products</h4><p>Add a product, change a description, swap a photo, retire an old bag.</p></div>
+    <div class="cell"><h4>Projects</h4><p>Add a completed site with its photographs and the builder's name.</p></div>
+    <div class="cell"><h4>Blog</h4><p>Write and publish articles, with headings, images and video.</p></div>
+    <div class="cell"><h4>Careers</h4><p>Post a job opening; applications and résumés arrive in the panel.</p></div>
+    <div class="cell"><h4>Team</h4><p>Add a colleague, update a photograph or a designation.</p></div>
+    <div class="cell"><h4>Branches</h4><p>Keep the office and depot addresses current.</p></div>
+    <div class="cell"><h4>FAQs</h4><p>Answer the question customers keep asking.</p></div>
+    <div class="cell"><h4>Home page</h4><p>Change the banners and the sections on the front page.</p></div>
+  </div>
+
+  <div class="panel">
+    <h3>Publishing takes one click</h3>
+    <p>When you save, the site rebuilds and goes live on its own — including the Marathi and Hindi versions of whatever you just wrote. There is no separate step and nobody to ask.</p>
+  </div>
+
+  <div class="item">
+    <h3>Who can do what</h3>
+    <p>Staff, admin and owner each see a different panel. Sensitive actions are owner-only, and a new colleague is invited by email rather than handed a password.</p>
+  </div>
+</section>
+
+<!-- =============================================================== leads -->
+<section class="page">
+  <p class="kicker">Enquiries</p>
+  <h2>From the website to your sales team</h2>
+  <p class="lede">Nothing is left sitting in an inbox waiting for somebody to notice it.</p>
+
+  <div class="item">
+    <h3>The enquiry arrives as a lead</h3>
+    <p>A contact form or a product enquiry becomes a CRM lead the moment it is submitted, carrying the product, the quantity and the city the enquiry came from.</p>
+  </div>
+
+  <div class="item">
+    <h3>It gets an owner</h3>
+    <p>Leads are assigned to a salesperson, who is notified. The panel shows what is assigned, what is being followed up and what has been closed.</p>
+  </div>
+
+  <div class="item">
+    <h3>Job applications, separately</h3>
+    <p>Applications and their résumés arrive in their own section, so hiring does not get mixed up with sales.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Emails come from Buildon</h3>
+    <p>Every automated email — a password reset, a lead notification — is sent in Buildon's name, with Buildon's wording. Nothing on it mentions the software underneath.</p>
+  </div>
+</section>
+
+<!-- ============================================================== found -->
+<section class="page">
+  <p class="kicker">Being found</p>
+  <h2>Built to be found and to stay up</h2>
+  <p class="lede">The parts a visitor never sees, which decide whether they arrive at all.</p>
+
+  <div class="item">
+    <h3>A page for every city you sell in</h3>
+    <p>Ranchi, Jamshedpur, Bhubaneswar, Cuttack, Durgapur, Siliguri, Jharkhand and Orissa each have their own page, so somebody searching for gypsum plaster in their own city can find you.</p>
+  </div>
+
+  <div class="item">
+    <h3>Search engines are told about all three languages</h3>
+    <p>Google is told that the English, Marathi and Hindi pages are the same page in different languages, so the right one is shown to the right person.</p>
+  </div>
+
+  <div class="item">
+    <h3>The site is fast because there is nothing to wait for</h3>
+    <p>Every page is prepared in advance rather than assembled when somebody asks for it. Pages open quickly, and there is no server that can go down under traffic.</p>
+  </div>
+
+  <div class="item">
+    <h3>Search inside the site</h3>
+    <p>Visitors can search your products, projects and articles without leaving the page.</p>
+  </div>
+
+  <div class="panel">
+    <h3>What it costs to run</h3>
+    <p>Hosting and translation both run on free allowances that do not grow with your traffic. A busier site does not cost more.</p>
+  </div>
+</section>
+
+<!-- =============================================================== close -->
+<section class="page">
+  <p class="kicker">In short</p>
+  <h2>What has been delivered</h2>
+  <p class="lede">Everything below is live on buildon.co.in today.</p>
+
+  <ul class="plain">
+    <li>A complete website in English, Marathi and Hindi — 96 pages in each language.</li>
+    <li>Automatic translation of anything new you publish, at no cost per page.</li>
+    <li>An admin panel covering products, projects, blog, careers, team, branches, FAQs and the home page.</li>
+    <li>One-click publishing, including the translated versions.</li>
+    <li>Separate access for staff, admins and the owner.</li>
+    <li>Website enquiries delivered into your CRM as leads, with assignment and follow-up.</li>
+    <li>Job applications and résumés collected in the panel.</li>
+    <li>A landing page for each of the eight cities you sell in.</li>
+    <li>Automated emails sent in Buildon's own name.</li>
+    <li>A site that stays up and costs the same however many people visit it.</li>
+  </ul>
+
+  <div class="foot">Buildon Plasters &nbsp;·&nbsp; buildon.co.in</div>
+</section>
+
+</body>
+</html>
