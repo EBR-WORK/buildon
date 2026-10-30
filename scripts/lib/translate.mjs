@@ -66,7 +66,7 @@ const BACKSLASH = String.fromCharCode(92);
  */
 export const UNITS = [
   "mm", "cm", "m", "sq", "ft", "kg", "g", "ml", "l", "hrs", "hr", "min",
-  "am", "pm", "ac", "ph", "no", "nos",
+  "am", "pm", "ac", "ph", "no", "nos", "gsm", "scm",
 ];
 
 const ALLOWED = new Set(UNITS.map((word) => word.toLowerCase()));
@@ -103,7 +103,17 @@ export function latinLeftIn(text) {
      site — the leak this exists to find would be the thing it hides. */
   const rest = NAMES.reduce((acc, name) => acc.replace(name, " "), text);
 
-  return [...rest.matchAll(/[A-Za-z][A-Za-z'’]*/g)]
+  /* A word with a digit in it is a code, not prose: a GST number, a chemical
+     formula, a model number. Dropping the whole token rather than the digits
+     is what keeps 27AAHCB7775P1ZR from being reported as the English words
+     "AAHCB" and "ZR", and CaSO4.2H2O as "CaSO". Subscript digits count, which
+     is how the formula is actually written on the page. */
+  const prose = rest
+    .split(/\s+/)
+    .filter((token) => !/[0-9₀-₉]/.test(token))
+    .join(" ");
+
+  return [...prose.matchAll(/[A-Za-z][A-Za-z'’]*/g)]
     .map((match) => match[0])
     /* A lone letter is a bullet, an initial or a size — never a word. */
     .filter((word) => word.length > 1)
@@ -139,9 +149,23 @@ export function translatable(text) {
 
 /* ----------------------------------------------------------------- gemini */
 
-/* 2.5, not 2.0: a key issued today lists 2.5-flash and not 2.0, so naming the
-   older one fails with a model-not-found that reads like a key problem. */
-const GEMINI_MODEL = "gemini-2.5-flash";
+/* The free tier's daily limit is counted per PROJECT per MODEL — the error
+   says so in as many words: GenerateRequestsPerDayPerProjectPerModel-FreeTier,
+   quotaValue 20. So a second key cut from the same project buys nothing, while
+   a second MODEL on the same key is a second allowance of twenty.
+ *
+ * Measured on this project's own key, with 2.5-flash's allowance already
+ * spent: 3.5-flash answered, and correctly, on the exact payload below.
+ *
+ * Order is proven-first, not newest-first. 2.5-flash is the model every string
+ * on the site was translated by, and a batch of five hundred is known to come
+ * back whole from it; the others take over only once it is out, where the
+ * choice is between their wording and no wording at all.
+ *
+ * Both of these accept thinkingConfig. 3.5-flash-lite does not — it answers
+ * 400 INVALID_ARGUMENT — which is why it is not here. A model added to this
+ * list must be tried against the real payload first, not just the model list. */
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite"];
 
 /**
  * The instructions are the reason this is worth more than a translation API.
@@ -261,9 +285,9 @@ function quotaError(status, body) {
   return error;
 }
 
-async function geminiTranslate(items, locale, key) {
+async function geminiTranslate(items, locale, key, model) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -448,7 +472,15 @@ export function readProviders(env) {
         "Get one at https://aistudio.google.com/apikey",
     );
   } else if (gemini) {
-    found.push({ name: "gemini", key: gemini, batch: 500 });
+    /* One entry per model, all on the one key. The chain in i18n-pages moves
+       to the next whenever a provider reports its day is spent, and each of
+       these has a day of its own to spend. */
+    for (const model of GEMINI_MODELS) {
+      /* name is what goes in the cache's provider column, and the scripts read
+         it to tell machine output from a hand correction. It stays "gemini"
+         whichever model wrote the row; label is for the log. */
+      found.push({ name: "gemini", label: model, key: gemini, model, batch: 500 });
+    }
   }
 
   const azure = env.AZURE_TRANSLATOR_KEY;
@@ -495,7 +527,7 @@ export function readProvider(env) {
 /** Translate a batch. Throws rather than returning half an answer. */
 export async function translateBatch(items, locale, provider) {
   if (provider.name === "gemini") {
-    return withRetry(() => geminiTranslate(items, locale, provider.key));
+    return withRetry(() => geminiTranslate(items, locale, provider.key, provider.model));
   }
   if (provider.name === "azure") {
     return withRetry(() => azureTranslate(items, locale, provider.key, provider.region));

@@ -422,8 +422,8 @@ if (!applyOnly && todo.length > 0) {
   let provider = providers.found[0];
   const spare = providers.found.slice(1);
   console.log(
-    `\n   provider: ${provider.name}` +
-      (spare.length ? ` (then ${spare.map((p) => p.name).join(", ")})` : "") +
+    `\n   provider: ${provider.label ?? provider.name}` +
+      (spare.length ? ` (then ${spare.map((p) => p.label ?? p.name).join(", ")})` : "") +
       "\n",
   );
 
@@ -471,8 +471,8 @@ if (!applyOnly && todo.length > 0) {
           if (next) {
             const left = [...queues.values()].reduce((n, q) => n + q.length, 0);
             console.warn("");
-            console.warn(`   ${provider.name} is out: ${e.message}`);
-            console.warn(`   Switching to ${next.name} for the remaining ${left.toLocaleString()} strings.`);
+            console.warn(`   ${provider.label ?? provider.name} is out: ${e.message}`);
+            console.warn(`   Switching to ${next.label ?? next.name} for the remaining ${left.toLocaleString()} strings.`);
             console.warn("");
             provider = next;
             continue;
