@@ -5,6 +5,7 @@
  *   npm run i18n:pages -- --dry   collect and cost it, send nothing
  *   npm run i18n:pages -- --apply apply what is cached, translate nothing
  *   npm run i18n:pages -- --again send every string again, replacing the cache
+ *   npm run i18n:pages -- --again --since <iso>   ...but only the older ones
  *
  * Runs after `next build`, over `out/`. The English tree is read and never
  * written; out/mr and out/hi are rewritten in place.
@@ -61,6 +62,25 @@ const applyOnly = argv.includes("--apply");
  * translation in place rather than an English page. There is no moment at
  * which the site is less translated than it was. */
 const retranslate = argv.includes("--again");
+/* With --again, re-send only what was last translated BEFORE this moment.
+ *
+ * A day's quota does not cover the whole site, so a prompt change takes two
+ * runs, and the second must not start from the top and redo what the first
+ * already did. Passing the first run's start time makes the second pick up
+ * exactly where it left off.
+ *
+ * It also decides the ORDER a prompt change reaches the site in. The queue is
+ * most-visited-first, which is right when the pages are equally stale and
+ * wrong when they are not: the pages still carrying the old wording are the
+ * ones that need the quota, and they are the least-visited ones that ran out
+ * of it last time. --since picks exactly those.
+ *
+ *   --since 2026-10-29T12:00:00Z    everything not touched since then */
+const sinceAt = argv.indexOf("--since");
+const since = sinceAt === -1 ? null : Date.parse(argv[sinceAt + 1]);
+if (sinceAt !== -1 && Number.isNaN(since)) {
+  stop(`--since needs a date I can read, not "${argv[sinceAt + 1]}".`, "Try --since 2026-10-29T12:00:00Z");
+}
 /* One page at a time, for checking the output before committing to a run over
    three hundred of them. */
 const onlyAt = argv.indexOf("--page");
@@ -257,7 +277,7 @@ const supabase = createClient(url, writeKey, {
 const hashes = new Map(all.map((text) => [text, hashOf(text)]));
 
 /** Everything already translated, as locale -> (english -> translated). */
-/* Strings somebody corrected by hand, as `${locale} ${source}`.
+/* Strings somebody corrected by hand, as `${locale}\u0000${source}`.
  *
  * A row whose provider is neither gemini nor azure was not written by this
  * script: somebody opened the table and fixed a translation. That is the
@@ -267,7 +287,9 @@ const hashes = new Map(all.map((text) => [text, hashOf(text)]));
  *
  * Set provider to "manual" on a row to pin it for good. */
 const pinned = new Set();
-const pinKey = (locale, source) => `${locale} ${source}`;
+/* Rows newer than --since. Only ever filled when --since was passed. */
+const fresh = new Set();
+const pinKey = (locale, source) => `${locale}\u0000${source}`;
 
 async function readCache() {
   const byLocale = new Map(LOCALES.map((locale) => [locale, new Map()]));
@@ -290,7 +312,7 @@ async function readCache() {
   for (let from = 0; ; from += 1000) {
     const { data, error } = await supabase
       .from("translations")
-      .select("source, translated, locale, provider")
+      .select("source, translated, locale, provider, updated_at")
       .in("locale", LOCALES)
       .order("source_hash", { ascending: true })
       .range(from, from + 999);
@@ -308,6 +330,10 @@ async function readCache() {
       if (row.provider !== "gemini" && row.provider !== "azure") {
         pinned.add(pinKey(row.locale, row.source));
       }
+      if (since !== null && Date.parse(row.updated_at) >= since) {
+        /* Already carries the current wording. Nothing to redo. */
+        fresh.add(pinKey(row.locale, row.source));
+      }
     }
     if (data.length < 1000) break;
   }
@@ -322,12 +348,14 @@ for (const locale of LOCALES) {
   const have = cached.get(locale);
   for (const text of all) {
     if (pinned.has(pinKey(locale, text))) continue;
+    if (fresh.has(pinKey(locale, text))) continue;
     if (retranslate || !have.has(text)) todo.push({ locale, text });
   }
 }
 
 const newCharacters = todo.reduce((sum, item) => sum + item.text.length, 0);
 console.log(`   cached   ${[...cached.values()].reduce((n, m) => n + m.size, 0).toLocaleString()}`);
+if (fresh.size) console.log(`   fresh    ${fresh.size.toLocaleString()} newer than --since, skipped`);
 if (pinned.size) console.log(`   pinned   ${pinned.size.toLocaleString()} corrected by hand, left alone`);
 console.log(`   to send  ${todo.length.toLocaleString()} (${newCharacters.toLocaleString()} characters)`);
 

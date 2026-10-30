@@ -27,8 +27,21 @@ name: Translate backlog
 
 on:
   schedule:
-    # 00:30 UTC = 06:00 IST, half an hour after the Gemini daily quota resets.
-    - cron: "30 0 * * *"
+    # 08:30 UTC = 14:00 IST.
+    #
+    # This was 00:30 UTC, on the assumption that the Gemini day turns over at
+    # UTC midnight. It does not: Google resets requests-per-day at midnight
+    # PACIFIC time, which is 07:00 UTC on daylight time and 08:00 UTC on
+    # standard time. So the job fired six and a half hours BEFORE the quota
+    # came back, spent a build finding the same exhausted quota, and deployed
+    # the same pages again.
+    #
+    # Measured, not assumed: a run at 06:30 UTC got one request through and was
+    # told "retry in 1h", which puts the boundary at 07:00 UTC.
+    #
+    # 08:30 clears both, so the time does not need revisiting twice a year when
+    # American clocks move.
+    - cron: "30 8 * * *"
   # So it can be run by hand from the Actions tab without waiting for tomorrow.
   workflow_dispatch:
 

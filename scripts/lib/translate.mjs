@@ -26,25 +26,27 @@ export const LOCALE_NAMES = { mr: "Marathi", hi: "Hindi" };
  * the rest of the sentence is in.
  */
 export const DO_NOT_TRANSLATE = [
+  /* The brand, and the codes that identify a specific bag.
+   *
+   * This list used to carry the full descriptive product names too — Gypsum
+   * Plaster One Coat, Imported Gypsum Plaster, Gypsum Master Plaster — on the
+   * reasoning that a dealer would not recognise जिप्सम प्लास्टर वन कोट. The
+   * effect on the page was the opposite of the intent: a reader who had chosen
+   * Marathi saw a grid of English headings over Marathi descriptions, which
+   * reads as a half-finished translation rather than as a product name.
+   *
+   * So what stays in Latin script is now only what a reader could not match to
+   * the bag any other way: the maker's name, the alphanumeric codes, and the
+   * acronyms. A descriptive name transliterates into Devanagari and stays
+   * recognisable, because it is the same sounds in the same order. */
+  "Buildon Plasters",
   "Buildon",
   "Bondit-151",
-  "Bondit Plaster Bond+",
-  "Gypsum Plaster One Coat",
-  "Imported Gypsum Plaster",
-  "Gypsum Master Plaster",
-  "Gypsum Plaster Perlite One-Coat Super 200",
-  "Gypsum Plaster Vermiculite",
-  "Classic Gypsum Plaster",
-  "Buildon P-20 Ready Mix Plaster",
+  "Bondit",
   "P-20",
   "POP",
   "ISO",
   "IGBC",
-  "Plaster of Paris",
-  /* The company as it is written on the bags and in the footer. Without it
-     "Plasters" reads as an ordinary noun and comes back translated, so the
-     company's own name changes language halfway down the page. */
-  "Buildon Plasters",
   /* Social networks are brand names, not words. यूट्यूब helps nobody find the
      channel. */
   "Facebook",
