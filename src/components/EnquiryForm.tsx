@@ -2,7 +2,12 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { contact, productCatalogue, site } from "@/lib/content";
-import { branchesFor, nearestBranch, OTHER_BRANCH } from "@/lib/branches";
+import {
+  branchesFor,
+  DEFAULT_MIN_TONS,
+  nearestBranch,
+  OTHER_BRANCH,
+} from "@/lib/branches";
 import { submitEnquiry } from "@/lib/cms/enquiries";
 import { listPublicBranches } from "@/lib/cms/places";
 import type { Place } from "@/lib/cms/leads";
@@ -472,6 +477,12 @@ export default function EnquiryForm({
             label={t.labels.quantity}
             placeholder={t.placeholders.quantity}
             type="number"
+            /* Filled in with the branch's minimum, and refilled when the
+               branch changes — which does overwrite a number already typed.
+               That is the right way round: the figure is only right for one
+               branch, so carrying it to another would quietly make it wrong,
+               and the box is one tap from being edited. */
+            defaultValue={chosenBranch ? String(minimum ?? DEFAULT_MIN_TONS) : undefined}
             /* Said rather than enforced. A visitor asking for less than a
                lorry is still worth talking to — the branch may combine it
                with another order — so this tells them what to expect instead
@@ -625,6 +636,12 @@ function Filled({
             : {})}
           autoComplete={autoComplete}
           placeholder={placeholder}
+          /* key, for the same reason the select above has one: an
+             uncontrolled input keeps the value it was first given, so without
+             a remount the tonnage would stay on the first branch's minimum
+             however many times the branch changed. */
+          key={defaultValue ?? ""}
+          defaultValue={defaultValue}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
           className={box}

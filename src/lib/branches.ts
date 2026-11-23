@@ -205,6 +205,16 @@ export const BRANCHES: readonly Branch[] = [
  */
 export const OTHER_BRANCH = "Other / not listed";
 
+/**
+ * What to put in the tonnage box when no branch's minimum applies.
+ *
+ * Which is "Other / not listed" and nothing else. Thirty is the minimum every
+ * branch outside the three western ones asks for, so it is the right thing to
+ * show somebody whose city has no depot: whoever ends up supplying them is
+ * most likely working to this number.
+ */
+export const DEFAULT_MIN_TONS = 30;
+
 /** The branches that carry a product, by its slug. Empty when none do. */
 export function branchesFor(slug: string | undefined): readonly Branch[] {
   if (!slug) return [];
