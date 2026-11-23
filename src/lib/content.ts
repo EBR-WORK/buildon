@@ -390,7 +390,7 @@ export const contact = {
     enquiryType: "Select…",
     product: "Select a product…",
     branch: "Select a branch…",
-    quantity: "20",
+    quantity: "30",
     message: "Message",
   },
 } as const;

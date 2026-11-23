@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { contact, site } from "@/lib/content";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { contact, productCatalogue, site } from "@/lib/content";
+import { branchesFor, nearestBranch, OTHER_BRANCH } from "@/lib/branches";
 import { submitEnquiry } from "@/lib/cms/enquiries";
 import { listPublicBranches } from "@/lib/cms/places";
 import type { Place } from "@/lib/cms/leads";
@@ -90,22 +91,71 @@ export default function EnquiryForm({
      one has to be known while the form is still being filled in. */
   const [product, setProduct] = useState(defaultProduct ?? "");
 
-  /* The branches, fetched the moment a product is chosen rather than on every
-     page load. Two reasons, and the second is the one that matters: nobody who
-     never opens a form should cost a request, and this site has already had a
-     month's egress spent by something that polled a table it did not need. */
-  const [branches, setBranches] = useState<Place[]>([]);
+  /* Which branches can actually supply the chosen product.
+   *
+     Not every depot stocks every bag — Perlite Super 200 ships from Delhi and
+     nowhere else — so offering all eleven would invite an enquiry that has to
+     be turned down afterwards. The list narrows to what the answer already
+     given makes possible, and "Other / not listed" is always on the end for a
+     city with no depot.
+
+     Memoised on the slug, not recomputed per render: branchesFor returns a new
+     array every call, and an effect that depends on one of those runs forever. */
+  const slug = productCatalogue.find((item) => item.name === product)?.slug;
+  const branches = useMemo(() => branchesFor(slug), [slug]);
+
+  /* Which one to offer first, from where the visitor appears to be.
+   *
+     A preselection, not an answer: an IP address can be a city away on a
+     mobile network and a country away on a VPN, and the dropdown is right
+     there. The lookup is the one warmPlace() started when the form appeared,
+     so this usually reads a value that has already arrived. */
+  const [guess, setGuess] = useState("");
 
   useEffect(() => {
-    if (!product || branches.length > 0) return;
+    if (!branches.length) return;
     let live = true;
-    listPublicBranches().then((rows) => {
-      if (live) setBranches(rows);
+    lookupPlace().then((place) => {
+      const near = nearestBranch(branches, place);
+      if (live && near) setGuess(near.name);
     });
     return () => {
       live = false;
     };
-  }, [product, branches.length]);
+  }, [branches]);
+
+  /* What the visitor picked, when they picked. Kept because the minimum
+     printed under the tonnage box depends on which branch is showing. */
+  const [branch, setBranch] = useState("");
+
+  /* Both are dropped when they are not on offer any more. Changing the product
+     changes the list, and a branch chosen for the old one — or guessed before
+     it — would otherwise stay on screen under a select that no longer has it,
+     taking its minimum with it. */
+  const offered = (name: string) =>
+    name === OTHER_BRANCH || branches.some((item) => item.name === name);
+  const guessed = offered(guess) ? guess : "";
+  const chosenBranch = offered(branch) ? branch : guessed;
+  const minimum = branches.find((item) => item.name === chosenBranch)?.minTons;
+
+  /* The branches an enquiry can be ASSIGNED to, which is the places table and
+     not the list above: that one is every depot and what it stocks, this one
+     is the handful somebody in the admin panel created to route leads by.
+     Fetched when a product is chosen rather than on page load — nobody who
+     never opens a form should cost a request, and this project has already had
+     a month's egress spent by a poll it did not need. */
+  const [places, setPlaces] = useState<Place[]>([]);
+
+  useEffect(() => {
+    if (!product || places.length > 0) return;
+    let live = true;
+    listPublicBranches().then((rows) => {
+      if (live) setPlaces(rows);
+    });
+    return () => {
+      live = false;
+    };
+  }, [product, places.length]);
 
   /* Started when the form appears, read when it is sent. Doing it at submit
      would put a third-party request between pressing the button and the
@@ -225,10 +275,13 @@ export default function EnquiryForm({
       enquiryType: String(data.get("enquiryType") ?? ""),
       product: String(data.get("product") ?? ""),
       quantity,
-      /* By name, because that is what the select holds. The list came from the
-         table a moment ago, so a name that is not in it is a branch switched
-         off mid-visit — left unset rather than guessed at. */
-      placeId: branches.find((place) => place.name === String(data.get("branch") ?? ""))?.id,
+      /* The branch the visitor chose, matched by name against the places
+         table — which is a different list, deliberately: this one is every
+         depot and what it stocks, that one is the branches somebody can be
+         assigned to. A name in both routes the lead; a name in only this one
+         (or "Other / not listed") leaves place_id unset, and the branch is
+         still in the email either way. */
+      placeId: places.find((place) => place.name === String(data.get("branch") ?? ""))?.id,
       city: place?.city,
       country: place?.country,
       source: origin,
@@ -399,16 +452,18 @@ export default function EnquiryForm({
           that is when it appears. */}
       {product && (
         <div className="gap-x-5 sm:grid sm:grid-cols-2">
-          {/* Only when there are branches to offer. A dropdown with one empty
-              option asks a question the visitor cannot answer, and the branch
-              is the one field here staff can still fill in afterwards. */}
+          {/* No branch question for "Not sure — please advise": nothing is
+              being supplied yet, so there is no depot to name and no minimum
+              to meet. The tonnage still stands on its own. */}
           {branches.length > 0 && (
             <Filled
               name="branch"
               idPrefix={idPrefix}
               label={t.labels.branch}
               placeholder={t.placeholders.branch}
-              options={branches.map((place) => place.name)}
+              options={[...branches.map((item) => item.name), OTHER_BRANCH]}
+              defaultValue={guessed}
+              onChange={setBranch}
             />
           )}
           <Filled
@@ -417,6 +472,17 @@ export default function EnquiryForm({
             label={t.labels.quantity}
             placeholder={t.placeholders.quantity}
             type="number"
+            /* Said rather than enforced. A visitor asking for less than a
+               lorry is still worth talking to — the branch may combine it
+               with another order — so this tells them what to expect instead
+               of refusing the number. */
+            hint={
+              minimum
+                ? t.minimumOrder
+                    .replace("{branch}", chosenBranch)
+                    .replace("{tons}", String(minimum))
+                : undefined
+            }
           />
         </div>
       )}
@@ -458,6 +524,7 @@ function Filled({
   options,
   defaultValue,
   onChange,
+  hint,
 }: {
   name: string;
   idPrefix?: string;
@@ -465,6 +532,8 @@ function Filled({
   placeholder?: string;
   type?: string;
   error?: string;
+  /** A quiet line under the field. Not a validation message — see `error`. */
+  hint?: string;
   autoComplete?: string;
   multiline?: boolean;
   /** Present for a select; the placeholder becomes its empty first option. */
@@ -565,6 +634,15 @@ function Filled({
       {error && (
         <p id={errorId} role="alert" className="mt-1 text-sm font-medium text-signal-500">
           {error}
+        </p>
+      )}
+
+      {/* aria-live, because this appears and changes while the field is being
+          filled in — a screen reader that announced it only on focus would
+          read the minimum for whichever branch was chosen first. */}
+      {hint && !error && (
+        <p aria-live="polite" className="mt-1 text-sm text-ink-500">
+          {hint}
         </p>
       )}
     </div>

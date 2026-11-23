@@ -25,7 +25,26 @@
  * decides anything on its own.
  */
 
-export type Place = { city: string; country: string };
+export type Place = {
+  city: string;
+  country: string;
+  /**
+   * Where the lookup put them, when it said.
+   *
+   * Only ever used to decide which branch to OFFER first — see
+   * nearestBranch() — never stored and never shown. Both services return it
+   * beside the city for free, so asking for it costs nothing; one of them may
+   * still leave it out, hence optional.
+   */
+  lat?: number;
+  lon?: number;
+};
+
+/** A field that is a number and not NaN, or undefined. Services send both. */
+const num = (value: unknown) => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+};
 
 const KEY = "buildon:geo";
 
@@ -43,13 +62,17 @@ const SOURCES = [
     read: (data: Record<string, unknown>) => ({
       city: String(data.city ?? ""),
       country: String(data.country ?? ""),
+      lat: num(data.latitude),
+      lon: num(data.longitude),
     }),
   },
   {
-    url: "https://ipwho.is/?fields=city,country",
+    url: "https://ipwho.is/?fields=city,country,latitude,longitude",
     read: (data: Record<string, unknown>) => ({
       city: String(data.city ?? ""),
       country: String(data.country ?? ""),
+      lat: num(data.latitude),
+      lon: num(data.longitude),
     }),
   },
 ];

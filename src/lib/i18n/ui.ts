@@ -99,7 +99,7 @@ export const en = {
       enquiryType: "Select…",
       product: "Select a product…",
       branch: "Select a branch…",
-      quantity: "20",
+      quantity: "30",
       message: "Message",
     },
     /* Who is asking. Translated, unlike the product names: a homeowner and a
@@ -114,6 +114,10 @@ export const en = {
       "Consultant",
       "Other",
     ],
+    /* {branch} and {tons} are filled in at render. One sentence rather than
+       pieces joined in code, because word order is exactly what differs
+       between the three languages here. */
+    minimumOrder: "Minimum order in {branch}: {tons} tons",
     submit: "Submit",
     sending: "Sending…",
     errors: {
@@ -268,7 +272,7 @@ export const mr: DeepPartial<Dictionary> = {
       enquiryType: "निवडा…",
       product: "उत्पादन निवडा…",
       branch: "शाखा निवडा…",
-      quantity: "20",
+      quantity: "30",
       message: "संदेश",
     },
     types: [
@@ -281,6 +285,7 @@ export const mr: DeepPartial<Dictionary> = {
       "सल्लागार",
       "इतर",
     ],
+    minimumOrder: "{branch} मध्ये किमान ऑर्डर: {tons} टन",
     submit: "पाठवा",
     sending: "पाठवत आहे…",
     errors: {
@@ -411,7 +416,7 @@ export const hi: DeepPartial<Dictionary> = {
       enquiryType: "चुनें…",
       product: "उत्पाद चुनें…",
       branch: "शाखा चुनें…",
-      quantity: "20",
+      quantity: "30",
       message: "संदेश",
     },
     types: [
@@ -424,6 +429,7 @@ export const hi: DeepPartial<Dictionary> = {
       "सलाहकार",
       "अन्य",
     ],
+    minimumOrder: "{branch} में न्यूनतम ऑर्डर: {tons} टन",
     submit: "भेजें",
     sending: "भेजा जा रहा है…",
     errors: {
