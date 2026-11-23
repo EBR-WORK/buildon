@@ -183,18 +183,24 @@ export default function Products({
                     className="object-cover"
                   />
 
-                  {/* The wash: a tenth of near-black at rest, four fifths of
-                      the brand colour on hover. */}
+                  {/* The wash: a tenth of near-black at rest, three fifths of
+                      it on hover.
+
+                      It used to go brand blue, which flooded the card and took
+                      the photograph with it — a blue rectangle with a name on
+                      it, where the point of the card is the bag. Darkening the
+                      same near-black deepens the picture instead of replacing
+                      it, and the white type gains contrast either way. */}
                   <div
                     aria-hidden
-                    className="absolute inset-0 bg-ink-900/10 transition-colors duration-500 ease-in-out group-hover:bg-brand-500/80"
+                    className="absolute inset-0 bg-ink-900/10 transition-colors duration-500 ease-in-out group-hover:bg-ink-900/60"
                   />
 
                   {/* The reference's photographs are dark enough to carry white
                       type under a 10% wash. These are not: every one is a white
                       bag on a pale background, so the resting name was white on
                       white. A gradient across the lower half fixes that, and
-                      fades out on hover once the brand wash takes over. */}
+                      fades out on hover once the darker wash takes over. */}
                   <div
                     aria-hidden
                     className="absolute inset-x-0 bottom-0 h-3/5 bg-linear-to-t from-ink-900/80 via-ink-900/45 to-transparent transition-opacity duration-500 ease-in-out group-hover:opacity-0"

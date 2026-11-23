@@ -13,9 +13,40 @@
 
 import { createHash } from "node:crypto";
 
-export const LOCALES = ["mr", "hi"];
+export const LOCALES = ["mr", "hi", "te", "kn"];
 
-export const LOCALE_NAMES = { mr: "Marathi", hi: "Hindi" };
+export const LOCALE_NAMES = {
+  mr: "Marathi",
+  hi: "Hindi",
+  te: "Telugu",
+  kn: "Kannada",
+};
+
+/**
+ * The script each language is written in, named for the model.
+ *
+ * This used to be the word "Devanagari", written into the prompt four times,
+ * which was true while the only languages were Marathi and Hindi and became a
+ * lie the moment Telugu was added — a model told to write Telugu "in
+ * Devanagari script" does something, and what it does is not Telugu.
+ */
+export const SCRIPTS = {
+  mr: "Devanagari",
+  hi: "Devanagari",
+  te: "Telugu",
+  kn: "Kannada",
+};
+
+/**
+ * Where each script lives in Unicode, for telling "already translated" from
+ * "still English" without asking the model.
+ */
+export const SCRIPT_RANGES = {
+  mr: /[ऀ-ॿ]/,
+  hi: /[ऀ-ॿ]/,
+  te: /[ఀ-౿]/,
+  kn: /[ಀ-೿]/,
+};
 
 /**
  * Words a machine must not touch.
@@ -66,8 +97,27 @@ const BACKSLASH = String.fromCharCode(92);
  */
 export const UNITS = [
   "mm", "cm", "m", "sq", "ft", "kg", "g", "ml", "l", "hrs", "hr", "min",
-  "am", "pm", "ac", "ph", "no", "nos", "gsm", "scm",
+  "am", "pm", "ac", "ph", "no", "nos", "gsm", "scm", "kb", "mb", "gb",
 ];
+
+/**
+ * Initialisms that stay in Latin whatever the page is written in.
+ *
+ * Qualifications, mostly: a careers page asking for a B.E. or an M.B.A. is
+ * naming a degree certificate, and a transliteration of it matches nothing a
+ * candidate can put on a form.
+ *
+ * Matched CASE-SENSITIVELY, and that is the whole point of the separate list.
+ * DO_NOT_TRANSLATE is matched with /i, so putting "BE" in there would strip
+ * the word "be" out of every English sentence on the site and hide every real
+ * leak behind it — which is the exact failure this checker was rewritten to
+ * stop once before.
+ */
+export const ACRONYMS = new Set([
+  "SSLC", "PUC", "ITI", "BE", "BTech", "ME", "MTech",
+  "BCA", "MCA", "BBA", "MBA", "BSc", "MSc", "BA", "MA", "BCom", "MCom",
+  "PhD", "CA", "CS",
+]);
 
 const ALLOWED = new Set(UNITS.map((word) => word.toLowerCase()));
 
@@ -117,7 +167,9 @@ export function latinLeftIn(text) {
     .map((match) => match[0])
     /* A lone letter is a bullet, an initial or a size — never a word. */
     .filter((word) => word.length > 1)
-    .filter((word) => !ALLOWED.has(word.toLowerCase()));
+    .filter((word) => !ALLOWED.has(word.toLowerCase()))
+    /* Exact case, so "BE" the degree is exempt and "be" the verb is not. */
+    .filter((word) => !ACRONYMS.has(word));
 }
 
 /** The cache key. Hex sha256 of the exact source, so whitespace counts. */
@@ -180,10 +232,10 @@ function geminiPrompt(locale, items) {
 
 Rules:
 - Keep these exactly as written, in Latin script: ${DO_NOT_TRANSLATE.join(", ")}. These are product and standard names; a dealer has to recognise them.
-- EVERYTHING else must be in ${LOCALE_NAMES[locale]}, in Devanagari script. Do not leave a word in English because it is technical, because Indian English says it that way, or because the translation is longer. coverage, bag, false ceiling, brand, lighting, air conditioning, workforce, compliance, dealer, distributor, market leader, project and every word like them are translated or transliterated like any other word.
-- Where the trade really does say a word in English and ${LOCALE_NAMES[locale]} has no word in everyday use, write it in Devanagari rather than Latin script: false ceiling as a Devanagari transliteration, not "false ceiling".
+- EVERYTHING else must be in ${LOCALE_NAMES[locale]}, in ${SCRIPTS[locale]} script. Do not leave a word in English because it is technical, because Indian English says it that way, or because the translation is longer. coverage, bag, false ceiling, brand, lighting, air conditioning, workforce, compliance, dealer, distributor, market leader, project and every word like them are translated or transliterated like any other word.
+- Where the trade really does say a word in English and ${LOCALE_NAMES[locale]} has no word in everyday use, write it in ${SCRIPTS[locale]} script rather than Latin: false ceiling as a ${SCRIPTS[locale]} transliteration, not "false ceiling".
 - A reader who has chosen ${LOCALE_NAMES[locale]} should see no Latin script on the page except the names listed above.
-- Write the way a builder, contractor or architect in Maharashtra actually reads — plain and direct. Not formal literary ${LOCALE_NAMES[locale]}.
+- Write the way a builder, contractor or architect who reads ${LOCALE_NAMES[locale]} actually reads — plain and direct. Not formal literary ${LOCALE_NAMES[locale]}.
 - Keep the tone of the original. Marketing copy stays marketing copy; a field label stays a label.
 - Preserve leading and trailing whitespace, and any punctuation that carries meaning (a trailing ">" or "*" or ":").
 - Do not add anything. Do not explain. Do not translate a name, an address, a phone number or an email.

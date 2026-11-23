@@ -8,9 +8,9 @@
  */
 
 import { DEFAULT_LOCALE, type Locale } from "./config";
-import { en, hi, mr, type Dictionary } from "./ui";
+import { en, hi, kn, mr, te, type Dictionary } from "./ui";
 
-const BY_LOCALE: Record<Locale, unknown> = { en, mr, hi };
+const BY_LOCALE: Record<Locale, unknown> = { en, mr, hi, te, kn };
 
 /** Deep merge of plain objects. Arrays and primitives replace wholesale. */
 function merge<T>(base: T, over: unknown): T {

@@ -76,9 +76,11 @@ export function translatable(text) {
   if (/^(https?:|mailto:|tel:|data:|#|\/)/.test(value)) return false;
   if (/^[\w.-]+\.(webp|png|jpe?g|svg|mp4|pdf|docx?|css|js)$/i.test(value)) return false;
   if (/^[a-z0-9]+(-[a-z0-9]+)+$/.test(value)) return false;
-  /* Already Devanagari: a page being re-applied, or a brand that is written
-     that way to begin with. */
-  if (/[ऀ-ॿ]/.test(value)) return false;
+  /* Already in an Indian script: a page being re-applied, or a brand that is
+     written that way to begin with. Three ranges, not one — Devanagari for
+     Marathi and Hindi, then Telugu and Kannada, each of which would otherwise
+     be collected and sent off to be translated again on every build. */
+  if (/[ऀ-ॿ]|[\u0C00-\u0C7F]|[\u0C80-\u0CFF]/.test(value)) return false;
   return true;
 }
 
@@ -521,9 +523,19 @@ function mapPayload(html, transform) {
  * being far better than a 404.
  */
 
-/* English lives at the root; these two have prefixes. Same list as
-   src/lib/i18n/config.ts, which cannot be imported from a build script. */
-const LOCALE_PREFIX = /^\/(mr|hi)(?=\/|$)/;
+/* English lives at the root; the rest have prefixes. Same list as
+   src/lib/i18n/config.ts, which cannot be imported from a build script —
+   which is exactly why it is written once here and built from, rather than
+   spelled out at each of the three places that used to need it. */
+export const PREFIXED = ["mr", "hi", "te", "kn"];
+export const LOCALE_TAGS = {
+  en: "en-IN",
+  mr: "mr-IN",
+  hi: "hi-IN",
+  te: "te-IN",
+  kn: "kn-IN",
+};
+const LOCALE_PREFIX = new RegExp(`^/(${PREFIXED.join("|")})(?=/|$)`);
 
 /* Not pages: Next's own assets, the single-language admin, and anything that
    is a file rather than a route. */
@@ -651,10 +663,10 @@ export function alternates(html, page, origin, locale = "en") {
     locale === "en" ? origin + (slug || "/") : origin + "/" + locale + slug;
 
   const links = [
-    ...["en", "mr", "hi"].map(
+    ...["en", ...PREFIXED].map(
       (locale) =>
         '<link rel="alternate" hreflang="' +
-        { en: "en-IN", mr: "mr-IN", hi: "hi-IN" }[locale] +
+        LOCALE_TAGS[locale] +
         '" href="' + href(locale) + '"/>',
     ),
     '<link rel="alternate" hreflang="x-default" href="' + href("en") + '"/>',

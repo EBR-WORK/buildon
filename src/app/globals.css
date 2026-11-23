@@ -72,8 +72,8 @@
      @font-face rules that load it sit just below @theme. The fallbacks are
      system grotesks of similar width, so text keeps roughly its shape until the
      font arrives. */
-  --font-display: "TT Hoves Pro", "Noto Sans Devanagari", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-sans: "TT Hoves Pro", "Noto Sans Devanagari", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "TT Hoves Pro", "Noto Sans Devanagari", "Noto Sans Telugu", "Noto Sans Kannada", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "TT Hoves Pro", "Noto Sans Devanagari", "Noto Sans Telugu", "Noto Sans Kannada", ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --shadow-card: 0 1px 2px rgb(22 24 29 / 0.04), 0 8px 24px -12px rgb(22 24 29 / 0.14);
   --shadow-lift: 0 2px 4px rgb(22 24 29 / 0.05), 0 24px 48px -20px rgb(22 24 29 / 0.28);
@@ -158,6 +158,39 @@
   font-display: swap;
   unicode-range: U+0900-097F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8,
     U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A;
+}
+
+/*
+  Telugu and Kannada, on the same terms.
+
+  Each has its own script and its own file, and the unicode-range keeps them
+  apart: a Marathi page asks for the Devanagari face and nothing else, a Telugu
+  page for the Telugu one. Nobody downloads a script they are not reading, and
+  an English reader still downloads none of the three.
+
+  Both ranges are Google's own subset definitions, carried over unchanged, so
+  they include the ZWJ/ZWNJ these scripts need to join conjuncts and the dotted
+  circle that shows a broken cluster rather than hiding it.
+*/
+@font-face {
+  font-family: "Noto Sans Telugu";
+  src: url("/fonts/NotoSansTelugu-subset.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0951-0952, U+0964-0965, U+0B83, U+0C00-0C7F, U+1CD5-1CD6,
+    U+1CD8, U+1CDA, U+1CF2, U+200C-200D, U+25CC;
+}
+
+@font-face {
+  font-family: "Noto Sans Kannada";
+  src: url("/fonts/NotoSansKannada-subset.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0951-0952, U+0964-0965, U+0B83, U+0C80-0CF3, U+1CD0,
+    U+1CD2-1CD3, U+1CDA, U+1CF2, U+1CF4, U+200C-200D, U+20B9, U+25CC,
+    U+A830-A835;
 }
 
 @layer base {

@@ -42,8 +42,8 @@ import {
 } from "./lib/translate.mjs";
 
 const OUT = "out";
-const LOCALES = ["mr", "hi"];
-const TAGS = { mr: "mr-IN", hi: "hi-IN" };
+const LOCALES = ["mr", "hi", "te", "kn"];
+const TAGS = { mr: "mr-IN", hi: "hi-IN", te: "te-IN", kn: "kn-IN" };
 /* Strings per request is now a property of the provider, not of this script:
    Gemini's limit is output tokens and Azure's is characters, and the two want
    different numbers. See readProviders() in lib/translate.mjs. */

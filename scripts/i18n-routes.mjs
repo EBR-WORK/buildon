@@ -30,7 +30,7 @@ import {
 import { dirname, join, relative, sep } from "node:path";
 
 const APP = "src/app";
-const LOCALES = ["mr", "hi"];
+const LOCALES = ["mr", "hi", "te", "kn"];
 
 /* Not pages of the site: the admin is one language, and the generated trees
    must not generate themselves. */
