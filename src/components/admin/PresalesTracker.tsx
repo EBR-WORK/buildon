@@ -254,8 +254,15 @@ export default function PresalesTracker() {
           </div>
 
           {/* --------------------------------------------------- tracker */}
+          {/* 78rem, not 62: the scroll was already here, but the table only
+              asked for 62rem and then spent anything less than that squeezing
+              columns rather than scrolling. "Mumbai · Get a Quote tab" broke
+              over two lines and the enquiry truncated to nothing, on a screen
+              whose whole job is reading six columns at once. Asking for the
+              width the columns actually need makes the scrollbar appear when
+              it should, which is what a scroll is for. */}
           <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-            <table className="w-full min-w-[62rem] text-sm">
+            <table className="w-full min-w-[78rem] text-sm">
               <thead className="border-b border-line bg-surface text-left text-xs font-semibold tracking-wide text-ink-500 uppercase">
                 <tr>
                   <th className="px-3 py-2.5">Lead</th>
@@ -279,7 +286,7 @@ export default function PresalesTracker() {
                   <tr key={lead.id} className="hover:bg-row-hover">
                     {/* Who it is, and where from. The company is what tells a
                         repeat buyer from a first one, and it was not here. */}
-                    <td className="px-3 py-2.5 align-top">
+                    <td className="px-3 py-2.5 align-top whitespace-nowrap">
                       <span className="block font-semibold">{lead.name}</span>
                       {lead.company && (
                         <span className="block text-xs text-ink-500">{lead.company}</span>
@@ -318,12 +325,12 @@ export default function PresalesTracker() {
                         branch and a status, and not the enquiry, is asking
                         presales to qualify something they cannot see. */}
                     <td className="px-3 py-2.5 align-top">
-                      <span className="block max-w-[16rem] truncate">
+                      <span className="block max-w-[22rem] truncate">
                         {lead.product ?? lead.enquiry_type ?? "—"}
                       </span>
                       {lead.message && (
                         <span
-                          className="mt-0.5 block max-w-[16rem] truncate text-xs text-ink-500"
+                          className="mt-0.5 block max-w-[22rem] truncate text-xs text-ink-500"
                           title={lead.message}
                         >
                           {lead.message}
@@ -334,10 +341,10 @@ export default function PresalesTracker() {
                     {/* The person, their role and their branch — not an email
                         on its own, which says who to blame and nothing about
                         whether they are the right person for this place. */}
-                    <td className="px-3 py-2.5 align-top">
+                    <td className="px-3 py-2.5 align-top whitespace-nowrap">
                       {lead.assigned_to ? (
                         <>
-                          <span className="block max-w-[14rem] truncate" title={names[lead.assigned_to]}>
+                          <span className="block max-w-[16rem] truncate" title={names[lead.assigned_to]}>
                             {names[lead.assigned_to] ?? "Unknown account"}
                           </span>
                           <span className="block text-xs text-ink-500">
@@ -353,7 +360,7 @@ export default function PresalesTracker() {
                       )}
                     </td>
 
-                    <td className="px-3 py-2.5 align-top">
+                    <td className="px-3 py-2.5 align-top whitespace-nowrap">
                       <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${TONE[lead.status]}`}>
                         {STATUS_LABEL[lead.status]}
                       </span>
@@ -500,7 +507,7 @@ export default function PresalesTracker() {
                         <td className="px-3 py-2.5 align-top">
                           {lead?.assigned_to ? (
                             <>
-                              <span className="block max-w-[14rem] truncate">
+                              <span className="block max-w-[16rem] truncate">
                                 {names[lead.assigned_to] ?? "Unknown account"}
                               </span>
                               <span className="block text-xs text-ink-500">
