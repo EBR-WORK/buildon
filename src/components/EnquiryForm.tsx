@@ -3,6 +3,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { contact, site } from "@/lib/content";
 import { submitEnquiry } from "@/lib/cms/enquiries";
+import { listPublicBranches } from "@/lib/cms/places";
+import type { Place } from "@/lib/cms/leads";
 import { keepDigits } from "@/lib/phone";
 import { lookupPlace, warmPlace } from "@/lib/geo";
 import { usePathname } from "next/navigation";
@@ -32,6 +34,7 @@ export default function EnquiryForm({
   withProduct = true,
   defaultProduct,
   source,
+  onSent,
 }: {
   className?: string;
   idPrefix?: string;
@@ -60,6 +63,15 @@ export default function EnquiryForm({
    * is asking a question they have just answered by being there.
    */
   defaultProduct?: string;
+  /**
+   * Called once the enquiry is stored, and only then.
+   *
+   * For the caller that has something to hand over in exchange for it — the
+   * catalogue gate. Deliberately not called on the mail-draft fallback below:
+   * nothing was received at that point, and a download handed out for an
+   * enquiry nobody has is the gate not being a gate.
+   */
+  onSent?: () => void;
 }) {
   const [errors, setErrors] = useState<Errors>({});
   /* The words, in the language of the page this form is standing on.
@@ -77,6 +89,23 @@ export default function EnquiryForm({
      else it asks. Everything else is read out of the FormData on submit; this
      one has to be known while the form is still being filled in. */
   const [product, setProduct] = useState(defaultProduct ?? "");
+
+  /* The branches, fetched the moment a product is chosen rather than on every
+     page load. Two reasons, and the second is the one that matters: nobody who
+     never opens a form should cost a request, and this site has already had a
+     month's egress spent by something that polled a table it did not need. */
+  const [branches, setBranches] = useState<Place[]>([]);
+
+  useEffect(() => {
+    if (!product || branches.length > 0) return;
+    let live = true;
+    listPublicBranches().then((rows) => {
+      if (live) setBranches(rows);
+    });
+    return () => {
+      live = false;
+    };
+  }, [product, branches.length]);
 
   /* Started when the form appears, read when it is sent. Doing it at submit
      would put a third-party request between pressing the button and the
@@ -196,6 +225,10 @@ export default function EnquiryForm({
       enquiryType: String(data.get("enquiryType") ?? ""),
       product: String(data.get("product") ?? ""),
       quantity,
+      /* By name, because that is what the select holds. The list came from the
+         table a moment ago, so a name that is not in it is a branch switched
+         off mid-visit — left unset rather than guessed at. */
+      placeId: branches.find((place) => place.name === String(data.get("branch") ?? ""))?.id,
       city: place?.city,
       country: place?.country,
       source: origin,
@@ -208,6 +241,7 @@ export default function EnquiryForm({
            desk would get it twice. */
         setStatus("sent");
         try {
+          onSent?.();
           form.reset();
           notifyHost(data);
         } catch {
@@ -233,7 +267,9 @@ export default function EnquiryForm({
         if (company) lines.push(`Company: ${company}`);
         if (enquiryType) lines.push(`Enquiry type: ${enquiryType}`);
         if (chosen) lines.push(`Product: ${chosen}`);
-        if (quantity) lines.push(`Quantity: ${quantity} bags`);
+        const branch = String(data.get("branch") ?? "").trim();
+        if (branch) lines.push(`Branch: ${branch}`);
+        if (quantity) lines.push(`Quantity: ${quantity} tons`);
         lines.push("", message);
 
         window.location.href = `mailto:${site.enquiryEmail}?subject=${encodeURIComponent(
@@ -362,13 +398,27 @@ export default function EnquiryForm({
           come back to. Choosing a product is what makes it a real question, so
           that is when it appears. */}
       {product && (
-        <Filled
-          name="quantity"
-          idPrefix={idPrefix}
-          label={t.labels.quantity}
-          placeholder={t.placeholders.quantity}
-          type="number"
-        />
+        <div className="gap-x-5 sm:grid sm:grid-cols-2">
+          {/* Only when there are branches to offer. A dropdown with one empty
+              option asks a question the visitor cannot answer, and the branch
+              is the one field here staff can still fill in afterwards. */}
+          {branches.length > 0 && (
+            <Filled
+              name="branch"
+              idPrefix={idPrefix}
+              label={t.labels.branch}
+              placeholder={t.placeholders.branch}
+              options={branches.map((place) => place.name)}
+            />
+          )}
+          <Filled
+            name="quantity"
+            idPrefix={idPrefix}
+            label={t.labels.quantity}
+            placeholder={t.placeholders.quantity}
+            type="number"
+          />
+        </div>
       )}
 
       <Filled

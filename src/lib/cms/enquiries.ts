@@ -47,8 +47,16 @@ export type NewEnquiry = {
   company?: string;
   enquiryType?: string;
   product?: string;
-  /** Bags. Undefined means not asked; the form only asks once a product is picked. */
+  /** Tons. Undefined means not asked; the form only asks once a product is picked. */
   quantity?: number;
+  /**
+   * The branch the visitor chose, as places.id.
+   *
+   * The same column the leads screen assigns, deliberately: it is the one
+   * question "which branch" and a lead that arrives already pointing at Pune
+   * is a lead nobody has to route. Staff can still change it, and do.
+   */
+  placeId?: number;
   /** Where the browser appeared to be. A hint, often absent — see lib/geo.ts. */
   city?: string;
   country?: string;
@@ -80,6 +88,7 @@ export async function submitEnquiry(entry: NewEnquiry) {
     enquiry_type: orNull(entry.enquiryType),
     product: orNull(entry.product),
     quantity: Number.isFinite(entry.quantity) ? entry.quantity : null,
+    place_id: Number.isFinite(entry.placeId) ? entry.placeId : null,
     city: orNull(entry.city),
     country: orNull(entry.country),
     source: orNull(entry.source),

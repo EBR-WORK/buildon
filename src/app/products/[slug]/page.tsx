@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import EnquiryForm from "@/components/EnquiryForm";
-import ProductEnquiry from "@/components/ProductEnquiry";
+import CatalogueDownload from "@/components/CatalogueDownload";
 import PageBanner from "@/components/PageBanner";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
@@ -585,21 +585,20 @@ export default async function ProductDetailPage({
               </Reveal>
             </div>
 
-            {/* The reference centres this button under the whole row. Two now,
-                so the three products with no catalogue sheet still have
-                something at the foot of the page to act on. */}
+            {/* The reference centres this button under the whole row. One
+                again: "Enquire about this" sat beside it and asked for the
+                same details the catalogue gate now asks for, one click apart,
+                which read as the page asking twice. The three products with no
+                sheet show nothing here — the enquiry form further down the
+                page is still theirs. */}
             <Reveal className="mt-10 flex flex-wrap items-center justify-center gap-3 text-center sm:mt-12 sm:gap-4">
               {product.catalogue && (
-                <a
+                <CatalogueDownload
+                  product={product.name}
                   href={product.catalogue.href}
-                  target="_blank"
-                  rel="noopener"
-                  className="inline-flex cursor-pointer items-center justify-center rounded-md bg-brand-500 px-8 py-3.5 font-display text-sm font-medium tracking-wide text-white uppercase transition hover:bg-brand-600 sm:text-[15px]"
-                >
-                  {product.catalogue.label}
-                </a>
+                  label={product.catalogue.label}
+                />
               )}
-              <ProductEnquiry product={product.name} />
             </Reveal>
           </div>
         </section>

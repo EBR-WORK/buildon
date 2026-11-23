@@ -347,7 +347,8 @@ export const contact = {
     /* Asked only once a product is chosen. "How much" has no meaning until
        there is a something to count — and the unit is in the label because the
        box takes a number and nothing else. */
-    quantity: "How Many Bags Do You Need",
+    branch: "Your Branch",
+    quantity: "How Many Tons Do You Need",
   },
   /**
    * What the quote dialog offers under Enquiry Type.
@@ -388,7 +389,8 @@ export const contact = {
     company: "Company name",
     enquiryType: "Select…",
     product: "Select a product…",
-    quantity: "500",
+    branch: "Select a branch…",
+    quantity: "20",
     message: "Message",
   },
 } as const;
@@ -1692,10 +1694,12 @@ export const chat = {
       },
       {
         /* A number, like the form asks for, because it goes into the same
-           column. Bands were easier to tap and could not be stored as one. */
+           column. Bands were easier to tap and could not be stored as one.
+           Tons since 2026-11-23, with the form — the column is shared, so the
+           two cannot disagree about the unit. */
         field: "quantity",
-        ask: "Roughly how many bags do you need? A number is fine.",
-        invalid: "Just the number of bags — or press Skip.",
+        ask: "Roughly how many tons do you need? A number is fine.",
+        invalid: "Just the number of tons — or press Skip.",
       },
       {
         field: "place",

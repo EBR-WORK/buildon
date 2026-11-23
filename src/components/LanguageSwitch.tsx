@@ -59,7 +59,15 @@ export default function LanguageSwitch({ className = "" }: { className?: string 
   }, [open]);
 
   return (
-    <div ref={box} className={`relative ${className}`}>
+    <div ref={box} className={`relative flex flex-col items-end gap-1 ${className}`}>
+      {/* Hidden below md: stacking keeps it off the control, but the line is
+          still as wide as the sentence, and on a phone the header row is the
+          logo, this and the menu button. The control itself stays visible at
+          every width — the label is the part there is not always room for. */}
+      <span className="hidden whitespace-nowrap text-xs text-ink-700 md:block">
+        Please select a language
+      </span>
+
       <button
         suppressHydrationWarning
         type="button"

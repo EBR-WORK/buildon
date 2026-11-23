@@ -1326,7 +1326,7 @@ function LeadForm({
           type="number"
           inputMode="numeric"
           min={1}
-          placeholder="How many bags (optional)"
+          placeholder="How many tons (optional)"
           value={form.quantity}
           onChange={(e) => setForm({ ...form, quantity: e.target.value })}
           className={field}

@@ -87,7 +87,8 @@ export const en = {
       company: "Company Name (if applicable)",
       enquiryType: "Enquiry Type",
       product: "Which Product",
-      quantity: "How Many Bags Do You Need",
+      branch: "Your Branch",
+      quantity: "How Many Tons Do You Need",
       message: "Type Your Enquiry",
     },
     placeholders: {
@@ -97,7 +98,8 @@ export const en = {
       company: "Company name",
       enquiryType: "Select…",
       product: "Select a product…",
-      quantity: "500",
+      branch: "Select a branch…",
+      quantity: "20",
       message: "Message",
     },
     /* Who is asking. Translated, unlike the product names: a homeowner and a
@@ -130,6 +132,17 @@ export const en = {
     failed:
       "We could not send that just now. An email is opening with your message — send it, or call us.",
   },
+  /* The catalogue gate.
+   *
+   * Here, and not in the component, for the same reason the enquiry form's
+   * labels are: the dialog is closed when the page is built, so the HTML
+   * translation pass never sees these words and a Marathi page would read
+   * them in English. */
+  catalogue: {
+    intro: "Tell us who you are and the download will begin.",
+    ready: "Your download has started.",
+    manual: "Not started? Download it here.",
+  },
   chat: {
     closeChat: "Close chat",
     /* The panel's own words. The scripted ANSWERS — what a product is, which
@@ -156,7 +169,7 @@ export const en = {
       phone: "Thanks, {name}. What number can we reach you on?",
       email: "And an email address, so we can send the quotation in writing?",
       product: "Which product is this about? Pick one, or tell me what the job is and I will pass it on.",
-      quantity: "Roughly how many bags do you need? A number is fine.",
+      quantity: "Roughly how many tons do you need? A number is fine.",
       place: "Where is the site? The city is enough.",
       timeline: "And when do you need it?",
     },
@@ -165,7 +178,7 @@ export const en = {
       phone: "That does not look like a reachable number — please include the full number.",
       email: "That does not look like an email address.",
       product: "Pick one above, or describe the job in a few words.",
-      quantity: "Just the number of bags — or press Skip.",
+      quantity: "Just the number of tons — or press Skip.",
       place: "Which city is the site in?",
     },
     notSure: "Not sure yet",
@@ -243,7 +256,8 @@ export const mr: DeepPartial<Dictionary> = {
       company: "कंपनीचे नाव (असल्यास)",
       enquiryType: "चौकशीचा प्रकार",
       product: "कोणते उत्पादन",
-      quantity: "किती बॅग हव्या आहेत",
+      branch: "तुमची शाखा",
+      quantity: "किती टन हवे आहेत",
       message: "तुमची चौकशी लिहा",
     },
     placeholders: {
@@ -253,7 +267,8 @@ export const mr: DeepPartial<Dictionary> = {
       company: "कंपनीचे नाव",
       enquiryType: "निवडा…",
       product: "उत्पादन निवडा…",
-      quantity: "500",
+      branch: "शाखा निवडा…",
+      quantity: "20",
       message: "संदेश",
     },
     types: [
@@ -284,6 +299,11 @@ export const mr: DeepPartial<Dictionary> = {
     failed:
       "हे आत्ता पाठवता आले नाही. तुमच्या संदेशासह ईमेल उघडत आहे — तो पाठवा, किंवा आम्हाला फोन करा.",
   },
+  catalogue: {
+    intro: "तुम्ही कोण आहात ते सांगा, डाउनलोड सुरू होईल.",
+    ready: "तुमचे डाउनलोड सुरू झाले आहे.",
+    manual: "सुरू झाले नाही? इथून डाउनलोड करा.",
+  },
   chat: {
     closeChat: "चॅट बंद करा",
     subtitle: "व्हर्च्युअल ग्राहक सेवा",
@@ -305,7 +325,7 @@ export const mr: DeepPartial<Dictionary> = {
       phone: "धन्यवाद, {name}. कोणत्या नंबरवर संपर्क करू?",
       email: "आणि ईमेल पत्ता, जेणेकरून कोटेशन लेखी पाठवता येईल?",
       product: "हे कोणत्या उत्पादनाबद्दल आहे? एक निवडा, किंवा काम काय आहे ते सांगा — मी पुढे कळवतो.",
-      quantity: "साधारण किती बॅग लागतील? फक्त आकडा चालेल.",
+      quantity: "साधारण किती टन लागतील? फक्त आकडा चालेल.",
       place: "साइट कुठे आहे? शहराचे नाव पुरे.",
       timeline: "आणि तुम्हाला कधी लागेल?",
     },
@@ -314,7 +334,7 @@ export const mr: DeepPartial<Dictionary> = {
       phone: "हा संपर्क होईल असा नंबर वाटत नाही — कृपया पूर्ण नंबर लिहा.",
       email: "हा ईमेल पत्ता वाटत नाही.",
       product: "वरील पैकी एक निवडा, किंवा काम दोन शब्दांत सांगा.",
-      quantity: "फक्त बॅगचा आकडा — किंवा वगळा दाबा.",
+      quantity: "फक्त टनचा आकडा — किंवा वगळा दाबा.",
       place: "साइट कोणत्या शहरात आहे?",
     },
     notSure: "अजून ठरले नाही",
@@ -379,7 +399,8 @@ export const hi: DeepPartial<Dictionary> = {
       company: "कंपनी का नाम (यदि हो)",
       enquiryType: "पूछताछ का प्रकार",
       product: "कौन सा उत्पाद",
-      quantity: "कितनी बोरियाँ चाहिए",
+      branch: "आपकी शाखा",
+      quantity: "कितने टन चाहिए",
       message: "अपनी पूछताछ लिखें",
     },
     placeholders: {
@@ -389,7 +410,8 @@ export const hi: DeepPartial<Dictionary> = {
       company: "कंपनी का नाम",
       enquiryType: "चुनें…",
       product: "उत्पाद चुनें…",
-      quantity: "500",
+      branch: "शाखा चुनें…",
+      quantity: "20",
       message: "संदेश",
     },
     types: [
@@ -420,6 +442,11 @@ export const hi: DeepPartial<Dictionary> = {
     failed:
       "यह अभी भेजा नहीं जा सका. आपके संदेश के साथ ईमेल खुल रहा है — उसे भेजें, या हमें कॉल करें.",
   },
+  catalogue: {
+    intro: "बताइए आप कौन हैं, डाउनलोड शुरू हो जाएगा.",
+    ready: "आपका डाउनलोड शुरू हो गया है.",
+    manual: "शुरू नहीं हुआ? यहाँ से डाउनलोड करें.",
+  },
   chat: {
     closeChat: "चैट बंद करें",
     subtitle: "वर्चुअल ग्राहक सेवा",
@@ -441,7 +468,7 @@ export const hi: DeepPartial<Dictionary> = {
       phone: "धन्यवाद, {name}. किस नंबर पर संपर्क करें?",
       email: "और एक ईमेल पता, ताकि कोटेशन लिखित में भेज सकें?",
       product: "यह किस उत्पाद के बारे में है? एक चुनें, या काम क्या है बताइए — मैं आगे पहुँचा दूँगा.",
-      quantity: "लगभग कितनी बोरियाँ चाहिए? सिर्फ संख्या काफी है.",
+      quantity: "लगभग कितने टन चाहिए? सिर्फ संख्या काफी है.",
       place: "साइट कहाँ है? शहर का नाम काफी है.",
       timeline: "और आपको कब चाहिए?",
     },
@@ -450,7 +477,7 @@ export const hi: DeepPartial<Dictionary> = {
       phone: "यह ऐसा नंबर नहीं लगता जिस पर संपर्क हो सके — कृपया पूरा नंबर लिखें.",
       email: "यह ईमेल पता नहीं लगता.",
       product: "ऊपर से एक चुनें, या काम को दो शब्दों में बताएँ.",
-      quantity: "सिर्फ बोरियों की संख्या — या छोड़ें दबाएँ.",
+      quantity: "सिर्फ टन की संख्या — या छोड़ें दबाएँ.",
       place: "साइट किस शहर में है?",
     },
     notSure: "अभी तय नहीं",

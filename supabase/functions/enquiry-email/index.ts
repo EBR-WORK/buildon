@@ -108,8 +108,11 @@ async function pushToOdoo(row: Enquiry) {
     company: row.company ?? "",
     enquiry_type: row.enquiry_type ?? "",
     product: row.product ?? "",
-    /* Bags. Its own field since 0025 — it used to be a line inside message,
-       which Odoo had no way to map onto anything. */
+    /* Tons since 2026-11-23, bags before it. Its own field since 0025 — it
+       used to be a line inside message, which Odoo had no way to map onto
+       anything. Rows written before the cutover were left as they were, so an
+       old lead printed by this function says "tons" about a number that meant
+       bags; see the column comment in 0029. */
     quantity: row.quantity ?? "",
     /* Where the browser appeared to be — a hint for routing, from the IP. Not
        the site address, which is a different question the chat asks in words. */
@@ -506,7 +509,7 @@ function composeAssignment(body: Assignment) {
   }
   if (lead.company) lines.push(`Company:  ${ascii(lead.company)}`);
   if (lead.product) lines.push(`Product:  ${ascii(lead.product)}`);
-  if (lead.quantity) lines.push(`Quantity: ${lead.quantity} bags`);
+  if (lead.quantity) lines.push(`Quantity: ${lead.quantity} tons`);
   if (lead.city) lines.push(`Sent from: ${ascii(lead.city)}`);
   if (lead.enquiry_type) lines.push(`Type:     ${ascii(lead.enquiry_type)}`);
   if (lead.source) lines.push(`Source:   ${ascii(lead.source)}`);

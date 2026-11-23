@@ -81,7 +81,7 @@ const isOptional = (step: Step) =>
   step.field !== "phone" && step.field !== "email" && !("min" in step && step.min);
 
 /** The typed quantity as a number, or undefined when it was skipped. */
-const bags = (value: string | undefined) => {
+const tons = (value: string | undefined) => {
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? n : undefined;
 };
@@ -90,7 +90,7 @@ function accepts(step: Step, text: string) {
   if (step.field === "phone") return isReachable(text);
   if (step.field === "email") return looksLikeEmail(text);
   /* Skipping is still allowed; what is refused is "a few" and "lots". */
-  if (step.field === "quantity") return bags(text.trim()) !== undefined;
+  if (step.field === "quantity") return tons(text.trim()) !== undefined;
   const min = "min" in step && step.min ? step.min : 0;
   return text.trim().length >= min;
 }
@@ -340,7 +340,7 @@ export default function ChatWidget({
       phone: answers.phone,
       message,
       product: answers.product === "Not sure yet" ? "" : answers.product,
-      quantity: bags(answers.quantity),
+      quantity: tons(answers.quantity),
       enquiryType: "Chat assistant",
       city: place?.city,
       country: place?.country,

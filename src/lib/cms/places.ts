@@ -121,3 +121,29 @@ export async function placeUsage(): Promise<Record<number, { leads: number; staf
   for (const row of staff.data ?? []) bump(row.place_id, "staff");
   return usage;
 }
+
+/**
+ * The branches a visitor may choose, for the enquiry form.
+ *
+ * Active only, and only id and name — which is every column the table has
+ * besides the flag. Readable with the publishable key since 0029; before that
+ * this returned 200 and an empty array, which is RLS working as written and a
+ * dropdown with nothing in it.
+ *
+ * Returns [] rather than throwing. A branch is one field on a form, and a form
+ * that will not open because a list did not load is worse than a form with one
+ * question missing — the enquiry is the thing that matters, and staff can set
+ * the branch afterwards as they always have.
+ */
+export async function listPublicBranches(): Promise<Place[]> {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("places")
+    .select("id, name, active")
+    .eq("active", true)
+    .order("name");
+
+  if (error) return [];
+  return (data ?? []) as Place[];
+}
