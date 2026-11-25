@@ -59,7 +59,7 @@ export default function LanguageSwitch({ className = "" }: { className?: string 
   }, [open]);
 
   return (
-    <div ref={box} className={`relative flex flex-col items-end gap-1 ${className}`}>
+    <div ref={box} className={`relative flex flex-col items-center gap-1 ${className}`}>
       {/* Hidden below md: stacking keeps it off the control, but the line is
           still as wide as the sentence, and on a phone the header row is the
           logo, this and the menu button. The control itself stays visible at
@@ -84,7 +84,12 @@ export default function LanguageSwitch({ className = "" }: { className?: string 
       {open && (
         <ul
           role="menu"
-          className="absolute right-0 z-50 mt-1 min-w-[8rem] overflow-hidden rounded-xl border border-line bg-white py-1 shadow-lift"
+          /* Centred on the control rather than pinned to the column's right
+             edge. The column is as wide as the label above it, and that label
+             is a different width in each of the five languages — right-0 put
+             the menu under the button in English by coincidence and would
+             have slid it sideways on the others. */
+          className="absolute top-full left-1/2 z-50 mt-1 min-w-[8rem] -translate-x-1/2 overflow-hidden rounded-xl border border-line bg-white py-1 shadow-lift"
         >
           {LOCALES.map((locale: Locale) => (
             <li key={locale} role="none">
